@@ -132,5 +132,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-Log.Information("PensionVault API starting on {Url}", "https://localhost:7001");
+var urls = app.Configuration["ASPNETCORE_URLS"] ?? builder.Configuration["applicationUrl"] ?? "https://localhost:7001;http://localhost:5000";
+Log.Information("PensionVault API starting on {Url}", urls);
 app.Run();
