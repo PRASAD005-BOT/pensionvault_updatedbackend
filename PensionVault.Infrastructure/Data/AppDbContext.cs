@@ -39,7 +39,7 @@ public class AppDbContext : DbContext, PensionVault.Application.Services.IAppDbC
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.Name).HasMaxLength(150).IsRequired();
             e.Property(x => x.Email).HasMaxLength(200).IsRequired();
-            e.Property(x => x.Phone).HasMaxLength(20);
+            e.Property(x => x.Phone).HasMaxLength(20).IsRequired();
             e.Property(x => x.PasswordHash).HasMaxLength(500).IsRequired();
         });
 

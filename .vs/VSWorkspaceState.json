@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\PensionVault.API\\Properties",
+    "\\PensionVault.Application\\DTOs",
+    "\\PensionVault.Application\\DTOs\\Annuity",
+    "\\PensionVault.Application\\DTOs\\Auth",
+    "\\PensionVault.Application\\obj",
+    "\\PensionVault.Domain",
+    "\\PensionVault.Domain\\Entities",
+    "\\PensionVault.Infrastructure",
+    "\\PensionVault.Infrastructure\\Seeders"
+  ],
+  "SelectedNode": "\\PensionVault.Domain\\Entities\\Employer.cs",
+  "PreviewInSolutionExplorer": false
+}

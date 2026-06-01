@@ -45,11 +45,28 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
+        // ── Validation: Phone Number ────────────────────────────────────────
+        if (string.IsNullOrWhiteSpace(request.Phone))
+            throw new ArgumentException("Phone number is required.");
+
+        if (request.Phone.Length < 10 || request.Phone.Length > 20)
+            throw new ArgumentException("Phone number must be between 10 and 20 characters.");
+
+        // ── Validation: Email ────────────────────────────────────────────────
         if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             throw new InvalidOperationException("Email already registered.");
 
+        // ── Validation: Role ─────────────────────────────────────────────────
         if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
             throw new ArgumentException("Invalid role specified.");
+
+        // ── Validation: OrganisationId based on Role ─────────────────────────
+        var rolesRequiringOrganisation = new[] { UserRole.Member, UserRole.Employer };
+        if (rolesRequiringOrganisation.Contains(role) && request.OrganisationId == null)
+            throw new ArgumentException($"OrganisationId is required for {role} role.");
+
+        if (!rolesRequiringOrganisation.Contains(role) && request.OrganisationId != null)
+            throw new ArgumentException($"OrganisationId should not be provided for {role} role.");
 
         var user = new User
         {

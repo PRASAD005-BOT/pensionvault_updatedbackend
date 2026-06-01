@@ -34,3 +34,12 @@
 2026-05-31 10:45:35.026 +05:30 [INF] HTTP GET /swagger/favicon-32x32.png responded 200 in 0.4518 ms
 2026-05-31 10:45:59.715 +05:30 [INF] HTTP GET / responded 404 in 194.2023 ms
 2026-05-31 10:47:37.796 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 2051.8286 ms
+2026-05-31 11:03:31.371 +05:30 [INF] PensionVault API starting on http://localhost:5000;https://localhost:7001
+2026-05-31 11:03:48.255 +05:30 [INF] HTTP GET /swagger/index.html responded 200 in 178.6496 ms
+2026-05-31 11:03:48.300 +05:30 [INF] HTTP GET /swagger/index.js responded 200 in 5.0414 ms
+2026-05-31 11:03:48.919 +05:30 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 394.5405 ms
+2026-05-31 12:01:13.952 +05:30 [INF] PensionVault API starting on http://localhost:5000;https://localhost:7001
+2026-05-31 12:01:16.612 +05:30 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 668.6688 ms
+2026-05-31 12:05:33.442 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 1655.1710 ms
+2026-05-31 12:07:15.299 +05:30 [INF] HTTP POST /api/employers responded 400 in 271.7743 ms
+2026-05-31 12:08:13.755 +05:30 [INF] HTTP POST /api/employers responded 201 in 434.4988 ms
