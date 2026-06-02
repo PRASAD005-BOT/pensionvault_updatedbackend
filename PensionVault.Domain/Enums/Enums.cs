@@ -18,8 +18,8 @@ public enum ClaimStatus { Submitted, UnderReview, Approved, Rejected, Disbursed 
 public enum DisbursementStatus { Pending, Processed, Failed }
 public enum AssetClass { GovernmentSecurities, CorporateBonds, Equity, FixedDeposit, MoneyMarket }
 public enum CorpusStatus { Draft, Finalised }
-public enum AnnuityPlanType { LifeAnnuity, JointAnnuity, TemporaryAnnuity, GuaranteedAnnuity }
+public enum AnnuityPlanType { LifeAnnuity, JointAnnuity, TemporaryAnnuity, GuaranteedAnnuity, WithReturn, LifeWithHeirs }
 public enum AnnuityStatus { Active, Suspended, Lapsed, Settled }
 public enum PensionDisbursementStatus { Pending, Disbursed, Failed }
-public enum NotificationCategory { Contribution, Interest, Claim, Annuity, Compliance, Investment }
+public enum NotificationCategory { Contribution, Interest, Claim, Annuity, Compliance, Investment, Alert }
 public enum NotificationStatus { Unread, Read, Dismissed }

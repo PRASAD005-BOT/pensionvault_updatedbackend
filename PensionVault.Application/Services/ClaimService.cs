@@ -14,6 +14,8 @@ public interface IClaimService
     Task<ClaimResponse> ApproveClaimAsync(Guid claimId, Guid processedById);
     Task<ClaimResponse> RejectClaimAsync(Guid claimId, Guid processedById);
     Task<DisbursementResponse> DisburseClaimAsync(Guid claimId, DisburseClaimRequest request);
+    Task<ClaimResponse> SubmitPartialWithdrawalAsync(PartialWithdrawalRequest request);
+    Task<DisbursementResponse> DisbursePartialWithdrawalAsync(Guid claimId, PartialWithdrawalDisbursementRequest request);
 }
 
 public class ClaimService : IClaimService
@@ -131,6 +133,85 @@ public class ClaimService : IClaimService
         claim.ProcessedById = processedById;
         await _context.SaveChangesAsync();
         return await GetClaimAsync(claimId);
+    }
+
+    public async Task<ClaimResponse> SubmitPartialWithdrawalAsync(PartialWithdrawalRequest request)
+    {
+        var member = await _context.Members.FindAsync(request.MemberId)
+            ?? throw new KeyNotFoundException("Member not found.");
+
+        var account = await _context.FundAccounts
+            .FirstOrDefaultAsync(a => a.MemberId == request.MemberId && a.Status == FundAccountStatus.Active)
+            ?? throw new InvalidOperationException("No active fund account found.");
+
+        // Validate withdrawal amount is reasonable (not more than 50% of vested amount)
+        var vestedAmount = Math.Round(account.TotalBalance * (account.VestingPercent / 100), 2);
+        if (request.WithdrawalAmount > vestedAmount * 0.5m)
+            throw new InvalidOperationException("Partial withdrawal amount cannot exceed 50% of vested amount.");
+
+        var claim = new BenefitClaim
+        {
+            MemberId = request.MemberId,
+            ClaimType = ClaimType.PartialWithdrawal,
+            ClaimDate = DateTime.UtcNow,
+            EligibleAmount = request.WithdrawalAmount,
+            VestedAmount = vestedAmount,
+            TaxDeductible = Math.Round(request.WithdrawalAmount * 0.10m, 2), // 10% TDS
+            Status = ClaimStatus.Submitted
+        };
+        _context.BenefitClaims.Add(claim);
+        await _context.SaveChangesAsync();
+        return await GetClaimAsync(claim.ClaimId);
+    }
+
+    public async Task<DisbursementResponse> DisbursePartialWithdrawalAsync(Guid claimId, PartialWithdrawalDisbursementRequest request)
+    {
+        var claim = await _context.BenefitClaims.FindAsync(claimId)
+            ?? throw new KeyNotFoundException("Claim not found.");
+        
+        if (claim.ClaimType != ClaimType.PartialWithdrawal)
+            throw new InvalidOperationException("This claim is not a partial withdrawal.");
+        
+        if (claim.Status != ClaimStatus.Approved)
+            throw new InvalidOperationException("Claim must be approved before disbursement.");
+
+        var disbursement = new ClaimDisbursement
+        {
+            ClaimId = claimId,
+            MemberId = claim.MemberId,
+            DisbursedAmount = request.DisbursedAmount,
+            TaxDeducted = request.TaxDeducted,
+            NetAmount = request.DisbursedAmount - request.TaxDeducted,
+            BankAccountRef = request.BankAccountRef,
+            DisbursedDate = DateTime.UtcNow,
+            Status = DisbursementStatus.Processed
+        };
+        _context.ClaimDisbursements.Add(disbursement);
+        claim.Status = ClaimStatus.Disbursed;
+
+        // Debit ledger with partial withdrawal entry type
+        var account = await _context.FundAccounts
+            .FirstOrDefaultAsync(a => a.MemberId == claim.MemberId && a.Status == FundAccountStatus.Active);
+        if (account != null)
+        {
+            account.TotalBalance -= disbursement.NetAmount;
+            _context.LedgerEntries.Add(new LedgerEntry
+            {
+                AccountId = account.AccountId,
+                EntryType = EntryType.PartialWithdrawal,
+                Amount = disbursement.NetAmount,
+                BalanceAfter = account.TotalBalance,
+                ReferenceId = claimId.ToString(),
+                Status = LedgerEntryStatus.Posted
+            });
+        }
+
+        await _context.SaveChangesAsync();
+        return new DisbursementResponse(
+            disbursement.DisbursementId, disbursement.ClaimId,
+            disbursement.DisbursedAmount, disbursement.TaxDeducted,
+            disbursement.NetAmount, disbursement.BankAccountRef,
+            disbursement.DisbursedDate, disbursement.Status);
     }
 
     private static ClaimResponse ToResponse(BenefitClaim c) => new(

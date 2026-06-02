@@ -34,6 +34,7 @@ builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IInvestmentService, InvestmentService>();
 builder.Services.AddScoped<IAnnuityService, AnnuityService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // ── JWT Authentication ────────────────────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]

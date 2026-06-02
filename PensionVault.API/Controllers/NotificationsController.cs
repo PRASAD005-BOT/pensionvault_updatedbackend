@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using PensionVault.Application.DTOs.Misc;
 using PensionVault.Application.Services;
-using PensionVault.Domain.Enums;
 using System.Security.Claims;
 
 namespace PensionVault.API.Controllers;
@@ -13,48 +12,37 @@ namespace PensionVault.API.Controllers;
 [Produces("application/json")]
 public class NotificationsController : ControllerBase
 {
-    private readonly IAppDbContext _context;
-    public NotificationsController(IAppDbContext context) => _context = context;
+    private readonly INotificationService _notificationService;
+    public NotificationsController(INotificationService notificationService)
+        => _notificationService = notificationService;
 
     [HttpGet]
     public async Task<IActionResult> GetMyNotifications()
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var notifications = await _context.Notifications
-            .Where(n => n.UserId == userId)
-            .OrderByDescending(n => n.CreatedDate)
-            .Select(n => new
-            {
-                n.NotificationId, n.Message,
-                Category = n.Category.ToString(),
-                Status = n.Status.ToString(),
-                n.CreatedDate
-            })
-            .ToListAsync();
-        return Ok(notifications);
+        return Ok(await _notificationService.GetUserNotificationsAsync(userId));
     }
 
     [HttpPut("{id:guid}/read")]
     public async Task<IActionResult> MarkRead(Guid id)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var notification = await _context.Notifications
-            .FirstOrDefaultAsync(n => n.NotificationId == id && n.UserId == userId);
-        if (notification == null) return NotFound();
-        notification.Status = NotificationStatus.Read;
-        await _context.SaveChangesAsync();
-        return NoContent();
+        var result = await _notificationService.MarkAsReadAsync(id);
+        return Ok(result);
     }
 
-    [HttpPut("{id:guid}/dismiss")]
-    public async Task<IActionResult> Dismiss(Guid id)
+    [HttpPost("send-email")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> SendEmail([FromBody] EmailNotificationRequest request)
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var notification = await _context.Notifications
-            .FirstOrDefaultAsync(n => n.NotificationId == id && n.UserId == userId);
-        if (notification == null) return NotFound();
-        notification.Status = NotificationStatus.Dismissed;
-        await _context.SaveChangesAsync();
-        return NoContent();
+        var success = await _notificationService.SendEmailNotificationAsync(request);
+        return Ok(new { success });
+    }
+
+    [HttpPost("send-sms")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> SendSms([FromBody] SmsNotificationRequest request)
+    {
+        var success = await _notificationService.SendSmsNotificationAsync(request);
+        return Ok(new { success });
     }
 }

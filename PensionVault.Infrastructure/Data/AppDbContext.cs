@@ -254,8 +254,9 @@ public class AppDbContext : DbContext, PensionVault.Application.Services.IAppDbC
         modelBuilder.Entity<Notification>(e =>
         {
             e.HasKey(x => x.NotificationId);
+            e.Property(x => x.Title).HasMaxLength(200);
+            e.Property(x => x.Message).HasMaxLength(500);
             e.Property(x => x.Category).HasConversion<string>().HasMaxLength(30);
-            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.HasOne(x => x.User).WithMany(u => u.Notifications)
                 .HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });

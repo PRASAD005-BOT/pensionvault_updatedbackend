@@ -43,3 +43,22 @@ public record PensionDisbursementResponse(
     DateTime? DisbursedDate,
     PensionDisbursementStatus Status
 );
+
+public record NomineeSettlementRequest(
+    Guid AnnuityId,
+    string NomineeName,
+    DateTime DeathDate,
+    string NomineeBankAccount
+);
+
+public record NomineeSettlementResponse(
+    Guid DisbursementId,
+    Guid AnnuityId,
+    Guid MemberId,
+    string NomineeName,
+    decimal SettlementAmount,
+    decimal TaxDeducted,
+    decimal NetAmount,
+    DateTime DeathDate,
+    DateTime ProcessedDate
+);

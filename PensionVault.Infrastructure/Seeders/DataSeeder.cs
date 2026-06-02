@@ -255,19 +255,21 @@ public static class DataSeeder
             {
                 NotificationId = Guid.NewGuid(),
                 UserId = memberUser1.UserId,
+                Title = "Welcome",
                 Message = "Welcome to PensionVault! Your EPF account has been created with balance ₹2,72,800.",
                 Category = NotificationCategory.Contribution,
-                Status = NotificationStatus.Unread,
-                CreatedDate = DateTime.UtcNow
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
             },
             new Notification
             {
                 NotificationId = Guid.NewGuid(),
                 UserId = memberUser2.UserId,
+                Title = "Welcome",
                 Message = "Welcome to PensionVault! Your EPF account has been created with balance ₹1,59,600.",
                 Category = NotificationCategory.Contribution,
-                Status = NotificationStatus.Unread,
-                CreatedDate = DateTime.UtcNow
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
             }
         );
 
