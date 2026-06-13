@@ -10,6 +10,7 @@ using PensionVault.Infrastructure.Data;
 using PensionVault.Infrastructure.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // ── Serilog ────────────────────────────────────────────────────────────────
 Log.Logger = new LoggerConfiguration()
