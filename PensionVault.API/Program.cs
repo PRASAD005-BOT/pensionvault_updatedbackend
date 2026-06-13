@@ -134,8 +134,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ── Middleware Pipeline ───────────────────────────────────────────────────
-app.UseMiddleware<ExceptionMiddleware>();
 app.UseSerilogRequestLogging();
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

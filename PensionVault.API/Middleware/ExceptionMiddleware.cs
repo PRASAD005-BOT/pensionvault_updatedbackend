@@ -22,21 +22,30 @@ public class ExceptionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
-            await HandleExceptionAsync(context, ex);
+            var statusCode = GetStatusCode(ex);
+            if (statusCode == HttpStatusCode.InternalServerError)
+                _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
+            else
+                _logger.LogWarning("Handled exception: {Message}", ex.Message);
+
+            await HandleExceptionAsync(context, ex, statusCode);
         }
     }
 
-    private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static HttpStatusCode GetStatusCode(Exception exception) => exception switch
     {
-        var (statusCode, message) = exception switch
-        {
-            UnauthorizedAccessException => (HttpStatusCode.Unauthorized, exception.Message),
-            KeyNotFoundException => (HttpStatusCode.NotFound, exception.Message),
-            InvalidOperationException => (HttpStatusCode.BadRequest, exception.Message),
-            ArgumentException => (HttpStatusCode.BadRequest, exception.Message),
-            _ => (HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.")
-        };
+        UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+        KeyNotFoundException => HttpStatusCode.NotFound,
+        InvalidOperationException => HttpStatusCode.BadRequest,
+        ArgumentException => HttpStatusCode.BadRequest,
+        _ => HttpStatusCode.InternalServerError
+    };
+
+    private static Task HandleExceptionAsync(HttpContext context, Exception exception, HttpStatusCode statusCode)
+    {
+        var message = statusCode == HttpStatusCode.InternalServerError 
+            ? "An unexpected error occurred. Please try again later." 
+            : exception.Message;
 
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)statusCode;
