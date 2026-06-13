@@ -22,7 +22,7 @@ public class EmployersController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "FundAdmin,Admin,Compliance,Employer")]
+    [Authorize(Roles = "Member,FundAdmin,Admin,Compliance,Employer")]
     public async Task<IActionResult> GetAll() => Ok(await _employerService.GetAllAsync());
 
     [HttpGet("{id:guid}")]
