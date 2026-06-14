@@ -78,4 +78,17 @@ public class ClaimsController : ControllerBase
     [Authorize(Roles = "FundAdmin,Admin")]
     public async Task<IActionResult> Disburse(Guid id, [FromBody] DisburseClaimRequest request)
         => Ok(await _claimService.DisburseClaimAsync(id, request));
+
+    [HttpPost("partial-withdrawal")]
+    [Authorize(Roles = "Member,FundAdmin")]
+    public async Task<IActionResult> SubmitPartialWithdrawal([FromBody] CreatePartialWithdrawalRequest request)
+    {
+        var result = await _claimService.SubmitPartialWithdrawalAsync(request);
+        return CreatedAtAction(nameof(GetById), new { id = result.ClaimId }, result);
+    }
+
+    [HttpPost("{id:guid}/disburse-partial-withdrawal")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> DisbursePartialWithdrawal(Guid id, [FromBody] DisbursePartialWithdrawalRequest request)
+        => Ok(await _claimService.DisbursePartialWithdrawalAsync(id, request));
 }

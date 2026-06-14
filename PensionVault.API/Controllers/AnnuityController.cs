@@ -42,4 +42,14 @@ public class AnnuityController : ControllerBase
         var req = request with { AnnuityId = id };
         return Ok(await _annuityService.ProcessDisbursementAsync(req));
     }
+
+    [HttpPost("{id:guid}/nominee-settlement")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> ProcessNomineeSettlement(Guid id, [FromBody] NomineeSettlementRequest request)
+        => Ok(await _annuityService.ProcessNomineeSettlementAsync(id, request));
+
+    [HttpPut("{id:guid}/terminate")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> TerminateAnnuity(Guid id)
+        => Ok(await _annuityService.TerminateAnnuityAsync(id));
 }

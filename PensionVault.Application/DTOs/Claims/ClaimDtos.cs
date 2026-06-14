@@ -39,3 +39,14 @@ public record DisbursementResponse(
     DateTime? DisbursedDate,
     DisbursementStatus Status
 );
+
+public record CreatePartialWithdrawalRequest(
+    Guid MemberId,
+    decimal RequestedAmount,
+    string Reason
+);
+
+public record DisbursePartialWithdrawalRequest(
+    decimal DisbursedAmount,
+    string BankAccountRef
+);

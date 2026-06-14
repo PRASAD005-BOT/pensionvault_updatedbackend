@@ -41,3 +41,21 @@ public record MemberContributionResponse(
     DateTime PostedDate,
     ContributionStatus Status
 );
+
+public record ReconciliationReportResponse(
+    Guid RemittanceId,
+    string RemittancePeriod,
+    int ExpectedCount,
+    int ReconciledCount,
+    decimal TotalExpectedAmount,
+    decimal TotalReconciledAmount,
+    string Status
+);
+
+public record DefaulterSummaryResponse(
+    Guid EmployerId,
+    string EmployerName,
+    int MissingPeriods,
+    decimal EstimatedShortfall,
+    string LastRemittancePeriod
+);

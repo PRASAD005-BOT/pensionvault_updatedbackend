@@ -12,6 +12,8 @@ public interface IAnnuityService
     Task<IEnumerable<PensionDisbursementResponse>> GetDisbursementsAsync(Guid annuityId);
     Task<PensionDisbursementResponse> ProcessDisbursementAsync(ProcessDisbursementRequest request);
     Task<IEnumerable<AnnuityResponse>> GetAllAnnuitiesAsync();
+    Task<AnnuityResponse> ProcessNomineeSettlementAsync(Guid annuityId, NomineeSettlementRequest request);
+    Task<AnnuityResponse> TerminateAnnuityAsync(Guid annuityId);
 }
 
 public class AnnuityService : IAnnuityService
@@ -120,6 +122,50 @@ public class AnnuityService : IAnnuityService
             .Include(x => x.Member)
             .FirstAsync(x => x.DisbursementId == disbursement.DisbursementId);
         return ToResponse(d);
+    }
+
+    public async Task<AnnuityResponse> ProcessNomineeSettlementAsync(Guid annuityId, NomineeSettlementRequest request)
+    {
+        var annuity = await _context.AnnuityPlans.FindAsync(annuityId)
+            ?? throw new KeyNotFoundException("Annuity not found.");
+
+        if (annuity.Status != AnnuityStatus.Active && annuity.Status != AnnuityStatus.Suspended)
+            throw new InvalidOperationException("Annuity cannot be settled in its current state.");
+
+        annuity.Status = AnnuityStatus.Settled;
+        annuity.NomineeDetails = $"{request.NomineeName} (Settled to {request.BankAccountRef})";
+
+        var account = await _context.FundAccounts
+            .FirstOrDefaultAsync(a => a.MemberId == annuity.MemberId && a.Status == FundAccountStatus.Active);
+
+        if (account != null)
+        {
+            account.TotalBalance -= request.SettlementAmount;
+            
+            _context.LedgerEntries.Add(new LedgerEntry
+            {
+                AccountId = account.AccountId,
+                EntryType = EntryType.AnnuityDebit, // Treating as annuity debit for settlement
+                Amount = request.SettlementAmount,
+                BalanceAfter = account.TotalBalance,
+                ReferenceId = $"SETTLEMENT-{annuityId}",
+                Status = LedgerEntryStatus.Posted
+            });
+        }
+
+        await _context.SaveChangesAsync();
+        return await GetAnnuityAsync(annuityId);
+    }
+
+    public async Task<AnnuityResponse> TerminateAnnuityAsync(Guid annuityId)
+    {
+        var annuity = await _context.AnnuityPlans.FindAsync(annuityId)
+            ?? throw new KeyNotFoundException("Annuity not found.");
+
+        annuity.Status = AnnuityStatus.Terminated;
+        await _context.SaveChangesAsync();
+
+        return await GetAnnuityAsync(annuityId);
     }
 
     private static PensionDisbursementResponse ToResponse(MonthlyPensionDisbursement d) => new(

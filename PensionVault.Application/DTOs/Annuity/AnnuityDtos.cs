@@ -43,3 +43,9 @@ public record PensionDisbursementResponse(
     DateTime? DisbursedDate,
     PensionDisbursementStatus Status
 );
+
+public record NomineeSettlementRequest(
+    string NomineeName,
+    string BankAccountRef,
+    decimal SettlementAmount
+);

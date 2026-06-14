@@ -1,0 +1,570 @@
+{
+	"info": {
+		"name": "PensionVault End-to-End Lifecycle",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Initialize / Fix Data",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/reports/fix-data",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"reports",
+						"fix-data"
+					]
+				}
+			}
+		},
+		{
+			"name": "2. Register Admin",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"System Admin\",\n  \"email\": \"admin@pv.com\",\n  \"phone\": \"0000000000\",\n  \"password\": \"Admin@123\",\n  \"role\": \"Admin\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			}
+		},
+		{
+			"name": "3. Login Admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@pv.com\",\n  \"password\": \"Admin@123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			}
+		},
+		{
+			"name": "4. Create Scheme",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"schemeId\", jsonData.schemeId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"schemeName\": \"Standard EPF Plan\",\n  \"schemeType\": 1,\n  \"employeeContributionRate\": 12,\n  \"employerContributionRate\": 12,\n  \"interestRatePA\": 8.5,\n  \"vestingSchedule\": \"Immediate\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/schemes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"schemes"
+					]
+				}
+			}
+		},
+		{
+			"name": "5. Create Employer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"employerId\", jsonData.employerId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"companyName\": \"Acme Corp\",\n  \"registrationNumber\": \"ACME12345\",\n  \"industry\": \"Manufacturing\",\n  \"contactEmail\": \"hr@acme.com\",\n  \"contactPhone\": \"12345678\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/employers",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"employers"
+					]
+				}
+			}
+		},
+		{
+			"name": "6. Create Member",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"memberId\", jsonData.memberId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@acme.com\",\n  \"employerId\": \"{{employerId}}\",\n  \"nationalId\": \"NID-999999\",\n  \"dateOfBirth\": \"1985-05-15\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/members",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"members"
+					]
+				}
+			}
+		},
+		{
+			"name": "7. Create Remittance",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"remittanceId\", jsonData.remittanceId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"employerId\": \"{{employerId}}\",\n  \"remittancePeriod\": \"2026-06\",\n  \"totalEmployeeShare\": 5000,\n  \"totalEmployerShare\": 5000,\n  \"totalAmount\": 10000,\n  \"coverageCount\": 1\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/remittances",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"remittances"
+					]
+				}
+			}
+		},
+		{
+			"name": "8. Reconcile Remittance",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/remittances/{{remittanceId}}/reconcile",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"remittances",
+						"{{remittanceId}}",
+						"reconcile"
+					]
+				}
+			}
+		},
+		{
+			"name": "9. View Ledger Entries",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/ledger",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ledger"
+					]
+				}
+			}
+		},
+		{
+			"name": "10. Credit Annual Interest",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"period\": \"2025-2026\",\n  \"interestRate\": 8.25\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/ledger/interest-credit",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ledger",
+						"interest-credit"
+					]
+				}
+			}
+		},
+		{
+			"name": "11. Submit Member Claim",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"claimId\", jsonData.claimId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"memberId\": \"{{memberId}}\",\n  \"claimType\": \"Retirement\",\n  \"amountRequested\": 50000,\n  \"reason\": \"Retirement\",\n  \"bankAccountDetails\": \"AC-123456\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/claims",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"claims"
+					]
+				}
+			}
+		},
+		{
+			"name": "12. Review Claim",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/claims/{{claimId}}/review",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"claims",
+						"{{claimId}}",
+						"review"
+					]
+				}
+			}
+		},
+		{
+			"name": "13. Approve Claim",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/claims/{{claimId}}/approve",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"claims",
+						"{{claimId}}",
+						"approve"
+					]
+				}
+			}
+		},
+		{
+			"name": "14. Disburse Claim",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"paymentReference\": \"PAY-REF-001\",\n  \"disbursedAmount\": 50000\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/claims/{{claimId}}/disburse",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"claims",
+						"{{claimId}}",
+						"disburse"
+					]
+				}
+			}
+		},
+		{
+			"name": "15. Get Statutory Returns Report",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/reports/statutory-returns?period=2026-06",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"reports",
+						"statutory-returns"
+					],
+					"query": [
+						{
+							"key": "period",
+							"value": "2026-06"
+						}
+					]
+				}
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7155/api"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "schemeId",
+			"value": ""
+		},
+		{
+			"key": "employerId",
+			"value": ""
+		},
+		{
+			"key": "memberId",
+			"value": ""
+		},
+		{
+			"key": "remittanceId",
+			"value": ""
+		},
+		{
+			"key": "claimId",
+			"value": ""
+		}
+	]
+}

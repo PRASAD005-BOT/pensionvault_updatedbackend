@@ -64,4 +64,32 @@ public class RemittancesController : ControllerBase
     [Authorize(Roles = "Member,FundAdmin,Admin")]
     public async Task<IActionResult> GetMemberContributions(Guid memberId)
         => Ok(await _contributionService.GetMemberContributionsAsync(memberId));
+
+    [HttpGet("{id:guid}/reconciliation-report")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> GetReconciliationReport(Guid id)
+        => Ok(await _contributionService.GetReconciliationReportAsync(id));
+
+    [HttpGet("defaulters")]
+    [Authorize(Roles = "FundAdmin,Admin,Compliance")]
+    public async Task<IActionResult> GetDefaulters()
+        => Ok(await _contributionService.GetDefaultersAsync());
+
+    [HttpGet("overdue")]
+    [Authorize(Roles = "FundAdmin,Admin,Compliance")]
+    public async Task<IActionResult> GetOverdueRemittances()
+        => Ok(await _contributionService.GetOverdueRemittancesAsync());
+
+    [HttpGet("employer/{employerId:guid}/defaulter-summary")]
+    [Authorize(Roles = "FundAdmin,Admin,Compliance,Employer")]
+    public async Task<IActionResult> GetDefaulterSummary(Guid employerId)
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId) || orgId != employerId) 
+                return Forbid();
+        }
+        return Ok(await _contributionService.GetDefaulterSummaryAsync(employerId));
+    }
 }

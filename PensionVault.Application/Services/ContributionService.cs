@@ -13,6 +13,10 @@ public interface IContributionService
     Task<RemittanceResponse> ReconcileAsync(Guid remittanceId);
     Task<IEnumerable<MemberContributionResponse>> GetMemberContributionsAsync(Guid memberId);
     Task<IEnumerable<RemittanceResponse>> GetAllRemittancesAsync();
+    Task<ReconciliationReportResponse> GetReconciliationReportAsync(Guid remittanceId);
+    Task<IEnumerable<RemittanceResponse>> GetDefaultersAsync();
+    Task<IEnumerable<RemittanceResponse>> GetOverdueRemittancesAsync();
+    Task<DefaulterSummaryResponse> GetDefaulterSummaryAsync(Guid employerId);
 }
 
 public class ContributionService : IContributionService
@@ -181,6 +185,70 @@ public class ContributionService : IContributionService
                 c.Period, c.EmployeeAmount, c.EmployerAmount,
                 c.TotalAmount, c.PostedDate, c.Status))
             .ToListAsync();
+    }
+
+    public async Task<ReconciliationReportResponse> GetReconciliationReportAsync(Guid remittanceId)
+    {
+        var remittance = await _context.ContributionRemittances.FindAsync(remittanceId)
+            ?? throw new KeyNotFoundException("Remittance not found.");
+            
+        var reconciledCount = await _context.MemberContributions
+            .CountAsync(c => c.RemittanceId == remittanceId && c.Status == ContributionStatus.Posted);
+            
+        var reconciledAmount = await _context.MemberContributions
+            .Where(c => c.RemittanceId == remittanceId && c.Status == ContributionStatus.Posted)
+            .SumAsync(c => c.TotalAmount);
+
+        return new ReconciliationReportResponse(
+            remittance.RemittanceId, remittance.RemittancePeriod,
+            remittance.CoverageCount, reconciledCount,
+            remittance.TotalAmount, reconciledAmount,
+            remittance.Status.ToString()
+        );
+    }
+
+    public async Task<IEnumerable<RemittanceResponse>> GetDefaultersAsync()
+    {
+        return await _context.ContributionRemittances
+            .Include(r => r.Employer)
+            .Where(r => r.Status == RemittanceStatus.Default || r.Status == RemittanceStatus.Shortfall)
+            .OrderByDescending(r => r.RemittanceDate)
+            .Select(r => ToResponse(r))
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<RemittanceResponse>> GetOverdueRemittancesAsync()
+    {
+        // For simplicity, considering anything that is not Reconciled as potentially overdue if it's past a certain date
+        // In a real scenario, this would compare RemittancePeriod against current date
+        return await _context.ContributionRemittances
+            .Include(r => r.Employer)
+            .Where(r => r.Status == RemittanceStatus.Received || r.Status == RemittanceStatus.Shortfall || r.Status == RemittanceStatus.Default)
+            .OrderByDescending(r => r.RemittanceDate)
+            .Select(r => ToResponse(r))
+            .ToListAsync();
+    }
+
+    public async Task<DefaulterSummaryResponse> GetDefaulterSummaryAsync(Guid employerId)
+    {
+        var employer = await _context.Employers.FindAsync(employerId)
+            ?? throw new KeyNotFoundException("Employer not found.");
+
+        var missingOrShortfall = await _context.ContributionRemittances
+            .Where(r => r.EmployerId == employerId && (r.Status == RemittanceStatus.Default || r.Status == RemittanceStatus.Shortfall))
+            .ToListAsync();
+            
+        var lastRemittance = await _context.ContributionRemittances
+            .Where(r => r.EmployerId == employerId)
+            .OrderByDescending(r => r.RemittanceDate)
+            .FirstOrDefaultAsync();
+
+        return new DefaulterSummaryResponse(
+            employerId, employer.CompanyName,
+            missingOrShortfall.Count,
+            missingOrShortfall.Sum(r => r.TotalAmount),
+            lastRemittance?.RemittancePeriod ?? "None"
+        );
     }
 
     private static RemittanceResponse ToResponse(ContributionRemittance r) => new(

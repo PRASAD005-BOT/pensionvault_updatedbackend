@@ -14,6 +14,8 @@ public interface IClaimService
     Task<ClaimResponse> ApproveClaimAsync(Guid claimId, Guid processedById);
     Task<ClaimResponse> RejectClaimAsync(Guid claimId, Guid processedById);
     Task<DisbursementResponse> DisburseClaimAsync(Guid claimId, DisburseClaimRequest request);
+    Task<ClaimResponse> SubmitPartialWithdrawalAsync(CreatePartialWithdrawalRequest request);
+    Task<DisbursementResponse> DisbursePartialWithdrawalAsync(Guid claimId, DisbursePartialWithdrawalRequest request);
 }
 
 public class ClaimService : IClaimService
@@ -145,6 +147,45 @@ public class ClaimService : IClaimService
             disbursement.DisbursedAmount, disbursement.TaxDeducted,
             disbursement.NetAmount, disbursement.BankAccountRef,
             disbursement.DisbursedDate, disbursement.Status);
+    }
+
+    public async Task<ClaimResponse> SubmitPartialWithdrawalAsync(CreatePartialWithdrawalRequest request)
+    {
+        var member = await _context.Members.FindAsync(request.MemberId)
+            ?? throw new KeyNotFoundException("Member not found.");
+
+        var account = await _context.FundAccounts
+            .FirstOrDefaultAsync(a => a.MemberId == request.MemberId && a.Status == FundAccountStatus.Active);
+
+        var claim = new BenefitClaim
+        {
+            MemberId = request.MemberId,
+            ClaimType = ClaimType.PartialWithdrawal,
+            ClaimDate = DateTime.UtcNow,
+            EligibleAmount = request.RequestedAmount,
+            VestedAmount = request.RequestedAmount, // Assuming partial withdrawals are fully vested
+            TaxDeductible = 0, // Assuming partial withdrawals might be tax-free for certain reasons
+            Status = ClaimStatus.Submitted
+        };
+        _context.BenefitClaims.Add(claim);
+
+        _context.Notifications.Add(new Notification
+        {
+            UserId = member.UserId,
+            Message = $"Your partial withdrawal claim for ₹{claim.EligibleAmount:N2} due to {request.Reason} has been submitted.",
+            Category = NotificationCategory.Claim,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+
+        await _context.SaveChangesAsync();
+        return await GetClaimAsync(claim.ClaimId);
+    }
+
+    public async Task<DisbursementResponse> DisbursePartialWithdrawalAsync(Guid claimId, DisbursePartialWithdrawalRequest request)
+    {
+        var disburseRequest = new DisburseClaimRequest(request.DisbursedAmount, 0, request.BankAccountRef);
+        return await DisburseClaimAsync(claimId, disburseRequest);
     }
 
     private async Task<ClaimResponse> UpdateStatusAsync(Guid claimId, ClaimStatus status, Guid processedById)
