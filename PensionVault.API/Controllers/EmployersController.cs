@@ -47,9 +47,21 @@ public class EmployersController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Employer")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEmployerRequest request)
-        => Ok(await _employerService.UpdateAsync(id, request));
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId) || orgId != id)
+                return Forbid();
+            
+            // Optionally, ensure they don't change their own status
+            var current = await _employerService.GetByIdAsync(id);
+            request = request with { Status = current.Status };
+        }
+        return Ok(await _employerService.UpdateAsync(id, request));
+    }
 
     [HttpGet("{id:guid}/remittances")]
     [Authorize(Roles = "Employer,FundAdmin,Admin")]

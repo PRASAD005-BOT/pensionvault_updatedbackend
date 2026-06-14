@@ -69,7 +69,7 @@ public class AuthService : IAuthService
             {
                 CompanyName = request.Name + " Corporation",
                 RegistrationNumber = "REG-" + Guid.NewGuid().ToString("N")[..8].ToUpper(),
-                ContactDetails = "{\"email\":\"" + request.Email + "\"}",
+                ContactDetails = request.Email,
                 Status = PensionVault.Domain.Enums.EmployerStatus.Active
             };
             _context.Employers.Add(newEmployer);

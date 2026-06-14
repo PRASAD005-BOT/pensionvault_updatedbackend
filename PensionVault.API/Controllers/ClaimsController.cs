@@ -24,6 +24,15 @@ public class ClaimsController : ControllerBase
     [Authorize(Roles = "Member,FundAdmin")]
     public async Task<IActionResult> Submit([FromBody] CreateClaimRequest request)
     {
+        if (User.IsInRole("Member"))
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.TryParse(userIdString, out var userId))
+            {
+                var member = await _memberService.GetByUserIdAsync(userId);
+                request = request with { MemberId = member.MemberId };
+            }
+        }
         var result = await _claimService.SubmitClaimAsync(request);
         return CreatedAtAction(nameof(GetById), new { id = result.ClaimId }, result);
     }
@@ -83,6 +92,15 @@ public class ClaimsController : ControllerBase
     [Authorize(Roles = "Member,FundAdmin")]
     public async Task<IActionResult> SubmitPartialWithdrawal([FromBody] CreatePartialWithdrawalRequest request)
     {
+        if (User.IsInRole("Member"))
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (Guid.TryParse(userIdString, out var userId))
+            {
+                var member = await _memberService.GetByUserIdAsync(userId);
+                request = request with { MemberId = member.MemberId };
+            }
+        }
         var result = await _claimService.SubmitPartialWithdrawalAsync(request);
         return CreatedAtAction(nameof(GetById), new { id = result.ClaimId }, result);
     }
