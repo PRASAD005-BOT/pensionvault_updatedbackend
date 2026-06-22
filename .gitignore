@@ -1,9 +1,9 @@
-bin/
-obj/
-*.user
+[Bb]in/
+[Oo]bj/
 .vs/
-*.sqlite
-*.db
-.env
+*.user
+*.suo
+appsettings.Development.json
+*.log
+node_modules/
 logs/
-.vscode/

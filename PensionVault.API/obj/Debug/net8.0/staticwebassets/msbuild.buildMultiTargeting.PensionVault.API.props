@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\PensionVault.API.props" />
-</Project>

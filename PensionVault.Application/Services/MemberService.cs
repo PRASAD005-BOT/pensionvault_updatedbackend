@@ -1,61 +1,71 @@
-using Microsoft.EntityFrameworkCore;
 using PensionVault.Application.DTOs.Members;
+using PensionVault.Application.Interfaces;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
+using PensionVault.Domain.Interfaces;
 
 namespace PensionVault.Application.Services;
 
-public interface IMemberService
-{
-    Task<IEnumerable<MemberResponse>> GetAllAsync(Guid? employerId = null);
-    Task<MemberResponse> GetByIdAsync(Guid id);
-    Task<MemberResponse> GetByUserIdAsync(Guid userId);
-    Task<MemberResponse> CreateAsync(CreateMemberRequest request);
-    Task<MemberResponse> UpdateAsync(Guid id, UpdateMemberRequest request);
-    Task<IEnumerable<object>> GetFundAccountsAsync(Guid memberId);
-    Task<IEnumerable<object>> GetContributionsAsync(Guid memberId);
-    Task<IEnumerable<object>> GetLedgerAsync(Guid memberId);
-    Task<IEnumerable<object>> GetClaimsAsync(Guid memberId);
-    Task<MemberResponse> SelfEnrollAsync(Guid userId, SelfEnrollMemberRequest request);
-    Task<MemberResponse> ApproveAsync(Guid id, ApproveMemberRequest request);
-}
-
 public class MemberService : IMemberService
 {
-    private readonly IAppDbContext _context;
-    public MemberService(IAppDbContext context) => _context = context;
+    private readonly IMemberRepository _memberRepo;
+    private readonly IEmployerRepository _employerRepo;
+    private readonly IFundAccountRepository _accountRepo;
+    private readonly IFundSchemeRepository _schemeRepo;
+    private readonly IUserRepository _userRepo;
+    private readonly INotificationRepository _notificationRepo;
+    private readonly IContributionRepository _contributionRepo;
+    private readonly ILedgerRepository _ledgerRepo;
+    private readonly IClaimRepository _claimRepo;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public MemberService(
+        IMemberRepository memberRepo,
+        IEmployerRepository employerRepo,
+        IFundAccountRepository accountRepo,
+        IFundSchemeRepository schemeRepo,
+        IUserRepository userRepo,
+        INotificationRepository notificationRepo,
+        IContributionRepository contributionRepo,
+        ILedgerRepository ledgerRepo,
+        IClaimRepository claimRepo,
+        IUnitOfWork unitOfWork)
+    {
+        _memberRepo = memberRepo;
+        _employerRepo = employerRepo;
+        _accountRepo = accountRepo;
+        _schemeRepo = schemeRepo;
+        _userRepo = userRepo;
+        _notificationRepo = notificationRepo;
+        _contributionRepo = contributionRepo;
+        _ledgerRepo = ledgerRepo;
+        _claimRepo = claimRepo;
+        _unitOfWork = unitOfWork;
+    }
 
     public async Task<IEnumerable<MemberResponse>> GetAllAsync(Guid? employerId = null)
     {
-        var query = _context.Members.Include(m => m.Employer).AsQueryable();
-        
-        if (employerId.HasValue)
-        {
-            query = query.Where(m => m.EmployerId == employerId.Value);
-        }
-
-        return await query.Select(m => ToResponse(m)).ToListAsync();
+        var members = await _memberRepo.GetAllAsync(employerId);
+        return members.Select(ToResponse);
     }
 
     public async Task<MemberResponse> GetByIdAsync(Guid id)
     {
-        var member = await _context.Members.Include(m => m.Employer).Include(m => m.User)
-            .FirstOrDefaultAsync(m => m.MemberId == id)
+        var member = await _memberRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException($"Member {id} not found.");
         return ToResponse(member);
     }
 
     public async Task<MemberResponse> GetByUserIdAsync(Guid userId)
     {
-        var member = await _context.Members.Include(m => m.Employer).Include(m => m.User)
-            .FirstOrDefaultAsync(m => m.UserId == userId)
+        var member = await _memberRepo.FindByUserIdAsync(userId)
             ?? throw new KeyNotFoundException("Member profile not found for the current user.");
         return ToResponse(member);
     }
 
     public async Task<MemberResponse> CreateAsync(CreateMemberRequest request)
     {
-        if (await _context.Members.AnyAsync(m => m.MembershipNumber == request.MembershipNumber))
+        if (await _memberRepo.ExistsByMembershipNumberAsync(request.MembershipNumber))
             throw new InvalidOperationException("Membership number already exists.");
 
         var member = new Member
@@ -72,17 +82,15 @@ public class MemberService : IMemberService
             NomineeDetails = request.NomineeDetails,
             Status = MemberStatus.Active
         };
-        _context.Members.Add(member);
+        await _memberRepo.AddAsync(member);
 
-        // Update employer count
-        var employer = await _context.Employers.FindAsync(request.EmployerId);
+        var employer = await _employerRepo.FindByIdAsync(request.EmployerId);
         if (employer != null) employer.EnrolledMemberCount++;
 
-        // Auto-create default Fund Account for the new member
-        var defaultScheme = await _context.FundSchemes.FirstOrDefaultAsync();
+        var defaultScheme = await _schemeRepo.GetFirstAsync();
         if (defaultScheme != null)
         {
-            _context.FundAccounts.Add(new FundAccount
+            await _accountRepo.AddAsync(new FundAccount
             {
                 MemberId = member.MemberId,
                 SchemeId = defaultScheme.SchemeId,
@@ -92,8 +100,7 @@ public class MemberService : IMemberService
             });
         }
 
-        // Create welcome notification
-        _context.Notifications.Add(new Notification
+        await _notificationRepo.AddAsync(new Notification
         {
             UserId = member.UserId,
             Message = $"Welcome to PensionVault, {member.Name}! Your EPF account has been created successfully.",
@@ -102,13 +109,13 @@ public class MemberService : IMemberService
             CreatedDate = DateTime.UtcNow
         });
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetByIdAsync(member.MemberId);
     }
 
     public async Task<MemberResponse> UpdateAsync(Guid id, UpdateMemberRequest request)
     {
-        var member = await _context.Members.FindAsync(id)
+        var member = await _memberRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException($"Member {id} not found.");
 
         member.Name = request.Name;
@@ -118,16 +125,17 @@ public class MemberService : IMemberService
         member.NomineeDetails = request.NomineeDetails;
         member.Status = request.Status;
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetByIdAsync(id);
     }
 
     public async Task<MemberResponse> SelfEnrollAsync(Guid userId, SelfEnrollMemberRequest request)
     {
-        if (await _context.Members.AnyAsync(m => m.UserId == userId))
+        if (await _memberRepo.ExistsByUserIdAsync(userId))
             throw new InvalidOperationException("You have already submitted an enrollment profile.");
 
-        var user = await _context.Users.FindAsync(userId) ?? throw new KeyNotFoundException("User not found.");
+        var user = await _userRepo.FindByIdAsync(userId)
+            ?? throw new KeyNotFoundException("User not found.");
 
         var member = new Member
         {
@@ -143,15 +151,15 @@ public class MemberService : IMemberService
             NomineeDetails = request.NomineeDetails,
             Status = MemberStatus.Active
         };
-        _context.Members.Add(member);
+        await _memberRepo.AddAsync(member);
 
-        var employer = await _context.Employers.FindAsync(request.EmployerId);
+        var employer = await _employerRepo.FindByIdAsync(request.EmployerId);
         if (employer != null) employer.EnrolledMemberCount++;
 
-        var defaultScheme = await _context.FundSchemes.FirstOrDefaultAsync();
+        var defaultScheme = await _schemeRepo.GetFirstAsync();
         if (defaultScheme != null)
         {
-            _context.FundAccounts.Add(new FundAccount
+            await _accountRepo.AddAsync(new FundAccount
             {
                 MemberId = member.MemberId,
                 SchemeId = defaultScheme.SchemeId,
@@ -161,41 +169,40 @@ public class MemberService : IMemberService
             });
         }
 
-        var adminUserIds = await _context.Users.Where(u => u.Role == UserRole.Admin).Select(u => u.UserId).ToListAsync();
-        foreach (var adminId in adminUserIds)
+        var adminUserIds = await _userRepo.GetByRoleAsync(UserRole.Admin);
+        var adminNotifications = adminUserIds.Select(adminUser => new Notification
         {
-            _context.Notifications.Add(new Notification
-            {
-                UserId = adminId,
-                Message = $"Employee {user.Name} has submitted their profile. Awaiting Membership Number assignment.",
-                Category = NotificationCategory.Compliance,
-                Status = NotificationStatus.Unread
-            });
-        }
+            UserId = adminUser.UserId,
+            Message = $"Employee {user.Name} has submitted their profile. Awaiting Membership Number assignment.",
+            Category = NotificationCategory.Compliance,
+            Status = NotificationStatus.Unread
+        });
+        await _notificationRepo.AddRangeAsync(adminNotifications);
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetByIdAsync(member.MemberId);
     }
 
     public async Task<MemberResponse> ApproveAsync(Guid id, ApproveMemberRequest request)
     {
-        var member = await _context.Members.FindAsync(id) ?? throw new KeyNotFoundException("Member not found.");
-        
-        if (await _context.Members.AnyAsync(m => m.MembershipNumber == request.MembershipNumber && m.MemberId != id))
+        var member = await _memberRepo.FindByIdAsync(id)
+            ?? throw new KeyNotFoundException("Member not found.");
+
+        if (await _memberRepo.ExistsByMembershipNumberAsync(request.MembershipNumber, id))
             throw new InvalidOperationException("Membership number already exists.");
 
         member.MembershipNumber = request.MembershipNumber;
 
         if (member.EmployerId != request.EmployerId)
         {
-            var oldEmp = await _context.Employers.FindAsync(member.EmployerId);
+            var oldEmp = await _employerRepo.FindByIdAsync(member.EmployerId);
             if (oldEmp != null) oldEmp.EnrolledMemberCount--;
             member.EmployerId = request.EmployerId;
-            var newEmp = await _context.Employers.FindAsync(request.EmployerId);
+            var newEmp = await _employerRepo.FindByIdAsync(request.EmployerId);
             if (newEmp != null) newEmp.EnrolledMemberCount++;
         }
 
-        _context.Notifications.Add(new Notification
+        await _notificationRepo.AddAsync(new Notification
         {
             UserId = member.UserId,
             Message = $"Your profile has been approved! Your Membership Number is {member.MembershipNumber}.",
@@ -204,66 +211,64 @@ public class MemberService : IMemberService
             CreatedDate = DateTime.UtcNow
         });
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetByIdAsync(id);
     }
 
     public async Task<IEnumerable<object>> GetFundAccountsAsync(Guid memberId)
     {
-        return await _context.FundAccounts
-            .Include(a => a.Scheme)
-            .Where(a => a.MemberId == memberId)
-            .Select(a => (object)new
-            {
-                a.AccountId, a.MemberId, a.SchemeId,
-                SchemeName = a.Scheme.SchemeName,
-                a.AccountOpenDate, a.EmployeeContributionBalance,
-                a.EmployerContributionBalance, a.InterestAccrued,
-                a.TotalBalance, a.VestingPercent, Status = a.Status.ToString()
-            }).ToListAsync();
+        var accounts = await _accountRepo.GetByMemberAsync(memberId);
+        return accounts.Select(a => (object)new
+        {
+            a.AccountId, a.MemberId, a.SchemeId,
+            SchemeName = a.Scheme.SchemeName,
+            a.AccountOpenDate, a.EmployeeContributionBalance,
+            a.EmployerContributionBalance, a.InterestAccrued,
+            a.TotalBalance, a.VestingPercent, Status = a.Status.ToString()
+        });
     }
 
     public async Task<IEnumerable<object>> GetContributionsAsync(Guid memberId)
     {
-        return await _context.MemberContributions
-            .Where(c => c.MemberId == memberId)
-            .OrderByDescending(c => c.PostedDate)
-            .Select(c => (object)new
-            {
-                c.ContributionId, c.Period, c.EmployeeAmount,
-                c.EmployerAmount, c.TotalAmount, c.PostedDate,
-                Status = c.Status.ToString()
-            }).ToListAsync();
+        var contributions = await _contributionRepo.GetByMemberAsync(memberId);
+        return contributions.Select(c => (object)new
+        {
+            c.ContributionId, c.Period, c.EmployeeAmount,
+            c.EmployerAmount, c.TotalAmount, c.PostedDate,
+            Status = c.Status.ToString()
+        });
     }
 
     public async Task<IEnumerable<object>> GetLedgerAsync(Guid memberId)
     {
-        var accountIds = await _context.FundAccounts
-            .Where(a => a.MemberId == memberId)
-            .Select(a => a.AccountId).ToListAsync();
+        var accounts = await _accountRepo.GetByMemberAsync(memberId);
+        var accountIds = accounts.Select(a => a.AccountId).ToList();
 
-        return await _context.LedgerEntries
-            .Where(e => accountIds.Contains(e.AccountId))
-            .OrderByDescending(e => e.EntryDate)
-            .Select(e => (object)new
+        var allEntries = new List<object>();
+        foreach (var accountId in accountIds)
+        {
+            var entries = await _ledgerRepo.GetByAccountAsync(accountId);
+            allEntries.AddRange(entries.Select(e => (object)new
             {
                 e.EntryId, e.AccountId, EntryType = e.EntryType.ToString(),
                 e.Amount, e.BalanceAfter, e.EntryDate, e.ReferenceId,
                 Status = e.Status.ToString()
-            }).ToListAsync();
+            }));
+        }
+        return allEntries.OrderByDescending(e => ((dynamic)e).EntryDate);
     }
 
     public async Task<IEnumerable<object>> GetClaimsAsync(Guid memberId)
     {
-        return await _context.BenefitClaims
+        var claims = await _claimRepo.GetAllAsync();
+        return claims
             .Where(c => c.MemberId == memberId)
-            .OrderByDescending(c => c.ClaimDate)
             .Select(c => (object)new
             {
                 c.ClaimId, ClaimType = c.ClaimType.ToString(),
                 c.ClaimDate, c.EligibleAmount, c.VestedAmount,
                 c.TaxDeductible, Status = c.Status.ToString()
-            }).ToListAsync();
+            });
     }
 
     private static MemberResponse ToResponse(Member m) => new(

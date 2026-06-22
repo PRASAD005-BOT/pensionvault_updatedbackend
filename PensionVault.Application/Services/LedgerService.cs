@@ -1,58 +1,52 @@
-using Microsoft.EntityFrameworkCore;
 using PensionVault.Application.DTOs.Ledger;
+using PensionVault.Application.Interfaces;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
+using PensionVault.Domain.Interfaces;
 
 namespace PensionVault.Application.Services;
 
-public interface ILedgerService
-{
-    Task<IEnumerable<LedgerEntryResponse>> GetAccountLedgerAsync(Guid accountId);
-    Task<IEnumerable<LedgerEntryResponse>> GetAllLedgerEntriesAsync();
-    Task<InterestCreditResponse> CreditInterestAsync(CreditInterestRequest request);
-    Task<IEnumerable<InterestCreditResponse>> GetInterestRecordsAsync(Guid accountId);
-}
-
 public class LedgerService : ILedgerService
 {
-    private readonly IAppDbContext _context;
-    public LedgerService(IAppDbContext context) => _context = context;
+    private readonly ILedgerRepository _ledgerRepo;
+    private readonly IFundAccountRepository _accountRepo;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public LedgerService(
+        ILedgerRepository ledgerRepo,
+        IFundAccountRepository accountRepo,
+        IUnitOfWork unitOfWork)
+    {
+        _ledgerRepo = ledgerRepo;
+        _accountRepo = accountRepo;
+        _unitOfWork = unitOfWork;
+    }
 
     public async Task<IEnumerable<LedgerEntryResponse>> GetAccountLedgerAsync(Guid accountId)
     {
-        return await _context.LedgerEntries
-            .Where(e => e.AccountId == accountId)
-            .OrderByDescending(e => e.EntryDate)
-            .Select(e => new LedgerEntryResponse(
-                e.EntryId, e.AccountId, e.EntryType, e.Amount,
-                e.BalanceAfter, e.EntryDate, e.ReferenceId, e.Status))
-            .ToListAsync();
+        var entries = await _ledgerRepo.GetByAccountAsync(accountId);
+        return entries.Select(e => new LedgerEntryResponse(
+            e.EntryId, e.AccountId, e.EntryType, e.Amount,
+            e.BalanceAfter, e.EntryDate, e.ReferenceId, e.Status));
     }
 
     public async Task<IEnumerable<LedgerEntryResponse>> GetAllLedgerEntriesAsync()
     {
-        return await _context.LedgerEntries
-            .OrderByDescending(e => e.EntryDate)
-            .Select(e => new LedgerEntryResponse(
-                e.EntryId, e.AccountId, e.EntryType, e.Amount,
-                e.BalanceAfter, e.EntryDate, e.ReferenceId, e.Status))
-            .ToListAsync();
+        var entries = await _ledgerRepo.GetAllAsync();
+        return entries.Select(e => new LedgerEntryResponse(
+            e.EntryId, e.AccountId, e.EntryType, e.Amount,
+            e.BalanceAfter, e.EntryDate, e.ReferenceId, e.Status));
     }
 
     public async Task<InterestCreditResponse> CreditInterestAsync(CreditInterestRequest request)
     {
-        var account = await _context.FundAccounts.FindAsync(request.AccountId)
+        var account = await _accountRepo.FindByIdAsync(request.AccountId)
             ?? throw new KeyNotFoundException("Fund account not found.");
 
-        if (await _context.InterestCreditRecords.AnyAsync(r =>
-                r.AccountId == request.AccountId && r.FinancialYear == request.FinancialYear))
+        if (await _ledgerRepo.InterestAlreadyCreditedAsync(request.AccountId, request.FinancialYear))
             throw new InvalidOperationException($"Interest already credited for {request.FinancialYear}.");
 
-        // Get total contributions this year from ledger
-        var totalContributions = await _context.LedgerEntries
-            .Where(e => e.AccountId == request.AccountId && e.EntryType == EntryType.ContributionCredit)
-            .SumAsync(e => e.Amount);
-
+        var totalContributions = await _ledgerRepo.SumByTypeAsync(request.AccountId, EntryType.ContributionCredit);
         var openingBalance = account.TotalBalance - totalContributions;
         var interestAmount = Math.Round(
             (openingBalance + totalContributions / 2) * (request.InterestRate / 100), 2);
@@ -69,12 +63,12 @@ public class LedgerService : ILedgerService
             CreditedDate = DateTime.UtcNow,
             Status = InterestCreditStatus.Credited
         };
-        _context.InterestCreditRecords.Add(record);
+        await _ledgerRepo.AddInterestRecordAsync(record);
 
         account.InterestAccrued += interestAmount;
         account.TotalBalance += interestAmount;
 
-        _context.LedgerEntries.Add(new LedgerEntry
+        await _ledgerRepo.AddEntryAsync(new LedgerEntry
         {
             AccountId = account.AccountId,
             EntryType = EntryType.InterestCredit,
@@ -84,7 +78,7 @@ public class LedgerService : ILedgerService
             Status = LedgerEntryStatus.Posted
         });
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return new InterestCreditResponse(
             record.InterestId, record.AccountId, record.FinancialYear,
             record.OpeningBalance, record.TotalContributions, record.InterestRateApplied,
@@ -93,13 +87,10 @@ public class LedgerService : ILedgerService
 
     public async Task<IEnumerable<InterestCreditResponse>> GetInterestRecordsAsync(Guid accountId)
     {
-        return await _context.InterestCreditRecords
-            .Where(r => r.AccountId == accountId)
-            .OrderByDescending(r => r.FinancialYear)
-            .Select(r => new InterestCreditResponse(
-                r.InterestId, r.AccountId, r.FinancialYear,
-                r.OpeningBalance, r.TotalContributions, r.InterestRateApplied,
-                r.InterestAmount, r.ClosingBalance, r.CreditedDate, r.Status))
-            .ToListAsync();
+        var records = await _ledgerRepo.GetInterestRecordsAsync(accountId);
+        return records.Select(r => new InterestCreditResponse(
+            r.InterestId, r.AccountId, r.FinancialYear,
+            r.OpeningBalance, r.TotalContributions, r.InterestRateApplied,
+            r.InterestAmount, r.ClosingBalance, r.CreditedDate, r.Status));
     }
 }

@@ -4,7 +4,7 @@ using PensionVault.Domain.Enums;
 
 namespace PensionVault.Infrastructure.Data;
 
-public class AppDbContext : DbContext, PensionVault.Application.Services.IAppDbContext
+public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

@@ -1,50 +1,56 @@
-using Microsoft.EntityFrameworkCore;
 using PensionVault.Application.DTOs.Employers;
+using PensionVault.Application.Interfaces;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
+using PensionVault.Domain.Interfaces;
 
 namespace PensionVault.Application.Services;
 
-public interface IEmployerService
-{
-    Task<IEnumerable<EmployerResponse>> GetAllAsync();
-    Task<EmployerResponse> GetByIdAsync(Guid id);
-    Task<EmployerResponse> GetByUserIdAsync(Guid userId);
-    Task<EmployerResponse> CreateAsync(CreateEmployerRequest request);
-    Task<EmployerResponse> UpdateAsync(Guid id, UpdateEmployerRequest request);
-}
-
 public class EmployerService : IEmployerService
 {
-    private readonly IAppDbContext _context;
-    public EmployerService(IAppDbContext context) => _context = context;
+    private readonly IEmployerRepository _employerRepo;
+    private readonly IUserRepository _userRepo;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public async Task<IEnumerable<EmployerResponse>> GetAllAsync() =>
-        await _context.Employers.Select(e => ToResponse(e)).ToListAsync();
+    public EmployerService(
+        IEmployerRepository employerRepo,
+        IUserRepository userRepo,
+        IUnitOfWork unitOfWork)
+    {
+        _employerRepo = employerRepo;
+        _userRepo = userRepo;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<IEnumerable<EmployerResponse>> GetAllAsync()
+    {
+        var employers = await _employerRepo.GetAllAsync();
+        return employers.Select(ToResponse);
+    }
 
     public async Task<EmployerResponse> GetByIdAsync(Guid id)
     {
-        var e = await _context.Employers.FindAsync(id)
+        var e = await _employerRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException("Employer not found.");
         return ToResponse(e);
     }
 
     public async Task<EmployerResponse> GetByUserIdAsync(Guid userId)
     {
-        var user = await _context.Users.FindAsync(userId)
+        var user = await _userRepo.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException("User not found.");
 
         if (user.OrganisationId == null)
             throw new KeyNotFoundException("User is not associated with an organisation.");
 
-        var e = await _context.Employers.FindAsync(user.OrganisationId)
+        var e = await _employerRepo.FindByIdAsync(user.OrganisationId.Value)
             ?? throw new KeyNotFoundException("No employer profile found.");
         return ToResponse(e);
     }
 
     public async Task<EmployerResponse> CreateAsync(CreateEmployerRequest request)
     {
-        if (await _context.Employers.AnyAsync(e => e.RegistrationNumber == request.RegistrationNumber))
+        if (await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
 
         var employer = new Employer
@@ -56,21 +62,21 @@ public class EmployerService : IEmployerService
             ContactDetails = request.ContactDetails,
             Status = EmployerStatus.Active
         };
-        _context.Employers.Add(employer);
-        await _context.SaveChangesAsync();
+        await _employerRepo.AddAsync(employer);
+        await _unitOfWork.SaveChangesAsync();
         return ToResponse(employer);
     }
 
     public async Task<EmployerResponse> UpdateAsync(Guid id, UpdateEmployerRequest request)
     {
-        var employer = await _context.Employers.FindAsync(id)
+        var employer = await _employerRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException("Employer not found.");
         employer.CompanyName = request.CompanyName;
         employer.Industry = request.Industry;
         employer.RemittanceFrequency = request.RemittanceFrequency;
         employer.ContactDetails = request.ContactDetails;
         employer.Status = request.Status;
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return ToResponse(employer);
     }
 

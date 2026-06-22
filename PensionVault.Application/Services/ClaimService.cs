@@ -1,36 +1,42 @@
-using Microsoft.EntityFrameworkCore;
 using PensionVault.Application.DTOs.Claims;
+using PensionVault.Application.Interfaces;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
+using PensionVault.Domain.Interfaces;
 
 namespace PensionVault.Application.Services;
 
-public interface IClaimService
-{
-    Task<ClaimResponse> SubmitClaimAsync(CreateClaimRequest request);
-    Task<IEnumerable<ClaimResponse>> GetAllClaimsAsync();
-    Task<ClaimResponse> GetClaimAsync(Guid claimId);
-    Task<ClaimResponse> ReviewClaimAsync(Guid claimId, Guid processedById);
-    Task<ClaimResponse> ApproveClaimAsync(Guid claimId, Guid processedById);
-    Task<ClaimResponse> RejectClaimAsync(Guid claimId, Guid processedById);
-    Task<DisbursementResponse> DisburseClaimAsync(Guid claimId, DisburseClaimRequest request);
-    Task<ClaimResponse> SubmitPartialWithdrawalAsync(CreatePartialWithdrawalRequest request);
-    Task<DisbursementResponse> DisbursePartialWithdrawalAsync(Guid claimId, DisbursePartialWithdrawalRequest request);
-}
-
 public class ClaimService : IClaimService
 {
-    private readonly IAppDbContext _context;
-    public ClaimService(IAppDbContext context) => _context = context;
+    private readonly IClaimRepository _claimRepo;
+    private readonly IMemberRepository _memberRepo;
+    private readonly IFundAccountRepository _accountRepo;
+    private readonly ILedgerRepository _ledgerRepo;
+    private readonly INotificationRepository _notificationRepo;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ClaimService(
+        IClaimRepository claimRepo,
+        IMemberRepository memberRepo,
+        IFundAccountRepository accountRepo,
+        ILedgerRepository ledgerRepo,
+        INotificationRepository notificationRepo,
+        IUnitOfWork unitOfWork)
+    {
+        _claimRepo = claimRepo;
+        _memberRepo = memberRepo;
+        _accountRepo = accountRepo;
+        _ledgerRepo = ledgerRepo;
+        _notificationRepo = notificationRepo;
+        _unitOfWork = unitOfWork;
+    }
 
     public async Task<ClaimResponse> SubmitClaimAsync(CreateClaimRequest request)
     {
-        var member = await _context.Members.FindAsync(request.MemberId)
+        var member = await _memberRepo.FindByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
-        var account = await _context.FundAccounts
-            .FirstOrDefaultAsync(a => a.MemberId == request.MemberId && a.Status == FundAccountStatus.Active);
-
+        var account = await _accountRepo.FindActiveByMemberAsync(request.MemberId);
         var vestedAmount = account != null
             ? Math.Round(account.TotalBalance * (account.VestingPercent / 100), 2)
             : 0;
@@ -42,12 +48,12 @@ public class ClaimService : IClaimService
             ClaimDate = DateTime.UtcNow,
             EligibleAmount = request.EligibleAmount,
             VestedAmount = vestedAmount,
-            TaxDeductible = Math.Round(request.EligibleAmount * 0.10m, 2), // 10% TDS
+            TaxDeductible = Math.Round(request.EligibleAmount * 0.10m, 2),
             Status = ClaimStatus.Submitted
         };
-        _context.BenefitClaims.Add(claim);
+        await _claimRepo.AddAsync(claim);
 
-        _context.Notifications.Add(new Notification
+        await _notificationRepo.AddAsync(new Notification
         {
             UserId = member.UserId,
             Message = $"Your benefit claim of type {claim.ClaimType} for ₹{claim.EligibleAmount:N2} has been submitted successfully and is under review.",
@@ -56,44 +62,35 @@ public class ClaimService : IClaimService
             CreatedDate = DateTime.UtcNow
         });
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetClaimAsync(claim.ClaimId);
     }
 
     public async Task<IEnumerable<ClaimResponse>> GetAllClaimsAsync()
     {
-        return await _context.BenefitClaims
-            .Include(c => c.Member)
-            .Include(c => c.ProcessedBy)
-            .OrderByDescending(c => c.ClaimDate)
-            .Select(c => ToResponse(c))
-            .ToListAsync();
+        var claims = await _claimRepo.GetAllAsync();
+        return claims.Select(ToResponse);
     }
 
     public async Task<ClaimResponse> GetClaimAsync(Guid claimId)
     {
-        var claim = await _context.BenefitClaims
-            .Include(c => c.Member)
-            .Include(c => c.ProcessedBy)
-            .FirstOrDefaultAsync(c => c.ClaimId == claimId)
+        var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
         return ToResponse(claim);
     }
 
-    public async Task<ClaimResponse> ReviewClaimAsync(Guid claimId, Guid processedById)
-        => await UpdateStatusAsync(claimId, ClaimStatus.UnderReview, processedById);
+    public Task<ClaimResponse> ReviewClaimAsync(Guid claimId, Guid processedById)
+        => UpdateStatusAsync(claimId, ClaimStatus.UnderReview, processedById);
 
-    public async Task<ClaimResponse> ApproveClaimAsync(Guid claimId, Guid processedById)
-        => await UpdateStatusAsync(claimId, ClaimStatus.Approved, processedById);
+    public Task<ClaimResponse> ApproveClaimAsync(Guid claimId, Guid processedById)
+        => UpdateStatusAsync(claimId, ClaimStatus.Approved, processedById);
 
-    public async Task<ClaimResponse> RejectClaimAsync(Guid claimId, Guid processedById)
-        => await UpdateStatusAsync(claimId, ClaimStatus.Rejected, processedById);
+    public Task<ClaimResponse> RejectClaimAsync(Guid claimId, Guid processedById)
+        => UpdateStatusAsync(claimId, ClaimStatus.Rejected, processedById);
 
     public async Task<DisbursementResponse> DisburseClaimAsync(Guid claimId, DisburseClaimRequest request)
     {
-        var claim = await _context.BenefitClaims
-            .Include(c => c.Member)
-            .FirstOrDefaultAsync(c => c.ClaimId == claimId)
+        var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
         if (claim.Status != ClaimStatus.Approved)
             throw new InvalidOperationException("Claim must be approved before disbursement.");
@@ -109,16 +106,14 @@ public class ClaimService : IClaimService
             DisbursedDate = DateTime.UtcNow,
             Status = DisbursementStatus.Processed
         };
-        _context.ClaimDisbursements.Add(disbursement);
+        await _claimRepo.AddDisbursementAsync(disbursement);
         claim.Status = ClaimStatus.Disbursed;
 
-        // Debit ledger
-        var account = await _context.FundAccounts
-            .FirstOrDefaultAsync(a => a.MemberId == claim.MemberId && a.Status == FundAccountStatus.Active);
+        var account = await _accountRepo.FindActiveByMemberAsync(claim.MemberId);
         if (account != null)
         {
             account.TotalBalance -= disbursement.NetAmount;
-            _context.LedgerEntries.Add(new LedgerEntry
+            await _ledgerRepo.AddEntryAsync(new LedgerEntry
             {
                 AccountId = account.AccountId,
                 EntryType = EntryType.ClaimDebit,
@@ -131,7 +126,7 @@ public class ClaimService : IClaimService
 
         if (claim.Member != null)
         {
-            _context.Notifications.Add(new Notification
+            await _notificationRepo.AddAsync(new Notification
             {
                 UserId = claim.Member.UserId,
                 Message = $"Your claim payout of ₹{disbursement.NetAmount:N2} has been disbursed to bank account {disbursement.BankAccountRef}.",
@@ -141,7 +136,7 @@ public class ClaimService : IClaimService
             });
         }
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return new DisbursementResponse(
             disbursement.DisbursementId, disbursement.ClaimId,
             disbursement.DisbursedAmount, disbursement.TaxDeducted,
@@ -151,11 +146,8 @@ public class ClaimService : IClaimService
 
     public async Task<ClaimResponse> SubmitPartialWithdrawalAsync(CreatePartialWithdrawalRequest request)
     {
-        var member = await _context.Members.FindAsync(request.MemberId)
+        var member = await _memberRepo.FindByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
-
-        var account = await _context.FundAccounts
-            .FirstOrDefaultAsync(a => a.MemberId == request.MemberId && a.Status == FundAccountStatus.Active);
 
         var claim = new BenefitClaim
         {
@@ -163,13 +155,13 @@ public class ClaimService : IClaimService
             ClaimType = ClaimType.PartialWithdrawal,
             ClaimDate = DateTime.UtcNow,
             EligibleAmount = request.RequestedAmount,
-            VestedAmount = request.RequestedAmount, // Assuming partial withdrawals are fully vested
-            TaxDeductible = 0, // Assuming partial withdrawals might be tax-free for certain reasons
+            VestedAmount = request.RequestedAmount,
+            TaxDeductible = 0,
             Status = ClaimStatus.Submitted
         };
-        _context.BenefitClaims.Add(claim);
+        await _claimRepo.AddAsync(claim);
 
-        _context.Notifications.Add(new Notification
+        await _notificationRepo.AddAsync(new Notification
         {
             UserId = member.UserId,
             Message = $"Your partial withdrawal claim for ₹{claim.EligibleAmount:N2} due to {request.Reason} has been submitted.",
@@ -178,7 +170,7 @@ public class ClaimService : IClaimService
             CreatedDate = DateTime.UtcNow
         });
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetClaimAsync(claim.ClaimId);
     }
 
@@ -190,9 +182,7 @@ public class ClaimService : IClaimService
 
     private async Task<ClaimResponse> UpdateStatusAsync(Guid claimId, ClaimStatus status, Guid processedById)
     {
-        var claim = await _context.BenefitClaims
-            .Include(c => c.Member)
-            .FirstOrDefaultAsync(c => c.ClaimId == claimId)
+        var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
         claim.Status = status;
         claim.ProcessedById = processedById;
@@ -206,8 +196,7 @@ public class ClaimService : IClaimService
                 ClaimStatus.Rejected => $"Your claim of type {claim.ClaimType} has been rejected.",
                 _ => $"Your claim of type {claim.ClaimType} status has been updated to {status}."
             };
-
-            _context.Notifications.Add(new Notification
+            await _notificationRepo.AddAsync(new Notification
             {
                 UserId = claim.Member.UserId,
                 Message = message,
@@ -217,7 +206,7 @@ public class ClaimService : IClaimService
             });
         }
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetClaimAsync(claimId);
     }
 

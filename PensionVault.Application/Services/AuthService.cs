@@ -2,36 +2,41 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using PensionVault.Application.DTOs.Auth;
+using PensionVault.Application.Interfaces;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
+using PensionVault.Domain.Interfaces;
 
 namespace PensionVault.Application.Services;
 
-public interface IAuthService
-{
-    Task<AuthResponse> LoginAsync(LoginRequest request);
-    Task<AuthResponse> RegisterAsync(RegisterRequest request);
-    Task<AuthResponse> RefreshTokenAsync(string refreshToken);
-}
-
 public class AuthService : IAuthService
 {
-    private readonly IAppDbContext _context;
+    private readonly IUserRepository _userRepo;
+    private readonly IEmployerRepository _employerRepo;
+    private readonly INotificationRepository _notificationRepo;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IConfiguration _config;
 
-    public AuthService(IAppDbContext context, IConfiguration config)
+    public AuthService(
+        IUserRepository userRepo,
+        IEmployerRepository employerRepo,
+        INotificationRepository notificationRepo,
+        IUnitOfWork unitOfWork,
+        IConfiguration config)
     {
-        _context = context;
+        _userRepo = userRepo;
+        _employerRepo = employerRepo;
+        _notificationRepo = notificationRepo;
+        _unitOfWork = unitOfWork;
         _config = config;
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email)
+        var user = await _userRepo.FindByEmailAsync(request.Email)
             ?? throw new UnauthorizedAccessException("Invalid email or password.");
 
         if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
@@ -45,7 +50,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
     {
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        if (await _userRepo.ExistsByEmailAsync(request.Email))
             throw new InvalidOperationException("Email already registered.");
 
         if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
@@ -65,35 +70,34 @@ public class AuthService : IAuthService
 
         if (role == UserRole.Employer && user.OrganisationId == null)
         {
-            var newEmployer = new PensionVault.Domain.Entities.Employer
+            var newEmployer = new Employer
             {
                 CompanyName = request.Name + " Corporation",
                 RegistrationNumber = "REG-" + Guid.NewGuid().ToString("N")[..8].ToUpper(),
                 ContactDetails = request.Email,
-                Status = PensionVault.Domain.Enums.EmployerStatus.Active
+                Status = EmployerStatus.Active
             };
-            _context.Employers.Add(newEmployer);
-            await _context.SaveChangesAsync();
+            await _employerRepo.AddAsync(newEmployer);
+            await _unitOfWork.SaveChangesAsync();
             user.OrganisationId = newEmployer.EmployerId;
         }
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+
+        await _userRepo.AddAsync(user);
+        await _unitOfWork.SaveChangesAsync();
 
         if (role == UserRole.Member)
         {
-            var adminUsers = await _context.Users.Where(u => u.Role == UserRole.Admin).ToListAsync();
-            foreach (var adminUser in adminUsers)
+            var adminUsers = await _userRepo.GetByRoleAsync(UserRole.Admin);
+            var notifications = adminUsers.Select(adminUser => new Notification
             {
-                _context.Notifications.Add(new Notification
-                {
-                    UserId = adminUser.UserId,
-                    Message = $"New employee registered: {user.Name} ({user.Email}). User ID: {user.UserId}",
-                    Category = NotificationCategory.Compliance,
-                    Status = NotificationStatus.Unread
-                });
-            }
+                UserId = adminUser.UserId,
+                Message = $"New employee registered: {user.Name} ({user.Email}). User ID: {user.UserId}",
+                Category = NotificationCategory.Compliance,
+                Status = NotificationStatus.Unread
+            });
+            await _notificationRepo.AddRangeAsync(notifications);
             if (adminUsers.Any())
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
         }
 
         return await GenerateTokensAsync(user);
@@ -101,10 +105,8 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u =>
-            u.RefreshToken == refreshToken && u.RefreshTokenExpiry > DateTime.UtcNow)
+        var user = await _userRepo.FindByRefreshTokenAsync(refreshToken)
             ?? throw new UnauthorizedAccessException("Invalid or expired refresh token.");
-
         return await GenerateTokensAsync(user);
     }
 
@@ -125,25 +127,21 @@ public class AuthService : IAuthService
         };
 
         if (user.OrganisationId.HasValue)
-        {
             claims.Add(new Claim("OrganisationId", user.OrganisationId.Value.ToString()));
-        }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var expiry = DateTime.UtcNow.AddMinutes(expireMinutes);
 
-        var token = new JwtSecurityToken(issuer, audience, claims,
-            expires: expiry, signingCredentials: creds);
+        var token = new JwtSecurityToken(issuer, audience, claims, expires: expiry, signingCredentials: creds);
         var tokenStr = new JwtSecurityTokenHandler().WriteToken(token);
 
-        // Refresh token
-        var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-        user.RefreshToken = refreshToken;
+        var newRefreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
 
         return new AuthResponse(user.UserId, user.Name, user.Email,
-            user.Role.ToString(), tokenStr, refreshToken, expiry, user.EmployeeId, user.ProfileImageUrl);
+            user.Role.ToString(), tokenStr, newRefreshToken, expiry, user.EmployeeId, user.ProfileImageUrl);
     }
 }

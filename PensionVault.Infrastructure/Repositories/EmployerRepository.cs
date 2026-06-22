@@ -1,0 +1,24 @@
+using Microsoft.EntityFrameworkCore;
+using PensionVault.Domain.Entities;
+using PensionVault.Domain.Interfaces;
+using PensionVault.Infrastructure.Data;
+
+namespace PensionVault.Infrastructure.Repositories;
+
+public class EmployerRepository : IEmployerRepository
+{
+    private readonly AppDbContext _context;
+    public EmployerRepository(AppDbContext context) => _context = context;
+
+    public Task<Employer?> FindByIdAsync(Guid employerId)
+        => _context.Employers.FindAsync(employerId).AsTask();
+
+    public Task<List<Employer>> GetAllAsync()
+        => _context.Employers.ToListAsync();
+
+    public Task<bool> ExistsByRegistrationNumberAsync(string registrationNumber)
+        => _context.Employers.AnyAsync(e => e.RegistrationNumber == registrationNumber);
+
+    public async Task AddAsync(Employer employer)
+        => await _context.Employers.AddAsync(employer);
+}

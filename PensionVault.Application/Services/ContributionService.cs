@@ -1,32 +1,45 @@
-using Microsoft.EntityFrameworkCore;
 using PensionVault.Application.DTOs.Contributions;
+using PensionVault.Application.Interfaces;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
+using PensionVault.Domain.Interfaces;
 
 namespace PensionVault.Application.Services;
 
-public interface IContributionService
-{
-    Task<RemittanceResponse> CreateRemittanceAsync(CreateRemittanceRequest request);
-    Task<RemittanceResponse> GetRemittanceAsync(Guid remittanceId);
-    Task<IEnumerable<RemittanceResponse>> GetEmployerRemittancesAsync(Guid employerId);
-    Task<RemittanceResponse> ReconcileAsync(Guid remittanceId);
-    Task<IEnumerable<MemberContributionResponse>> GetMemberContributionsAsync(Guid memberId);
-    Task<IEnumerable<RemittanceResponse>> GetAllRemittancesAsync();
-    Task<ReconciliationReportResponse> GetReconciliationReportAsync(Guid remittanceId);
-    Task<IEnumerable<RemittanceResponse>> GetDefaultersAsync();
-    Task<IEnumerable<RemittanceResponse>> GetOverdueRemittancesAsync();
-    Task<DefaulterSummaryResponse> GetDefaulterSummaryAsync(Guid employerId);
-}
-
 public class ContributionService : IContributionService
 {
-    private readonly IAppDbContext _context;
-    public ContributionService(IAppDbContext context) => _context = context;
+    private readonly IContributionRepository _contributionRepo;
+    private readonly IEmployerRepository _employerRepo;
+    private readonly IMemberRepository _memberRepo;
+    private readonly IFundAccountRepository _accountRepo;
+    private readonly ILedgerRepository _ledgerRepo;
+    private readonly INotificationRepository _notificationRepo;
+    private readonly IUserRepository _userRepo;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ContributionService(
+        IContributionRepository contributionRepo,
+        IEmployerRepository employerRepo,
+        IMemberRepository memberRepo,
+        IFundAccountRepository accountRepo,
+        ILedgerRepository ledgerRepo,
+        INotificationRepository notificationRepo,
+        IUserRepository userRepo,
+        IUnitOfWork unitOfWork)
+    {
+        _contributionRepo = contributionRepo;
+        _employerRepo = employerRepo;
+        _memberRepo = memberRepo;
+        _accountRepo = accountRepo;
+        _ledgerRepo = ledgerRepo;
+        _notificationRepo = notificationRepo;
+        _userRepo = userRepo;
+        _unitOfWork = unitOfWork;
+    }
 
     public async Task<RemittanceResponse> CreateRemittanceAsync(CreateRemittanceRequest request)
     {
-        var employer = await _context.Employers.FindAsync(request.EmployerId)
+        var employer = await _employerRepo.FindByIdAsync(request.EmployerId)
             ?? throw new KeyNotFoundException("Employer not found.");
 
         var total = request.TotalEmployeeShare + request.TotalEmployerShare;
@@ -41,7 +54,7 @@ public class ContributionService : IContributionService
             CoverageCount = request.CoverageCount,
             Status = RemittanceStatus.Received
         };
-        _context.ContributionRemittances.Add(remittance);
+        await _contributionRepo.AddRemittanceAsync(remittance);
 
         foreach (var item in request.MemberContributions)
         {
@@ -56,18 +69,15 @@ public class ContributionService : IContributionService
                 PostedDate = DateTime.UtcNow,
                 Status = ContributionStatus.Posted
             };
-            _context.MemberContributions.Add(contribution);
+            await _contributionRepo.AddContributionAsync(contribution);
 
-            // Post to ledger
-            var account = await _context.FundAccounts
-                .FirstOrDefaultAsync(a => a.MemberId == item.MemberId && a.Status == FundAccountStatus.Active);
+            var account = await _accountRepo.FindActiveByMemberAsync(item.MemberId);
             if (account != null)
             {
                 account.EmployeeContributionBalance += item.EmployeeAmount;
                 account.EmployerContributionBalance += item.EmployerAmount;
                 account.TotalBalance += contribution.TotalAmount;
-
-                _context.LedgerEntries.Add(new LedgerEntry
+                await _ledgerRepo.AddEntryAsync(new LedgerEntry
                 {
                     AccountId = account.AccountId,
                     EntryType = EntryType.ContributionCredit,
@@ -78,11 +88,10 @@ public class ContributionService : IContributionService
                 });
             }
 
-            // Notify member of the posted contribution
-            var member = await _context.Members.FindAsync(item.MemberId);
+            var member = await _memberRepo.FindByIdAsync(item.MemberId);
             if (member != null)
             {
-                _context.Notifications.Add(new Notification
+                await _notificationRepo.AddAsync(new Notification
                 {
                     UserId = member.UserId,
                     Message = $"A contribution of ₹{item.EmployeeAmount + item.EmployerAmount:N2} has been posted to your account for period {request.RemittancePeriod}.",
@@ -93,162 +102,118 @@ public class ContributionService : IContributionService
             }
         }
 
-        // Notify employer users of the remittance submission
-        var employerUsers = await _context.Users
-            .Where(u => u.OrganisationId == request.EmployerId && u.Role == UserRole.Employer)
-            .ToListAsync();
-        foreach (var user in employerUsers)
+        var employerUsers = await _userRepo.GetByOrgAndRoleAsync(request.EmployerId, UserRole.Employer);
+        var empNotifications = employerUsers.Select(u => new Notification
         {
-            _context.Notifications.Add(new Notification
-            {
-                UserId = user.UserId,
-                Message = $"Remittance of ₹{total:N2} for period {request.RemittancePeriod} has been submitted successfully.",
-                Category = NotificationCategory.Contribution,
-                Status = NotificationStatus.Unread,
-                CreatedDate = DateTime.UtcNow
-            });
-        }
+            UserId = u.UserId,
+            Message = $"Remittance of ₹{total:N2} for period {request.RemittancePeriod} has been submitted successfully.",
+            Category = NotificationCategory.Contribution,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+        await _notificationRepo.AddRangeAsync(empNotifications);
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetRemittanceAsync(remittance.RemittanceId);
     }
 
     public async Task<RemittanceResponse> GetRemittanceAsync(Guid remittanceId)
     {
-        var r = await _context.ContributionRemittances
-            .Include(r => r.Employer)
-            .FirstOrDefaultAsync(r => r.RemittanceId == remittanceId)
+        var r = await _contributionRepo.FindRemittanceByIdAsync(remittanceId)
             ?? throw new KeyNotFoundException("Remittance not found.");
         return ToResponse(r);
     }
 
     public async Task<IEnumerable<RemittanceResponse>> GetEmployerRemittancesAsync(Guid employerId)
     {
-        return await _context.ContributionRemittances
-            .Include(r => r.Employer)
-            .Where(r => r.EmployerId == employerId)
-            .OrderByDescending(r => r.RemittanceDate)
-            .Select(r => ToResponse(r))
-            .ToListAsync();
+        var remittances = await _contributionRepo.GetByEmployerAsync(employerId);
+        return remittances.Select(ToResponse);
     }
 
     public async Task<RemittanceResponse> ReconcileAsync(Guid remittanceId)
     {
-        var remittance = await _context.ContributionRemittances.FindAsync(remittanceId)
+        var remittance = await _contributionRepo.FindRemittanceByIdAsync(remittanceId)
             ?? throw new KeyNotFoundException("Remittance not found.");
 
-        var postedCount = await _context.MemberContributions
-            .CountAsync(c => c.RemittanceId == remittanceId && c.Status == ContributionStatus.Posted);
-
+        var postedCount = await _contributionRepo.CountPostedContributionsAsync(remittanceId);
         remittance.Status = postedCount == remittance.CoverageCount
             ? RemittanceStatus.Reconciled
             : RemittanceStatus.Shortfall;
 
-        // Notify employer users of the reconciliation result
-        var employerUsers = await _context.Users
-            .Where(u => u.OrganisationId == remittance.EmployerId && u.Role == UserRole.Employer)
-            .ToListAsync();
-        foreach (var user in employerUsers)
+        var employerUsers = await _userRepo.GetByOrgAndRoleAsync(remittance.EmployerId, UserRole.Employer);
+        var notifications = employerUsers.Select(u => new Notification
         {
-            _context.Notifications.Add(new Notification
-            {
-                UserId = user.UserId,
-                Message = $"Your remittance for period {remittance.RemittancePeriod} has been reconciled. Status: {remittance.Status}.",
-                Category = NotificationCategory.Contribution,
-                Status = NotificationStatus.Unread,
-                CreatedDate = DateTime.UtcNow
-            });
-        }
+            UserId = u.UserId,
+            Message = $"Your remittance for period {remittance.RemittancePeriod} has been reconciled. Status: {remittance.Status}.",
+            Category = NotificationCategory.Contribution,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+        await _notificationRepo.AddRangeAsync(notifications);
 
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await GetRemittanceAsync(remittanceId);
     }
 
     public async Task<IEnumerable<RemittanceResponse>> GetAllRemittancesAsync()
     {
-        var remittances = await _context.ContributionRemittances
-            .Include(r => r.Employer)
-            .OrderByDescending(r => r.RemittanceDate)
-            .ToListAsync();
-            
+        var remittances = await _contributionRepo.GetAllRemittancesAsync();
         return remittances.Select(ToResponse);
     }
 
     public async Task<IEnumerable<MemberContributionResponse>> GetMemberContributionsAsync(Guid memberId)
     {
-        return await _context.MemberContributions
-            .Include(c => c.Member)
-            .Where(c => c.MemberId == memberId)
-            .OrderByDescending(c => c.PostedDate)
-            .Select(c => new MemberContributionResponse(
-                c.ContributionId, c.MemberId, c.Member.Name,
-                c.Period, c.EmployeeAmount, c.EmployerAmount,
-                c.TotalAmount, c.PostedDate, c.Status))
-            .ToListAsync();
+        var contributions = await _contributionRepo.GetByMemberAsync(memberId);
+        return contributions.Select(c => new MemberContributionResponse(
+            c.ContributionId, c.MemberId, c.Member.Name,
+            c.Period, c.EmployeeAmount, c.EmployerAmount,
+            c.TotalAmount, c.PostedDate, c.Status));
     }
 
     public async Task<ReconciliationReportResponse> GetReconciliationReportAsync(Guid remittanceId)
     {
-        var remittance = await _context.ContributionRemittances.FindAsync(remittanceId)
+        var remittance = await _contributionRepo.FindRemittanceByIdAsync(remittanceId)
             ?? throw new KeyNotFoundException("Remittance not found.");
-            
-        var reconciledCount = await _context.MemberContributions
-            .CountAsync(c => c.RemittanceId == remittanceId && c.Status == ContributionStatus.Posted);
-            
-        var reconciledAmount = await _context.MemberContributions
-            .Where(c => c.RemittanceId == remittanceId && c.Status == ContributionStatus.Posted)
-            .SumAsync(c => c.TotalAmount);
+
+        var reconciledCount = await _contributionRepo.CountPostedContributionsAsync(remittanceId);
+        var reconciledAmount = await _contributionRepo.SumReconciledAmountAsync(remittanceId);
 
         return new ReconciliationReportResponse(
             remittance.RemittanceId, remittance.RemittancePeriod,
             remittance.CoverageCount, reconciledCount,
             remittance.TotalAmount, reconciledAmount,
-            remittance.Status.ToString()
-        );
+            remittance.Status.ToString());
     }
 
     public async Task<IEnumerable<RemittanceResponse>> GetDefaultersAsync()
     {
-        return await _context.ContributionRemittances
-            .Include(r => r.Employer)
-            .Where(r => r.Status == RemittanceStatus.Default || r.Status == RemittanceStatus.Shortfall)
-            .OrderByDescending(r => r.RemittanceDate)
-            .Select(r => ToResponse(r))
-            .ToListAsync();
+        var defaults = await _contributionRepo.GetByStatusesAsync(RemittanceStatus.Default, RemittanceStatus.Shortfall);
+        return defaults.Select(ToResponse);
     }
 
     public async Task<IEnumerable<RemittanceResponse>> GetOverdueRemittancesAsync()
     {
-        // For simplicity, considering anything that is not Reconciled as potentially overdue if it's past a certain date
-        // In a real scenario, this would compare RemittancePeriod against current date
-        return await _context.ContributionRemittances
-            .Include(r => r.Employer)
-            .Where(r => r.Status == RemittanceStatus.Received || r.Status == RemittanceStatus.Shortfall || r.Status == RemittanceStatus.Default)
-            .OrderByDescending(r => r.RemittanceDate)
-            .Select(r => ToResponse(r))
-            .ToListAsync();
+        var overdue = await _contributionRepo.GetByStatusesAsync(
+            RemittanceStatus.Received, RemittanceStatus.Shortfall, RemittanceStatus.Default);
+        return overdue.Select(ToResponse);
     }
 
     public async Task<DefaulterSummaryResponse> GetDefaulterSummaryAsync(Guid employerId)
     {
-        var employer = await _context.Employers.FindAsync(employerId)
+        var employer = await _employerRepo.FindByIdAsync(employerId)
             ?? throw new KeyNotFoundException("Employer not found.");
 
-        var missingOrShortfall = await _context.ContributionRemittances
-            .Where(r => r.EmployerId == employerId && (r.Status == RemittanceStatus.Default || r.Status == RemittanceStatus.Shortfall))
-            .ToListAsync();
-            
-        var lastRemittance = await _context.ContributionRemittances
-            .Where(r => r.EmployerId == employerId)
-            .OrderByDescending(r => r.RemittanceDate)
-            .FirstOrDefaultAsync();
+        var missingOrShortfall = await _contributionRepo.GetByStatusesAsync(RemittanceStatus.Default, RemittanceStatus.Shortfall);
+        var employerDefaults = missingOrShortfall.Where(r => r.EmployerId == employerId).ToList();
+
+        var allRemittances = await _contributionRepo.GetByEmployerAsync(employerId);
+        var lastRemittance = allRemittances.FirstOrDefault();
 
         return new DefaulterSummaryResponse(
             employerId, employer.CompanyName,
-            missingOrShortfall.Count,
-            missingOrShortfall.Sum(r => r.TotalAmount),
-            lastRemittance?.RemittancePeriod ?? "None"
-        );
+            employerDefaults.Count,
+            employerDefaults.Sum(r => r.TotalAmount),
+            lastRemittance?.RemittancePeriod ?? "None");
     }
 
     private static RemittanceResponse ToResponse(ContributionRemittance r) => new(
