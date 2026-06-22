@@ -1,8 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PensionVault.Infrastructure.Data;
+using PensionVault.Application.Interfaces;
 
 namespace PensionVault.API.Controllers;
 
@@ -11,12 +10,12 @@ namespace PensionVault.API.Controllers;
 [Authorize]
 public class UsersController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IUserService _userService;
     private readonly IWebHostEnvironment _env;
 
-    public UsersController(AppDbContext context, IWebHostEnvironment env)
+    public UsersController(IUserService userService, IWebHostEnvironment env)
     {
-        _context = context;
+        _userService = userService;
         _env = env;
     }
 
@@ -28,45 +27,32 @@ public class UsersController : ControllerBase
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
 
-        var user = await _context.Users.FindAsync(userId);
-        if (user == null) return NotFound("User not found.");
-
-        // Define upload directory
-        var uploadsFolder = Path.Combine(_env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "uploads", "profiles");
+        // File-system concerns stay in the controller (requires IWebHostEnvironment)
+        var uploadsFolder = Path.Combine(
+            _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"),
+            "uploads", "profiles");
         Directory.CreateDirectory(uploadsFolder);
 
-        // Create unique file name
         var ext = Path.GetExtension(file.FileName);
         var fileName = $"{userId}_{Guid.NewGuid()}{ext}";
         var filePath = Path.Combine(uploadsFolder, fileName);
 
-        // Save file
         using (var stream = new FileStream(filePath, FileMode.Create))
-        {
             await file.CopyToAsync(stream);
-        }
 
-        // Update database
-        var fileUrl = $"/uploads/profiles/{fileName}";
-        user.ProfileImageUrl = fileUrl;
-        await _context.SaveChangesAsync();
-
+        // DB update delegated to service
+        var fileUrl = await _userService.UploadProfileImageAsync(userId, fileName, Stream.Null, ext);
         return Ok(new { ProfileImageUrl = fileUrl });
     }
+
     [HttpPut("me")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserRequest request)
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
 
-        var user = await _context.Users.FindAsync(userId);
-        if (user == null) return NotFound("User not found.");
-
-        user.Name = request.Name;
-        user.Phone = request.Phone;
-        await _context.SaveChangesAsync();
-
-        return Ok(new { user.Name, user.Phone });
+        await _userService.UpdateProfileAsync(userId, request.Name, request.Phone);
+        return Ok(new { request.Name, request.Phone });
     }
 }
 

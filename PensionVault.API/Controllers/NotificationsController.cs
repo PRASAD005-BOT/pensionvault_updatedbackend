@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PensionVault.Application.Services;
-using PensionVault.Domain.Enums;
+using PensionVault.Application.Interfaces;
 using System.Security.Claims;
 
 namespace PensionVault.API.Controllers;
@@ -13,38 +11,29 @@ namespace PensionVault.API.Controllers;
 [Produces("application/json")]
 public class NotificationsController : ControllerBase
 {
-    private readonly IAppDbContext _context;
-    public NotificationsController(IAppDbContext context) => _context = context;
+    private readonly INotificationService _notificationService;
+    public NotificationsController(INotificationService notificationService)
+        => _notificationService = notificationService;
 
     [HttpGet]
     public async Task<IActionResult> GetMyNotifications()
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var query = _context.Notifications.AsQueryable().Where(n => n.UserId == userId);
-
-        var notifications = await query
-            .OrderByDescending(n => n.CreatedDate)
-            .Select(n => new
-            {
-                n.NotificationId, n.Message,
-                Category = n.Category.ToString(),
-                Status = n.Status.ToString(),
-                n.CreatedDate
-            })
-            .ToListAsync();
-        return Ok(notifications);
+        var notifications = await _notificationService.GetMyNotificationsAsync(userId);
+        return Ok(notifications.Select(n => new
+        {
+            n.NotificationId, n.Message,
+            Category = n.Category.ToString(),
+            Status = n.Status.ToString(),
+            n.CreatedDate
+        }));
     }
 
     [HttpPut("{id:guid}/read")]
     public async Task<IActionResult> MarkRead(Guid id)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var query = _context.Notifications.AsQueryable().Where(n => n.UserId == userId);
-
-        var notification = await query.FirstOrDefaultAsync(n => n.NotificationId == id);
-        if (notification == null) return NotFound();
-        notification.Status = NotificationStatus.Read;
-        await _context.SaveChangesAsync();
+        await _notificationService.MarkReadAsync(id, userId);
         return NoContent();
     }
 
@@ -52,14 +41,7 @@ public class NotificationsController : ControllerBase
     public async Task<IActionResult> MarkAllRead()
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var query = _context.Notifications.AsQueryable().Where(n => n.UserId == userId);
-
-        var unreadNotifs = await query.Where(n => n.Status == NotificationStatus.Unread).ToListAsync();
-        foreach (var n in unreadNotifs)
-        {
-            n.Status = NotificationStatus.Read;
-        }
-        await _context.SaveChangesAsync();
+        await _notificationService.MarkAllReadAsync(userId);
         return NoContent();
     }
 
@@ -67,12 +49,7 @@ public class NotificationsController : ControllerBase
     public async Task<IActionResult> Dismiss(Guid id)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        var query = _context.Notifications.AsQueryable().Where(n => n.UserId == userId);
-
-        var notification = await query.FirstOrDefaultAsync(n => n.NotificationId == id);
-        if (notification == null) return NotFound();
-        notification.Status = NotificationStatus.Dismissed;
-        await _context.SaveChangesAsync();
+        await _notificationService.DismissAsync(id, userId);
         return NoContent();
     }
 }

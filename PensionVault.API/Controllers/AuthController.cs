@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PensionVault.Application.DTOs.Auth;
-using PensionVault.Application.Services;
+using PensionVault.Application.Interfaces;
 
 namespace PensionVault.API.Controllers;
 

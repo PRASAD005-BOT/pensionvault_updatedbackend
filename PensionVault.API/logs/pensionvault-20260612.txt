@@ -1,0 +1,1300 @@
+2026-06-12 00:00:51.793 +05:30 [INF] PensionVault API starting on https://localhost:7001
+2026-06-12 00:00:52.220 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2026-06-12 00:03:35.280 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 65.3196 ms
+2026-06-12 00:03:36.099 +05:30 [ERR] HTTP POST /api/auth/register responded 500 in 780.7330 ms
+System.InvalidOperationException: Email already registered.
+   at PensionVault.Application.Services.AuthService.RegisterAsync(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\AuthService.cs:line 49
+   at PensionVault.API.Controllers.AuthController.Register(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\AuthController.cs:line 27
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:03:36.175 +05:30 [ERR] Unhandled exception: Email already registered.
+System.InvalidOperationException: Email already registered.
+   at PensionVault.Application.Services.AuthService.RegisterAsync(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\AuthService.cs:line 49
+   at PensionVault.API.Controllers.AuthController.Register(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\AuthController.cs:line 27
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:06:30.343 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 4.8092 ms
+2026-06-12 00:06:31.042 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 690.6125 ms
+2026-06-12 00:06:31.045 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.0736 ms
+2026-06-12 00:06:31.266 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 219.6428 ms
+2026-06-12 00:06:31.354 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1161 ms
+2026-06-12 00:06:31.356 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0919 ms
+2026-06-12 00:06:31.358 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.1133 ms
+2026-06-12 00:06:31.360 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0923 ms
+2026-06-12 00:06:31.361 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.1179 ms
+2026-06-12 00:06:31.364 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0889 ms
+2026-06-12 00:06:31.364 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0978 ms
+2026-06-12 00:06:31.364 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0481 ms
+2026-06-12 00:06:31.365 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0708 ms
+2026-06-12 00:06:31.365 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.1322 ms
+2026-06-12 00:06:31.696 +05:30 [INF] HTTP GET /api/claims responded 200 in 328.4150 ms
+2026-06-12 00:06:31.707 +05:30 [INF] HTTP GET /api/remittances responded 200 in 337.5124 ms
+2026-06-12 00:06:31.709 +05:30 [INF] HTTP GET /api/claims responded 200 in 11.0091 ms
+2026-06-12 00:06:31.718 +05:30 [INF] HTTP GET /api/remittances responded 200 in 9.0027 ms
+2026-06-12 00:06:31.719 +05:30 [INF] HTTP GET /api/corpus responded 200 in 350.7736 ms
+2026-06-12 00:06:31.727 +05:30 [INF] HTTP GET /api/corpus responded 200 in 7.1993 ms
+2026-06-12 00:06:31.731 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 364.6937 ms
+2026-06-12 00:06:31.740 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 7.0132 ms
+2026-06-12 00:06:31.752 +05:30 [INF] HTTP GET /api/members responded 200 in 386.0586 ms
+2026-06-12 00:06:31.758 +05:30 [INF] HTTP GET /api/members responded 200 in 4.6597 ms
+2026-06-12 00:06:47.268 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2832 ms
+2026-06-12 00:06:47.279 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1330 ms
+2026-06-12 00:06:47.328 +05:30 [INF] HTTP GET /api/employers responded 200 in 45.7529 ms
+2026-06-12 00:06:47.335 +05:30 [INF] HTTP GET /api/employers responded 200 in 5.6242 ms
+2026-06-12 00:07:45.983 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2593 ms
+2026-06-12 00:07:46.108 +05:30 [INF] HTTP POST /api/employers responded 201 in 120.8438 ms
+2026-06-12 00:07:46.118 +05:30 [INF] HTTP GET /api/employers responded 200 in 6.0506 ms
+2026-06-12 00:08:59.337 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 0.4171 ms
+2026-06-12 00:08:59.563 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 217.4855 ms
+2026-06-12 00:08:59.568 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.1158 ms
+2026-06-12 00:08:59.723 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 151.8848 ms
+2026-06-12 00:08:59.766 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.1220 ms
+2026-06-12 00:08:59.775 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.1121 ms
+2026-06-12 00:08:59.822 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 43.5797 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:08:59.824 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:08:59.831 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 3.8231 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:08:59.833 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:09:44.839 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.1149 ms
+2026-06-12 00:09:45.005 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 163.7247 ms
+2026-06-12 00:09:45.045 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0606 ms
+2026-06-12 00:09:45.046 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.1126 ms
+2026-06-12 00:09:45.048 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0784 ms
+2026-06-12 00:09:45.053 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0661 ms
+2026-06-12 00:09:45.053 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0772 ms
+2026-06-12 00:09:45.053 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0634 ms
+2026-06-12 00:09:45.054 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0733 ms
+2026-06-12 00:09:45.055 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.1556 ms
+2026-06-12 00:09:45.057 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0826 ms
+2026-06-12 00:09:45.059 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0668 ms
+2026-06-12 00:09:45.074 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 12.9252 ms
+2026-06-12 00:09:45.076 +05:30 [INF] HTTP GET /api/members responded 200 in 14.3143 ms
+2026-06-12 00:09:45.079 +05:30 [INF] HTTP GET /api/remittances responded 200 in 15.6243 ms
+2026-06-12 00:09:45.081 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 5.4477 ms
+2026-06-12 00:09:45.082 +05:30 [INF] HTTP GET /api/members responded 200 in 5.1442 ms
+2026-06-12 00:09:45.086 +05:30 [INF] HTTP GET /api/remittances responded 200 in 6.3578 ms
+2026-06-12 00:09:45.090 +05:30 [INF] HTTP GET /api/corpus responded 200 in 26.6547 ms
+2026-06-12 00:09:45.090 +05:30 [INF] HTTP GET /api/claims responded 200 in 27.3236 ms
+2026-06-12 00:09:45.095 +05:30 [INF] HTTP GET /api/claims responded 200 in 3.8062 ms
+2026-06-12 00:09:45.095 +05:30 [INF] HTTP GET /api/corpus responded 200 in 3.7237 ms
+2026-06-12 00:09:56.852 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.3436 ms
+2026-06-12 00:09:56.853 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1051 ms
+2026-06-12 00:09:56.855 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0628 ms
+2026-06-12 00:09:56.855 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0622 ms
+2026-06-12 00:09:56.869 +05:30 [INF] HTTP GET /api/employers responded 200 in 7.8244 ms
+2026-06-12 00:09:56.874 +05:30 [INF] HTTP GET /api/employers responded 200 in 3.9936 ms
+2026-06-12 00:09:56.875 +05:30 [INF] HTTP GET /api/members responded 200 in 14.3581 ms
+2026-06-12 00:09:56.879 +05:30 [INF] HTTP GET /api/members responded 200 in 2.8008 ms
+2026-06-12 00:11:52.647 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1146 ms
+2026-06-12 00:11:52.734 +05:30 [WRN] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+2026-06-12 00:11:52.957 +05:30 [ERR] An exception occurred in the database while saving changes for context type 'PensionVault.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-06-12 00:11:52.959 +05:30 [ERR] HTTP POST /api/members responded 500 in 308.5722 ms
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at PensionVault.Application.Services.MemberService.CreateAsync(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 99
+   at PensionVault.API.Controllers.MembersController.Create(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 42
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:11:52.963 +05:30 [ERR] Unhandled exception: An error occurred while saving the entity changes. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at PensionVault.Application.Services.MemberService.CreateAsync(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 99
+   at PensionVault.API.Controllers.MembersController.Create(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 42
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:12:20.978 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 1.8239 ms
+2026-06-12 00:12:20.980 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.5449 ms
+2026-06-12 00:12:21.052 +05:30 [INF] HTTP GET /api/employers responded 200 in 66.0714 ms
+2026-06-12 00:12:21.052 +05:30 [INF] HTTP GET /api/members responded 200 in 66.3188 ms
+2026-06-12 00:12:44.233 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.4336 ms
+2026-06-12 00:12:44.542 +05:30 [ERR] An exception occurred in the database while saving changes for context type 'PensionVault.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2026-06-12 00:12:44.550 +05:30 [ERR] HTTP POST /api/members responded 500 in 314.7389 ms
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at PensionVault.Application.Services.MemberService.CreateAsync(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 99
+   at PensionVault.API.Controllers.MembersController.Create(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 42
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:12:44.563 +05:30 [ERR] Unhandled exception: An error occurred while saving the entity changes. See the inner exception for details.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.SqlClient.SqlException (0x80131904): The INSERT statement conflicted with the FOREIGN KEY constraint "FK_Members_Users_UserId". The conflict occurred in database "PensionVaultDb", table "dbo.Users", column 'UserId'.
+   at Microsoft.Data.SqlClient.SqlConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreRows(Boolean& moreRows)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryHasMoreResults(Boolean& moreResults)
+   at Microsoft.Data.SqlClient.SqlDataReader.TryNextResult(Boolean& more)
+   at Microsoft.Data.SqlClient.SqlDataReader.NextResultAsyncExecute(Task task, Object state)
+   at Microsoft.Data.SqlClient.SqlDataReader.InvokeAsyncCall[T](SqlDataReaderBaseAsyncCallContext`1 context)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+ClientConnectionId:ea09222c-b481-433e-ab14-6ee3e9c65dfb
+Error Number:547,State:0,Class:16
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.AffectedCountModificationCommandBatch.ConsumeAsync(RelationalDataReader reader, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Update.Internal.SqlServerModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at PensionVault.Application.Services.MemberService.CreateAsync(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 99
+   at PensionVault.API.Controllers.MembersController.Create(CreateMemberRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 42
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:13:33.064 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.2902 ms
+2026-06-12 00:13:33.064 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0811 ms
+2026-06-12 00:13:33.082 +05:30 [INF] HTTP GET /api/employers responded 200 in 12.7720 ms
+2026-06-12 00:13:33.098 +05:30 [INF] HTTP GET /api/members responded 200 in 29.0544 ms
+2026-06-12 00:17:50.375 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 0.0853 ms
+2026-06-12 00:17:50.659 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 251.1749 ms
+2026-06-12 00:19:23.427 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.0459 ms
+2026-06-12 00:19:23.592 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 161.9015 ms
+2026-06-12 00:19:23.641 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.0439 ms
+2026-06-12 00:19:23.646 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.0542 ms
+2026-06-12 00:19:23.662 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 12.6003 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:19:23.664 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:19:23.671 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 4.1957 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:19:23.673 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:19:28.417 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0597 ms
+2026-06-12 00:19:28.418 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0415 ms
+2026-06-12 00:19:28.488 +05:30 [INF] HTTP GET /api/notifications responded 200 in 67.8182 ms
+2026-06-12 00:19:28.493 +05:30 [INF] HTTP GET /api/notifications responded 200 in 3.5579 ms
+2026-06-12 00:20:44.535 +05:30 [INF] PensionVault API starting on https://localhost:7001
+2026-06-12 00:20:44.776 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2026-06-12 00:21:50.689 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 14.3585 ms
+2026-06-12 00:21:51.169 +05:30 [ERR] HTTP POST /api/auth/login responded 500 in 470.2437 ms
+System.UnauthorizedAccessException: Invalid email or password.
+   at PensionVault.Application.Services.AuthService.LoginAsync(LoginRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\AuthService.cs:line 38
+   at PensionVault.API.Controllers.AuthController.Login(LoginRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\AuthController.cs:line 19
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:21:51.207 +05:30 [ERR] Unhandled exception: Invalid email or password.
+System.UnauthorizedAccessException: Invalid email or password.
+   at PensionVault.Application.Services.AuthService.LoginAsync(LoginRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\AuthService.cs:line 38
+   at PensionVault.API.Controllers.AuthController.Login(LoginRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\AuthController.cs:line 19
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:22:23.301 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 1.6432 ms
+2026-06-12 00:22:23.698 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 394.1894 ms
+2026-06-12 00:22:23.768 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1611 ms
+2026-06-12 00:22:23.771 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.1741 ms
+2026-06-12 00:22:23.773 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.1051 ms
+2026-06-12 00:22:23.773 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0578 ms
+2026-06-12 00:22:23.777 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0998 ms
+2026-06-12 00:22:23.778 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1010 ms
+2026-06-12 00:22:23.778 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0691 ms
+2026-06-12 00:22:23.779 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.1171 ms
+2026-06-12 00:22:23.779 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.1367 ms
+2026-06-12 00:22:23.779 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0567 ms
+2026-06-12 00:22:24.025 +05:30 [INF] HTTP GET /api/claims responded 200 in 242.6339 ms
+2026-06-12 00:22:24.028 +05:30 [INF] HTTP GET /api/remittances responded 200 in 242.0891 ms
+2026-06-12 00:22:24.033 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 250.8952 ms
+2026-06-12 00:22:24.034 +05:30 [INF] HTTP GET /api/remittances responded 200 in 4.3529 ms
+2026-06-12 00:22:24.034 +05:30 [INF] HTTP GET /api/claims responded 200 in 7.7478 ms
+2026-06-12 00:22:24.039 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 4.5891 ms
+2026-06-12 00:22:24.040 +05:30 [INF] HTTP GET /api/corpus responded 200 in 256.2387 ms
+2026-06-12 00:22:24.045 +05:30 [INF] HTTP GET /api/corpus responded 200 in 3.4827 ms
+2026-06-12 00:22:24.054 +05:30 [INF] HTTP GET /api/members responded 200 in 272.1424 ms
+2026-06-12 00:22:24.060 +05:30 [INF] HTTP GET /api/members responded 200 in 4.9933 ms
+2026-06-12 00:22:29.621 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.2305 ms
+2026-06-12 00:22:29.622 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0832 ms
+2026-06-12 00:22:29.666 +05:30 [INF] HTTP GET /api/notifications responded 200 in 38.8437 ms
+2026-06-12 00:22:29.670 +05:30 [INF] HTTP GET /api/notifications responded 200 in 3.2219 ms
+2026-06-12 00:22:49.305 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 1.0093 ms
+2026-06-12 00:22:49.401 +05:30 [ERR] HTTP POST /api/auth/register responded 500 in 92.3397 ms
+System.InvalidOperationException: Email already registered.
+   at PensionVault.Application.Services.AuthService.RegisterAsync(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\AuthService.cs:line 49
+   at PensionVault.API.Controllers.AuthController.Register(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\AuthController.cs:line 27
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:22:49.406 +05:30 [ERR] Unhandled exception: Email already registered.
+System.InvalidOperationException: Email already registered.
+   at PensionVault.Application.Services.AuthService.RegisterAsync(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\AuthService.cs:line 49
+   at PensionVault.API.Controllers.AuthController.Register(RegisterRequest request) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\AuthController.cs:line 27
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:23:05.255 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 0.6078 ms
+2026-06-12 00:23:05.697 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 428.9162 ms
+2026-06-12 00:23:05.703 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.3235 ms
+2026-06-12 00:23:05.870 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 164.4789 ms
+2026-06-12 00:23:05.890 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.0680 ms
+2026-06-12 00:23:05.891 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.0510 ms
+2026-06-12 00:23:05.923 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 28.1500 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:23:05.925 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:23:05.931 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 4.0688 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:23:05.932 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:23:38.016 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.2342 ms
+2026-06-12 00:23:38.227 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 208.2470 ms
+2026-06-12 00:23:38.276 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0837 ms
+2026-06-12 00:23:38.278 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0624 ms
+2026-06-12 00:23:38.280 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.1013 ms
+2026-06-12 00:23:38.281 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.2164 ms
+2026-06-12 00:23:38.282 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.1211 ms
+2026-06-12 00:23:38.283 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0758 ms
+2026-06-12 00:23:38.283 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0584 ms
+2026-06-12 00:23:38.285 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0811 ms
+2026-06-12 00:23:38.288 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0741 ms
+2026-06-12 00:23:38.290 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0783 ms
+2026-06-12 00:23:38.301 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 9.3018 ms
+2026-06-12 00:23:38.302 +05:30 [INF] HTTP GET /api/corpus responded 200 in 9.4353 ms
+2026-06-12 00:23:38.302 +05:30 [INF] HTTP GET /api/members responded 200 in 11.5652 ms
+2026-06-12 00:23:38.307 +05:30 [INF] HTTP GET /api/corpus responded 200 in 3.4737 ms
+2026-06-12 00:23:38.307 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 5.1271 ms
+2026-06-12 00:23:38.308 +05:30 [INF] HTTP GET /api/members responded 200 in 3.1265 ms
+2026-06-12 00:23:38.308 +05:30 [INF] HTTP GET /api/remittances responded 200 in 14.2841 ms
+2026-06-12 00:23:38.309 +05:30 [INF] HTTP GET /api/claims responded 200 in 15.9466 ms
+2026-06-12 00:23:38.314 +05:30 [INF] HTTP GET /api/remittances responded 200 in 4.3253 ms
+2026-06-12 00:23:38.316 +05:30 [INF] HTTP GET /api/claims responded 200 in 3.8766 ms
+2026-06-12 00:23:46.151 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1028 ms
+2026-06-12 00:23:46.151 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1711 ms
+2026-06-12 00:23:46.162 +05:30 [INF] HTTP GET /api/notifications responded 200 in 8.1639 ms
+2026-06-12 00:23:46.166 +05:30 [INF] HTTP GET /api/notifications responded 200 in 2.7593 ms
+2026-06-12 00:24:52.894 +05:30 [INF] HTTP OPTIONS /api/auditlogs responded 204 in 0.4880 ms
+2026-06-12 00:24:52.897 +05:30 [INF] HTTP OPTIONS /api/auditlogs responded 204 in 0.0836 ms
+2026-06-12 00:24:52.903 +05:30 [INF] HTTP GET /api/auditlogs responded 404 in 0.7355 ms
+2026-06-12 00:24:52.907 +05:30 [INF] HTTP GET /api/auditlogs responded 404 in 1.2066 ms
+2026-06-12 00:24:54.684 +05:30 [INF] HTTP OPTIONS /api/annuity responded 204 in 0.1837 ms
+2026-06-12 00:24:54.684 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0325 ms
+2026-06-12 00:24:54.684 +05:30 [INF] HTTP OPTIONS /api/annuity responded 204 in 0.0283 ms
+2026-06-12 00:24:54.685 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0273 ms
+2026-06-12 00:24:54.697 +05:30 [INF] HTTP GET /api/members responded 200 in 8.7729 ms
+2026-06-12 00:24:54.701 +05:30 [INF] HTTP GET /api/members responded 200 in 2.5843 ms
+2026-06-12 00:24:54.777 +05:30 [INF] HTTP GET /api/annuity responded 200 in 88.0879 ms
+2026-06-12 00:24:54.782 +05:30 [INF] HTTP GET /api/annuity responded 200 in 3.4594 ms
+2026-06-12 00:24:56.516 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0697 ms
+2026-06-12 00:24:56.516 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0507 ms
+2026-06-12 00:24:56.517 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0465 ms
+2026-06-12 00:24:56.518 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0618 ms
+2026-06-12 00:24:56.552 +05:30 [INF] HTTP GET /api/corpus responded 200 in 27.7917 ms
+2026-06-12 00:24:56.554 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 30.6495 ms
+2026-06-12 00:24:56.562 +05:30 [INF] HTTP GET /api/corpus responded 200 in 8.0418 ms
+2026-06-12 00:24:56.566 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 8.6751 ms
+2026-06-12 00:24:58.449 +05:30 [INF] HTTP OPTIONS /api/fundschemes responded 204 in 0.0850 ms
+2026-06-12 00:24:58.450 +05:30 [INF] HTTP OPTIONS /api/fundschemes responded 204 in 0.0368 ms
+2026-06-12 00:24:58.459 +05:30 [INF] HTTP GET /api/fundschemes responded 404 in 0.7172 ms
+2026-06-12 00:24:58.463 +05:30 [INF] HTTP GET /api/fundschemes responded 404 in 0.7221 ms
+2026-06-12 00:24:59.403 +05:30 [INF] HTTP OPTIONS /api/ledger responded 204 in 0.1924 ms
+2026-06-12 00:24:59.406 +05:30 [INF] HTTP OPTIONS /api/ledger responded 204 in 0.0944 ms
+2026-06-12 00:24:59.415 +05:30 [INF] HTTP GET /api/ledger responded 404 in 0.6630 ms
+2026-06-12 00:24:59.418 +05:30 [INF] HTTP GET /api/ledger responded 404 in 0.9178 ms
+2026-06-12 00:25:00.973 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0912 ms
+2026-06-12 00:25:00.977 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1077 ms
+2026-06-12 00:25:00.977 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.3435 ms
+2026-06-12 00:25:00.979 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0786 ms
+2026-06-12 00:25:00.995 +05:30 [INF] HTTP GET /api/members responded 200 in 7.9337 ms
+2026-06-12 00:25:01.000 +05:30 [INF] HTTP GET /api/members responded 200 in 4.1492 ms
+2026-06-12 00:25:01.001 +05:30 [INF] HTTP GET /api/remittances responded 200 in 15.3946 ms
+2026-06-12 00:25:01.010 +05:30 [INF] HTTP GET /api/remittances responded 200 in 6.0307 ms
+2026-06-12 00:25:03.245 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.1560 ms
+2026-06-12 00:25:03.246 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0684 ms
+2026-06-12 00:25:03.252 +05:30 [INF] HTTP GET /api/members responded 200 in 5.6703 ms
+2026-06-12 00:25:03.257 +05:30 [INF] HTTP GET /api/members responded 200 in 3.0091 ms
+2026-06-12 00:25:03.266 +05:30 [INF] HTTP GET /api/claims responded 200 in 14.2407 ms
+2026-06-12 00:25:03.272 +05:30 [INF] HTTP GET /api/claims responded 200 in 4.7794 ms
+2026-06-12 00:25:04.323 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2870 ms
+2026-06-12 00:25:04.324 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0909 ms
+2026-06-12 00:25:04.331 +05:30 [INF] HTTP GET /api/members responded 200 in 9.5581 ms
+2026-06-12 00:25:04.338 +05:30 [INF] HTTP GET /api/members responded 200 in 4.3971 ms
+2026-06-12 00:25:04.396 +05:30 [INF] HTTP GET /api/employers responded 200 in 66.6316 ms
+2026-06-12 00:25:04.410 +05:30 [INF] HTTP GET /api/employers responded 200 in 9.8040 ms
+2026-06-12 00:25:06.920 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0448 ms
+2026-06-12 00:25:06.923 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.2926 ms
+2026-06-12 00:25:06.946 +05:30 [INF] HTTP GET /api/members responded 200 in 14.3524 ms
+2026-06-12 00:25:06.951 +05:30 [INF] HTTP GET /api/claims responded 200 in 34.1989 ms
+2026-06-12 00:25:06.954 +05:30 [INF] HTTP GET /api/members responded 200 in 5.2717 ms
+2026-06-12 00:25:06.963 +05:30 [INF] HTTP GET /api/claims responded 200 in 9.8085 ms
+2026-06-12 00:25:09.261 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0716 ms
+2026-06-12 00:25:09.263 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0785 ms
+2026-06-12 00:25:09.264 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0792 ms
+2026-06-12 00:25:09.264 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0824 ms
+2026-06-12 00:25:09.264 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0617 ms
+2026-06-12 00:25:09.267 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0845 ms
+2026-06-12 00:25:09.271 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0929 ms
+2026-06-12 00:25:09.274 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0703 ms
+2026-06-12 00:25:09.290 +05:30 [INF] HTTP GET /api/members responded 200 in 32.9838 ms
+2026-06-12 00:25:09.295 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 16.9911 ms
+2026-06-12 00:25:09.298 +05:30 [INF] HTTP GET /api/corpus responded 200 in 16.8019 ms
+2026-06-12 00:25:09.302 +05:30 [INF] HTTP GET /api/remittances responded 200 in 19.6940 ms
+2026-06-12 00:25:09.303 +05:30 [INF] HTTP GET /api/claims responded 200 in 21.2600 ms
+2026-06-12 00:25:09.304 +05:30 [INF] HTTP GET /api/members responded 200 in 12.0704 ms
+2026-06-12 00:25:09.304 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 7.4189 ms
+2026-06-12 00:25:09.307 +05:30 [INF] HTTP GET /api/remittances responded 200 in 4.3650 ms
+2026-06-12 00:25:09.310 +05:30 [INF] HTTP GET /api/corpus responded 200 in 10.4200 ms
+2026-06-12 00:25:09.312 +05:30 [INF] HTTP GET /api/claims responded 200 in 4.7341 ms
+2026-06-12 00:25:52.525 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0387 ms
+2026-06-12 00:25:52.529 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0453 ms
+2026-06-12 00:25:52.540 +05:30 [INF] HTTP GET /api/notifications responded 200 in 7.4458 ms
+2026-06-12 00:25:52.545 +05:30 [INF] HTTP GET /api/notifications responded 200 in 2.9780 ms
+2026-06-12 00:26:00.777 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0520 ms
+2026-06-12 00:26:00.786 +05:30 [INF] HTTP GET /api/notifications responded 200 in 5.1301 ms
+2026-06-12 00:26:05.022 +05:30 [INF] HTTP GET /api/notifications responded 200 in 2.5284 ms
+2026-06-12 00:26:05.025 +05:30 [INF] HTTP GET /api/notifications responded 200 in 2.5254 ms
+2026-06-12 00:27:33.860 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 0.0444 ms
+2026-06-12 00:27:34.108 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 245.0332 ms
+2026-06-12 00:27:34.114 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.0371 ms
+2026-06-12 00:27:34.295 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 178.7544 ms
+2026-06-12 00:27:34.337 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.0548 ms
+2026-06-12 00:27:34.347 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.0523 ms
+2026-06-12 00:27:34.363 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 9.1540 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:27:34.365 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:27:34.371 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 2.6052 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:27:34.372 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 44
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:27:38.017 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0667 ms
+2026-06-12 00:27:38.017 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0365 ms
+2026-06-12 00:27:38.037 +05:30 [INF] HTTP GET /api/notifications responded 200 in 11.1950 ms
+2026-06-12 00:27:38.042 +05:30 [INF] HTTP GET /api/notifications responded 200 in 2.9034 ms
+2026-06-12 00:28:12.498 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.0651 ms
+2026-06-12 00:28:12.842 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 337.2902 ms
+2026-06-12 00:28:12.923 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0784 ms
+2026-06-12 00:28:12.928 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.1328 ms
+2026-06-12 00:28:12.938 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0811 ms
+2026-06-12 00:28:12.938 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.1204 ms
+2026-06-12 00:28:12.939 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0506 ms
+2026-06-12 00:28:12.939 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0500 ms
+2026-06-12 00:28:12.939 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1330 ms
+2026-06-12 00:28:12.943 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0722 ms
+2026-06-12 00:28:12.945 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0617 ms
+2026-06-12 00:28:12.948 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.1913 ms
+2026-06-12 00:28:12.965 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 15.0369 ms
+2026-06-12 00:28:12.970 +05:30 [INF] HTTP GET /api/members responded 200 in 22.4358 ms
+2026-06-12 00:28:12.970 +05:30 [INF] HTTP GET /api/remittances responded 200 in 16.7864 ms
+2026-06-12 00:28:12.973 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 5.7983 ms
+2026-06-12 00:28:12.975 +05:30 [INF] HTTP GET /api/corpus responded 200 in 17.7134 ms
+2026-06-12 00:28:12.979 +05:30 [INF] HTTP GET /api/remittances responded 200 in 4.1389 ms
+2026-06-12 00:28:12.980 +05:30 [INF] HTTP GET /api/members responded 200 in 6.3101 ms
+2026-06-12 00:28:12.980 +05:30 [INF] HTTP GET /api/claims responded 200 in 26.5552 ms
+2026-06-12 00:28:12.985 +05:30 [INF] HTTP GET /api/corpus responded 200 in 7.4112 ms
+2026-06-12 00:28:12.987 +05:30 [INF] HTTP GET /api/claims responded 200 in 4.2200 ms
+2026-06-12 00:28:15.330 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0629 ms
+2026-06-12 00:28:15.341 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1590 ms
+2026-06-12 00:28:15.355 +05:30 [INF] HTTP GET /api/notifications responded 200 in 7.7802 ms
+2026-06-12 00:28:15.360 +05:30 [INF] HTTP GET /api/notifications responded 200 in 3.6191 ms
+2026-06-12 00:29:38.495 +05:30 [INF] PensionVault API starting on https://localhost:7001
+2026-06-12 00:29:38.623 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2026-06-12 00:29:48.453 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 59.2426 ms
+2026-06-12 00:29:48.453 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 59.2237 ms
+2026-06-12 00:29:49.150 +05:30 [INF] HTTP GET /api/notifications responded 200 in 653.5531 ms
+2026-06-12 00:29:49.331 +05:30 [INF] HTTP GET /api/notifications responded 200 in 183.2929 ms
+2026-06-12 00:29:50.898 +05:30 [INF] HTTP OPTIONS /api/auditlogs responded 204 in 0.4511 ms
+2026-06-12 00:29:50.898 +05:30 [INF] HTTP OPTIONS /api/auditlogs responded 204 in 0.4082 ms
+2026-06-12 00:29:50.908 +05:30 [INF] HTTP GET /api/auditlogs responded 404 in 6.8997 ms
+2026-06-12 00:29:50.912 +05:30 [INF] HTTP GET /api/auditlogs responded 404 in 0.9905 ms
+2026-06-12 00:29:52.129 +05:30 [INF] HTTP GET /api/notifications responded 200 in 24.4015 ms
+2026-06-12 00:29:52.140 +05:30 [INF] HTTP GET /api/notifications responded 200 in 8.3860 ms
+2026-06-12 00:30:56.600 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0729 ms
+2026-06-12 00:30:56.600 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.3019 ms
+2026-06-12 00:30:56.626 +05:30 [INF] HTTP GET /api/notifications responded 200 in 18.2253 ms
+2026-06-12 00:30:56.635 +05:30 [INF] HTTP GET /api/notifications responded 200 in 6.5882 ms
+2026-06-12 00:31:30.075 +05:30 [INF] PensionVault API starting on https://localhost:7001
+2026-06-12 00:31:30.202 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2026-06-12 00:31:50.294 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 43.7103 ms
+2026-06-12 00:31:50.294 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 43.8416 ms
+2026-06-12 00:31:51.136 +05:30 [INF] HTTP GET /api/notifications responded 200 in 812.1441 ms
+2026-06-12 00:31:51.297 +05:30 [INF] HTTP GET /api/notifications responded 200 in 161.9876 ms
+2026-06-12 00:32:15.493 +05:30 [INF] HTTP OPTIONS /api/notifications/a019c546-e972-411f-85d8-6d1cc3a86e06/read responded 204 in 0.5117 ms
+2026-06-12 00:32:16.151 +05:30 [INF] HTTP PUT /api/notifications/a019c546-e972-411f-85d8-6d1cc3a86e06/read responded 204 in 648.8377 ms
+2026-06-12 00:32:16.159 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1892 ms
+2026-06-12 00:32:16.189 +05:30 [INF] HTTP GET /api/notifications responded 200 in 21.1127 ms
+2026-06-12 00:32:19.747 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2271 ms
+2026-06-12 00:32:19.748 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2517 ms
+2026-06-12 00:32:19.933 +05:30 [INF] HTTP GET /api/employers responded 200 in 176.0587 ms
+2026-06-12 00:32:19.947 +05:30 [INF] HTTP GET /api/employers responded 200 in 11.7131 ms
+2026-06-12 00:32:27.507 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1676 ms
+2026-06-12 00:32:27.511 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1871 ms
+2026-06-12 00:32:27.513 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1905 ms
+2026-06-12 00:32:27.517 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1943 ms
+2026-06-12 00:32:27.535 +05:30 [INF] HTTP GET /api/employers responded 200 in 11.2879 ms
+2026-06-12 00:32:27.546 +05:30 [INF] HTTP GET /api/employers responded 200 in 8.5072 ms
+2026-06-12 00:32:27.781 +05:30 [INF] HTTP GET /api/members responded 200 in 258.3638 ms
+2026-06-12 00:32:27.789 +05:30 [INF] HTTP GET /api/members responded 200 in 6.2354 ms
+2026-06-12 00:34:09.618 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 1.0552 ms
+2026-06-12 00:34:09.618 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 1.0553 ms
+2026-06-12 00:34:09.675 +05:30 [INF] HTTP GET /api/employers responded 200 in 49.4435 ms
+2026-06-12 00:34:09.685 +05:30 [INF] HTTP GET /api/employers responded 200 in 7.8635 ms
+2026-06-12 00:34:12.231 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.2657 ms
+2026-06-12 00:34:12.235 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.4457 ms
+2026-06-12 00:34:12.244 +05:30 [INF] HTTP GET /api/employers responded 200 in 9.4640 ms
+2026-06-12 00:34:12.279 +05:30 [INF] HTTP GET /api/employers responded 200 in 32.2462 ms
+2026-06-12 00:34:12.291 +05:30 [INF] HTTP GET /api/members responded 200 in 48.0409 ms
+2026-06-12 00:34:12.312 +05:30 [INF] HTTP GET /api/members responded 200 in 18.0334 ms
+2026-06-12 00:34:20.219 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.3113 ms
+2026-06-12 00:34:20.222 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1778 ms
+2026-06-12 00:34:20.244 +05:30 [INF] HTTP GET /api/employers responded 200 in 13.2849 ms
+2026-06-12 00:34:20.256 +05:30 [INF] HTTP GET /api/employers responded 200 in 9.4283 ms
+2026-06-12 00:34:31.580 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.2338 ms
+2026-06-12 00:34:31.581 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1120 ms
+2026-06-12 00:34:31.585 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1391 ms
+2026-06-12 00:34:31.589 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2136 ms
+2026-06-12 00:34:31.602 +05:30 [INF] HTTP GET /api/employers responded 200 in 5.7977 ms
+2026-06-12 00:34:31.610 +05:30 [INF] HTTP GET /api/employers responded 200 in 4.8841 ms
+2026-06-12 00:34:31.611 +05:30 [INF] HTTP GET /api/members responded 200 in 14.9033 ms
+2026-06-12 00:34:31.620 +05:30 [INF] HTTP GET /api/members responded 200 in 5.3223 ms
+2026-06-12 00:35:57.194 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.4374 ms
+2026-06-12 00:35:57.194 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2634 ms
+2026-06-12 00:35:57.213 +05:30 [INF] HTTP GET /api/employers responded 200 in 12.6688 ms
+2026-06-12 00:35:57.222 +05:30 [INF] HTTP GET /api/members responded 200 in 21.5001 ms
+2026-06-12 00:37:22.394 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1162 ms
+2026-06-12 00:37:22.396 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1009 ms
+2026-06-12 00:37:22.501 +05:30 [INF] HTTP GET /api/notifications responded 200 in 98.9442 ms
+2026-06-12 00:37:22.510 +05:30 [INF] HTTP GET /api/notifications responded 200 in 6.7950 ms
+2026-06-12 00:38:09.642 +05:30 [INF] PensionVault API starting on https://localhost:7001
+2026-06-12 00:38:09.812 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2026-06-12 00:38:22.041 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 48.5482 ms
+2026-06-12 00:38:22.041 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 48.7377 ms
+2026-06-12 00:38:22.891 +05:30 [INF] HTTP GET /api/employers responded 200 in 810.4691 ms
+2026-06-12 00:38:53.481 +05:30 [INF] PensionVault API starting on https://localhost:7001
+2026-06-12 00:38:53.974 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
+2026-06-12 00:39:23.001 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 61.8409 ms
+2026-06-12 00:39:23.001 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 62.0555 ms
+2026-06-12 00:39:23.001 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 61.9398 ms
+2026-06-12 00:39:23.001 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 61.8340 ms
+2026-06-12 00:39:23.001 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 62.1293 ms
+2026-06-12 00:39:23.001 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 62.1853 ms
+2026-06-12 00:39:23.037 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 2.9847 ms
+2026-06-12 00:39:23.037 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 3.1708 ms
+2026-06-12 00:39:23.037 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 3.0135 ms
+2026-06-12 00:39:23.037 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 2.9423 ms
+2026-06-12 00:39:24.123 +05:30 [INF] HTTP GET /api/members responded 200 in 1063.8226 ms
+2026-06-12 00:39:24.126 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 1066.9517 ms
+2026-06-12 00:39:24.129 +05:30 [INF] HTTP GET /api/corpus responded 200 in 1069.7589 ms
+2026-06-12 00:39:24.131 +05:30 [INF] HTTP GET /api/remittances responded 200 in 1072.5447 ms
+2026-06-12 00:39:24.153 +05:30 [INF] HTTP GET /api/claims responded 200 in 1114.8199 ms
+2026-06-12 00:39:24.264 +05:30 [INF] HTTP GET /api/corpus responded 200 in 129.1576 ms
+2026-06-12 00:39:24.264 +05:30 [INF] HTTP GET /api/remittances responded 200 in 129.1771 ms
+2026-06-12 00:39:24.265 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 129.7300 ms
+2026-06-12 00:39:24.266 +05:30 [INF] HTTP GET /api/members responded 200 in 145.0250 ms
+2026-06-12 00:39:24.268 +05:30 [INF] HTTP GET /api/claims responded 200 in 111.2166 ms
+2026-06-12 00:39:26.794 +05:30 [INF] HTTP GET /api/members responded 200 in 25.1912 ms
+2026-06-12 00:39:26.843 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 74.7977 ms
+2026-06-12 00:39:26.851 +05:30 [INF] HTTP GET /api/remittances responded 200 in 82.7926 ms
+2026-06-12 00:39:26.860 +05:30 [INF] HTTP GET /api/corpus responded 200 in 91.3763 ms
+2026-06-12 00:39:26.861 +05:30 [INF] HTTP GET /api/claims responded 200 in 92.4957 ms
+2026-06-12 00:39:39.988 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.6962 ms
+2026-06-12 00:39:39.999 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 1.1983 ms
+2026-06-12 00:39:39.999 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.2285 ms
+2026-06-12 00:39:39.999 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1435 ms
+2026-06-12 00:39:40.025 +05:30 [INF] HTTP GET /api/members responded 200 in 20.2529 ms
+2026-06-12 00:39:40.035 +05:30 [INF] HTTP GET /api/members responded 200 in 7.9505 ms
+2026-06-12 00:39:40.119 +05:30 [INF] HTTP GET /api/employers responded 200 in 112.4269 ms
+2026-06-12 00:39:40.134 +05:30 [INF] HTTP GET /api/employers responded 200 in 10.7347 ms
+2026-06-12 00:39:46.459 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1717 ms
+2026-06-12 00:39:46.469 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.4353 ms
+2026-06-12 00:39:46.752 +05:30 [INF] HTTP GET /api/notifications responded 200 in 277.7528 ms
+2026-06-12 00:39:46.764 +05:30 [INF] HTTP GET /api/notifications responded 200 in 9.3912 ms
+2026-06-12 00:39:54.221 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.2036 ms
+2026-06-12 00:39:54.239 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2580 ms
+2026-06-12 00:39:54.240 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.7309 ms
+2026-06-12 00:39:54.242 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.2322 ms
+2026-06-12 00:39:54.270 +05:30 [INF] HTTP GET /api/employers responded 200 in 13.5446 ms
+2026-06-12 00:39:54.276 +05:30 [INF] HTTP GET /api/members responded 200 in 24.9691 ms
+2026-06-12 00:39:54.280 +05:30 [INF] HTTP GET /api/employers responded 200 in 7.1297 ms
+2026-06-12 00:39:54.287 +05:30 [INF] HTTP GET /api/members responded 200 in 8.4374 ms
+2026-06-12 00:39:59.842 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.3450 ms
+2026-06-12 00:39:59.842 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1770 ms
+2026-06-12 00:39:59.856 +05:30 [INF] HTTP GET /api/employers responded 200 in 7.1391 ms
+2026-06-12 00:39:59.857 +05:30 [INF] HTTP GET /api/members responded 200 in 7.5414 ms
+2026-06-12 00:40:15.780 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.1605 ms
+2026-06-12 00:40:15.782 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0890 ms
+2026-06-12 00:40:15.790 +05:30 [INF] HTTP GET /api/employers responded 200 in 3.0671 ms
+2026-06-12 00:40:15.791 +05:30 [INF] HTTP GET /api/members responded 200 in 3.7423 ms
+2026-06-12 00:40:19.458 +05:30 [INF] HTTP GET /api/employers responded 200 in 5.3971 ms
+2026-06-12 00:40:19.458 +05:30 [INF] HTTP GET /api/members responded 200 in 6.3984 ms
+2026-06-12 00:40:19.468 +05:30 [INF] HTTP GET /api/employers responded 200 in 8.1107 ms
+2026-06-12 00:40:19.469 +05:30 [INF] HTTP GET /api/members responded 200 in 8.4140 ms
+2026-06-12 00:40:35.533 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.3581 ms
+2026-06-12 00:40:35.533 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0714 ms
+2026-06-12 00:40:35.574 +05:30 [INF] HTTP GET /api/notifications responded 200 in 26.4204 ms
+2026-06-12 00:40:35.585 +05:30 [INF] HTTP GET /api/notifications responded 200 in 8.5501 ms
+2026-06-12 00:42:24.078 +05:30 [INF] HTTP OPTIONS /api/auth/register responded 204 in 0.0994 ms
+2026-06-12 00:42:25.217 +05:30 [INF] HTTP POST /api/auth/register responded 201 in 1132.8070 ms
+2026-06-12 00:42:25.227 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.1741 ms
+2026-06-12 00:42:25.679 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 448.5873 ms
+2026-06-12 00:42:25.759 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.1109 ms
+2026-06-12 00:42:25.767 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.1739 ms
+2026-06-12 00:42:25.824 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 51.6633 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 46
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:42:25.917 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 46
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:42:25.945 +05:30 [ERR] HTTP GET /api/members/me responded 500 in 8.5448 ms
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 46
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2026-06-12 00:42:25.947 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1142 ms
+2026-06-12 00:42:25.949 +05:30 [ERR] Unhandled exception: Member profile not found for the current user.
+System.Collections.Generic.KeyNotFoundException: Member profile not found for the current user.
+   at PensionVault.Application.Services.MemberService.GetByUserIdAsync(Guid userId) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.Application\Services\MemberService.cs:line 46
+   at PensionVault.API.Controllers.MembersController.GetMyProfile() in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Controllers\MembersController.cs:line 34
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at PensionVault.API.Middleware.ExceptionMiddleware.InvokeAsync(HttpContext context) in C:\Users\vadla\Downloads\Pensionvault backend\PensionVault.API\Middleware\ExceptionMiddleware.cs:line 21
+2026-06-12 00:42:25.961 +05:30 [INF] HTTP GET /api/employers responded 200 in 9.4310 ms
+2026-06-12 00:42:25.974 +05:30 [INF] HTTP GET /api/employers responded 200 in 5.7691 ms
+2026-06-12 00:42:57.969 +05:30 [INF] HTTP OPTIONS /api/members/self-enroll responded 204 in 0.2389 ms
+2026-06-12 00:42:58.119 +05:30 [WRN] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+2026-06-12 00:42:58.509 +05:30 [INF] HTTP POST /api/members/self-enroll responded 200 in 534.3424 ms
+2026-06-12 00:42:58.515 +05:30 [INF] HTTP OPTIONS /api/members/me responded 204 in 0.1136 ms
+2026-06-12 00:42:58.531 +05:30 [INF] HTTP GET /api/members/me responded 200 in 10.6505 ms
+2026-06-12 00:42:58.537 +05:30 [INF] HTTP OPTIONS /api/members/88ed80ba-d235-424c-abaf-eeb9215ffc83/fund-accounts responded 204 in 0.0775 ms
+2026-06-12 00:42:58.604 +05:30 [INF] HTTP GET /api/members/88ed80ba-d235-424c-abaf-eeb9215ffc83/fund-accounts responded 200 in 61.1485 ms
+2026-06-12 00:43:52.008 +05:30 [INF] HTTP OPTIONS /api/auth/login responded 204 in 8.5076 ms
+2026-06-12 00:43:52.721 +05:30 [INF] HTTP POST /api/auth/login responded 200 in 695.2425 ms
+2026-06-12 00:43:52.904 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0841 ms
+2026-06-12 00:43:52.920 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0935 ms
+2026-06-12 00:43:52.936 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.2010 ms
+2026-06-12 00:43:52.941 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.6352 ms
+2026-06-12 00:43:52.941 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.5356 ms
+2026-06-12 00:43:52.941 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.6349 ms
+2026-06-12 00:43:52.941 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.6369 ms
+2026-06-12 00:43:52.942 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0683 ms
+2026-06-12 00:43:52.945 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.1060 ms
+2026-06-12 00:43:52.955 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0940 ms
+2026-06-12 00:43:52.995 +05:30 [INF] HTTP GET /api/members responded 200 in 39.4213 ms
+2026-06-12 00:43:52.995 +05:30 [INF] HTTP GET /api/corpus responded 200 in 32.3179 ms
+2026-06-12 00:43:52.995 +05:30 [INF] HTTP GET /api/remittances responded 200 in 32.4694 ms
+2026-06-12 00:43:52.995 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 37.9680 ms
+2026-06-12 00:43:52.995 +05:30 [INF] HTTP GET /api/claims responded 200 in 32.2306 ms
+2026-06-12 00:43:53.007 +05:30 [INF] HTTP GET /api/corpus responded 200 in 4.8887 ms
+2026-06-12 00:43:53.011 +05:30 [INF] HTTP GET /api/claims responded 200 in 6.6714 ms
+2026-06-12 00:43:53.019 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 17.3819 ms
+2026-06-12 00:43:53.027 +05:30 [INF] HTTP GET /api/remittances responded 200 in 20.0661 ms
+2026-06-12 00:43:53.027 +05:30 [INF] HTTP GET /api/members responded 200 in 22.6360 ms
+2026-06-12 00:43:55.805 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0723 ms
+2026-06-12 00:43:55.807 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0409 ms
+2026-06-12 00:43:55.899 +05:30 [INF] HTTP GET /api/notifications responded 200 in 87.1872 ms
+2026-06-12 00:43:55.910 +05:30 [INF] HTTP GET /api/notifications responded 200 in 8.9727 ms
+2026-06-12 00:44:08.545 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0638 ms
+2026-06-12 00:44:08.546 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.1106 ms
+2026-06-12 00:44:08.547 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0325 ms
+2026-06-12 00:44:08.547 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0333 ms
+2026-06-12 00:44:08.558 +05:30 [INF] HTTP GET /api/employers responded 200 in 6.3095 ms
+2026-06-12 00:44:08.566 +05:30 [INF] HTTP GET /api/employers responded 200 in 6.5329 ms
+2026-06-12 00:44:08.573 +05:30 [INF] HTTP GET /api/members responded 200 in 20.9893 ms
+2026-06-12 00:44:08.583 +05:30 [INF] HTTP GET /api/members responded 200 in 6.4049 ms
+2026-06-12 00:44:50.627 +05:30 [INF] HTTP OPTIONS /api/members/88ed80ba-d235-424c-abaf-eeb9215ffc83/approve responded 204 in 0.1602 ms
+2026-06-12 00:44:50.894 +05:30 [INF] HTTP PUT /api/members/88ed80ba-d235-424c-abaf-eeb9215ffc83/approve responded 200 in 250.5064 ms
+2026-06-12 00:44:50.900 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0585 ms
+2026-06-12 00:44:50.901 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0343 ms
+2026-06-12 00:44:50.908 +05:30 [INF] HTTP GET /api/employers responded 200 in 4.0006 ms
+2026-06-12 00:44:50.914 +05:30 [INF] HTTP GET /api/members responded 200 in 10.2191 ms
+2026-06-12 00:44:52.689 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1238 ms
+2026-06-12 00:44:52.690 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0411 ms
+2026-06-12 00:44:52.731 +05:30 [INF] HTTP GET /api/notifications responded 200 in 23.6567 ms
+2026-06-12 00:44:52.739 +05:30 [INF] HTTP GET /api/notifications responded 200 in 5.8283 ms
+2026-06-12 00:44:56.706 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0489 ms
+2026-06-12 00:44:56.711 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0593 ms
+2026-06-12 00:44:56.713 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0577 ms
+2026-06-12 00:44:56.713 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0575 ms
+2026-06-12 00:44:56.726 +05:30 [INF] HTTP GET /api/employers responded 200 in 6.4913 ms
+2026-06-12 00:44:56.734 +05:30 [INF] HTTP GET /api/members responded 200 in 15.1546 ms
+2026-06-12 00:44:56.736 +05:30 [INF] HTTP GET /api/employers responded 200 in 5.8169 ms
+2026-06-12 00:44:56.741 +05:30 [INF] HTTP GET /api/members responded 200 in 4.1913 ms
+2026-06-12 00:45:28.912 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0504 ms
+2026-06-12 00:45:28.912 +05:30 [INF] HTTP OPTIONS /api/employers responded 204 in 0.0309 ms
+2026-06-12 00:45:28.930 +05:30 [INF] HTTP GET /api/employers responded 200 in 12.0968 ms
+2026-06-12 00:45:28.936 +05:30 [INF] HTTP GET /api/employers responded 200 in 3.6210 ms
+2026-06-12 00:45:34.092 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0565 ms
+2026-06-12 00:45:34.094 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0521 ms
+2026-06-12 00:45:34.098 +05:30 [INF] HTTP OPTIONS /api/claims responded 204 in 0.0908 ms
+2026-06-12 00:45:34.100 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0902 ms
+2026-06-12 00:45:34.117 +05:30 [INF] HTTP GET /api/members responded 200 in 12.6469 ms
+2026-06-12 00:45:34.122 +05:30 [INF] HTTP GET /api/claims responded 200 in 17.4192 ms
+2026-06-12 00:45:34.126 +05:30 [INF] HTTP GET /api/members responded 200 in 6.6097 ms
+2026-06-12 00:45:34.130 +05:30 [INF] HTTP GET /api/claims responded 200 in 4.4367 ms
+2026-06-12 00:45:37.663 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.0768 ms
+2026-06-12 00:45:37.664 +05:30 [INF] HTTP OPTIONS /api/remittances responded 204 in 0.1335 ms
+2026-06-12 00:45:37.670 +05:30 [INF] HTTP GET /api/members responded 200 in 4.5155 ms
+2026-06-12 00:45:37.680 +05:30 [INF] HTTP GET /api/members responded 200 in 7.6834 ms
+2026-06-12 00:45:37.690 +05:30 [INF] HTTP GET /api/remittances responded 200 in 15.8555 ms
+2026-06-12 00:45:37.700 +05:30 [INF] HTTP GET /api/remittances responded 200 in 5.7488 ms
+2026-06-12 00:45:41.880 +05:30 [INF] HTTP OPTIONS /api/ledger responded 204 in 1.7504 ms
+2026-06-12 00:45:41.881 +05:30 [INF] HTTP OPTIONS /api/ledger responded 204 in 0.0499 ms
+2026-06-12 00:45:41.889 +05:30 [INF] HTTP GET /api/ledger responded 404 in 2.1979 ms
+2026-06-12 00:45:41.893 +05:30 [INF] HTTP GET /api/ledger responded 404 in 0.3798 ms
+2026-06-12 00:45:44.936 +05:30 [INF] HTTP OPTIONS /api/fundschemes responded 204 in 0.0788 ms
+2026-06-12 00:45:44.946 +05:30 [INF] HTTP OPTIONS /api/fundschemes responded 204 in 0.0655 ms
+2026-06-12 00:45:44.949 +05:30 [INF] HTTP GET /api/fundschemes responded 404 in 0.3805 ms
+2026-06-12 00:45:44.953 +05:30 [INF] HTTP GET /api/fundschemes responded 404 in 0.3632 ms
+2026-06-12 00:45:46.461 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.1250 ms
+2026-06-12 00:45:46.463 +05:30 [INF] HTTP OPTIONS /api/portfolios responded 204 in 0.0463 ms
+2026-06-12 00:45:46.464 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0428 ms
+2026-06-12 00:45:46.465 +05:30 [INF] HTTP OPTIONS /api/corpus responded 204 in 0.0658 ms
+2026-06-12 00:45:46.484 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 13.1231 ms
+2026-06-12 00:45:46.486 +05:30 [INF] HTTP GET /api/corpus responded 200 in 14.1434 ms
+2026-06-12 00:45:46.492 +05:30 [INF] HTTP GET /api/portfolios responded 200 in 5.4620 ms
+2026-06-12 00:45:46.493 +05:30 [INF] HTTP GET /api/corpus responded 200 in 4.4374 ms
+2026-06-12 00:45:49.251 +05:30 [INF] HTTP OPTIONS /api/annuity responded 204 in 0.0457 ms
+2026-06-12 00:45:49.255 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0840 ms
+2026-06-12 00:45:49.255 +05:30 [INF] HTTP OPTIONS /api/annuity responded 204 in 0.0838 ms
+2026-06-12 00:45:49.258 +05:30 [INF] HTTP OPTIONS /api/members responded 204 in 0.0558 ms
+2026-06-12 00:45:49.272 +05:30 [INF] HTTP GET /api/members responded 200 in 4.3786 ms
+2026-06-12 00:45:49.282 +05:30 [INF] HTTP GET /api/members responded 200 in 5.4993 ms
+2026-06-12 00:45:49.450 +05:30 [INF] HTTP GET /api/annuity responded 200 in 184.2233 ms
+2026-06-12 00:45:49.459 +05:30 [INF] HTTP GET /api/annuity responded 200 in 6.4186 ms
+2026-06-12 00:45:51.568 +05:30 [INF] HTTP OPTIONS /api/auditlogs responded 204 in 0.0605 ms
+2026-06-12 00:45:51.568 +05:30 [INF] HTTP OPTIONS /api/auditlogs responded 204 in 0.0510 ms
+2026-06-12 00:45:51.575 +05:30 [INF] HTTP GET /api/auditlogs responded 404 in 0.3558 ms
+2026-06-12 00:45:51.577 +05:30 [INF] HTTP GET /api/auditlogs responded 404 in 0.3473 ms
+2026-06-12 00:45:53.366 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0392 ms
+2026-06-12 00:45:53.368 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.1535 ms
+2026-06-12 00:45:53.396 +05:30 [INF] HTTP GET /api/notifications responded 200 in 21.3891 ms
+2026-06-12 00:45:53.406 +05:30 [INF] HTTP GET /api/notifications responded 200 in 6.3117 ms
+2026-06-12 00:45:59.014 +05:30 [INF] HTTP OPTIONS /api/notifications/read-all responded 204 in 0.1985 ms
+2026-06-12 00:45:59.172 +05:30 [INF] HTTP PUT /api/notifications/read-all responded 204 in 153.8589 ms
+2026-06-12 00:45:59.179 +05:30 [INF] HTTP OPTIONS /api/notifications responded 204 in 0.0598 ms
+2026-06-12 00:45:59.187 +05:30 [INF] HTTP GET /api/notifications responded 200 in 4.8610 ms

@@ -5,12 +5,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using PensionVault.API.Middleware;
+using PensionVault.Application.Interfaces;
 using PensionVault.Application.Services;
+using PensionVault.Domain.Interfaces;
 using PensionVault.Infrastructure.Data;
+using PensionVault.Infrastructure.Repositories;
 using PensionVault.Infrastructure.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 // ── Serilog ────────────────────────────────────────────────────────────────
 Log.Logger = new LoggerConfiguration()
@@ -18,21 +20,26 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
-// ── Database (PostgreSQL for Render) ──────────────────────────────────────────────────
+// ── Database (SQL Server) ─────────────────────────────────────────────────
 var connString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (connString != null && connString.StartsWith("postgres"))
-{
-    var uri = new Uri(connString);
-    var userInfo = uri.UserInfo.Split(':');
-    connString = $"Host={uri.Host};Port={(uri.IsDefaultPort ? 5432 : uri.Port)};Database={uri.LocalPath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};Ssl Mode=Require;Trust Server Certificate=true;";
-}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connString,
+    options.UseSqlServer(connString,
         sql => sql.MigrationsAssembly("PensionVault.Infrastructure")));
 
-// Register IAppDbContext → AppDbContext
-builder.Services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
+// ── Repositories (Infrastructure) ────────────────────────────────────────
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
+builder.Services.AddScoped<IFundAccountRepository, FundAccountRepository>();
+builder.Services.AddScoped<IFundSchemeRepository, FundSchemeRepository>();
+builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
+builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
+builder.Services.AddScoped<ILedgerRepository, LedgerRepository>();
+builder.Services.AddScoped<IAnnuityRepository, AnnuityRepository>();
+builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 // ── Application Services ──────────────────────────────────────────────────
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -43,6 +50,10 @@ builder.Services.AddScoped<ILedgerService, LedgerService>();
 builder.Services.AddScoped<IClaimService, ClaimService>();
 builder.Services.AddScoped<IInvestmentService, InvestmentService>();
 builder.Services.AddScoped<IAnnuityService, AnnuityService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<ISchemeService, SchemeService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 // ── JWT Authentication ────────────────────────────────────────────────────
 var jwtKey = builder.Configuration["Jwt:Key"]

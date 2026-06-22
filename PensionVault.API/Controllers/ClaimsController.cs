@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using PensionVault.Application.DTOs.Claims;
-using PensionVault.Application.Services;
+using PensionVault.Application.Interfaces;
 
 namespace PensionVault.API.Controllers;
 

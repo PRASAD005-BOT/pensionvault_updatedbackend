@@ -1,0 +1,15 @@
+2026-06-22 21:37:20.311 +05:30 [ERR] Failed executing DbCommand (32ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE [Employers] (
+    [EmployerId] uniqueidentifier NOT NULL,
+    [CompanyName] nvarchar(200) NOT NULL,
+    [RegistrationNumber] nvarchar(100) NOT NULL,
+    [Industry] nvarchar(100) NULL,
+    [EnrolledMemberCount] int NOT NULL,
+    [RemittanceFrequency] nvarchar(20) NOT NULL,
+    [ContactDetails] nvarchar(1000) NULL,
+    [Status] nvarchar(20) NOT NULL,
+    CONSTRAINT [PK_Employers] PRIMARY KEY ([EmployerId])
+);
+2026-06-22 21:47:33.734 +05:30 [INF] PensionVault API starting on https://localhost:7001
+2026-06-22 21:47:34.025 +05:30 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert
+2026-06-22 21:47:48.797 +05:30 [WRN] As of ""2026-06-22T16:17:48.7937973+00:00"", the heartbeat has been running for ""00:00:03.7221249"" which is longer than ""00:00:01"". This could be caused by thread pool starvation.

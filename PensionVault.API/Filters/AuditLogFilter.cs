@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
-using PensionVault.Application.Services;
 using PensionVault.Domain.Entities;
+using PensionVault.Infrastructure.Data;
 
 namespace PensionVault.API.Filters;
 
 public class AuditLogFilter : IAsyncActionFilter
 {
-    private readonly IAppDbContext _context;
+    private readonly AppDbContext _context;
 
-    public AuditLogFilter(IAppDbContext context)
+    public AuditLogFilter(AppDbContext context)
     {
         _context = context;
     }
