@@ -84,6 +84,7 @@ public static class DataSeeder
             Role = UserRole.Member,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:MemberPassword"] ?? "Member@123"),
             OrganisationId = employer.EmployerId,
+            EmployeeId = "EMP-1001",
             Status = UserStatus.Active
         };
         var member1 = new Member
@@ -109,6 +110,7 @@ public static class DataSeeder
             Role = UserRole.Member,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:MemberPassword"] ?? "Member@123"),
             OrganisationId = employer.EmployerId,
+            EmployeeId = "EMP-1002",
             Status = UserStatus.Active
         };
         var member2 = new Member
