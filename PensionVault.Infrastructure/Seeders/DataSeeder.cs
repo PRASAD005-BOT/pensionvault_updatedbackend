@@ -1,5 +1,6 @@
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
 using PensionVault.Infrastructure.Data;
@@ -8,7 +9,7 @@ namespace PensionVault.Infrastructure.Seeders;
 
 public static class DataSeeder
 {
-    public static async Task SeedAsync(AppDbContext context)
+    public static async Task SeedAsync(AppDbContext context, IConfiguration configuration)
     {
         if (await context.Users.AnyAsync()) return;
 
@@ -19,7 +20,7 @@ public static class DataSeeder
             Name = "System Administrator",
             Email = "admin@pensionvault.com",
             Role = UserRole.Admin,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:AdminPassword"] ?? "Admin@123"),
             Status = UserStatus.Active
         };
         context.Users.Add(admin);
@@ -67,7 +68,7 @@ public static class DataSeeder
             Name = "Acme HR Manager",
             Email = "hr@acmetech.com",
             Role = UserRole.Employer,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Employer@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:EmployerPassword"] ?? "Employer@123"),
             OrganisationId = employer.EmployerId,
             Status = UserStatus.Active
         };
@@ -81,7 +82,7 @@ public static class DataSeeder
             Name = "Rajesh Kumar",
             Email = "rajesh.kumar@acmetech.com",
             Role = UserRole.Member,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Member@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:MemberPassword"] ?? "Member@123"),
             OrganisationId = employer.EmployerId,
             Status = UserStatus.Active
         };
@@ -106,7 +107,7 @@ public static class DataSeeder
             Name = "Priya Sharma",
             Email = "priya.sharma@acmetech.com",
             Role = UserRole.Member,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Member@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:MemberPassword"] ?? "Member@123"),
             OrganisationId = employer.EmployerId,
             Status = UserStatus.Active
         };
@@ -164,7 +165,7 @@ public static class DataSeeder
             Name = "Fund Administrator",
             Email = "fundadmin@pensionvault.com",
             Role = UserRole.FundAdmin,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("FundAdmin@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:FundAdminPassword"] ?? "FundAdmin@123"),
             Status = UserStatus.Active
         };
         var compliance = new User
@@ -173,7 +174,7 @@ public static class DataSeeder
             Name = "Compliance Officer",
             Email = "compliance@pensionvault.com",
             Role = UserRole.Compliance,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Compliance@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:CompliancePassword"] ?? "Compliance@123"),
             Status = UserStatus.Active
         };
         var investOfficer = new User
@@ -182,7 +183,7 @@ public static class DataSeeder
             Name = "Investment Officer",
             Email = "investment@pensionvault.com",
             Role = UserRole.InvestmentOfficer,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Invest@123"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(configuration["SeederCredentials:InvestmentOfficerPassword"] ?? "Invest@123"),
             Status = UserStatus.Active
         };
         context.Users.AddRange(fundAdmin, compliance, investOfficer);

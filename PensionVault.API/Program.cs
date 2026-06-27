@@ -84,6 +84,7 @@ builder.Services.AddControllers(options =>
         opts.JsonSerializerOptions.DefaultIgnoreCondition =
             System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
         opts.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        opts.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
 // ── Swagger / OpenAPI ─────────────────────────────────────────────────────
@@ -141,7 +142,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
-    await DataSeeder.SeedAsync(db);
+    await DataSeeder.SeedAsync(db, builder.Configuration);
     
     var nullRetirementMembers = await db.Members.Where(m => m.DateOfRetirement == null).ToListAsync();
     foreach (var m in nullRetirementMembers)
