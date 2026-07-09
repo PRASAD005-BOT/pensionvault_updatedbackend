@@ -27,7 +27,7 @@ public class LedgerRepository : ILedgerRepository
             .Where(e => e.AccountId == accountId && e.EntryType == entryType)
             .SumAsync(e => e.Amount);
 
-    public Task<bool> InterestAlreadyCreditedAsync(Guid accountId, string financialYear)
+    public Task<bool> InterestAlreadyCreditedAsync(Guid accountId, string financialYear) 
         => _context.InterestCreditRecords
             .AnyAsync(r => r.AccountId == accountId && r.FinancialYear == financialYear);
 
