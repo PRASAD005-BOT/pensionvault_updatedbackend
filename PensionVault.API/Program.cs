@@ -182,6 +182,6 @@ app.MapGet("/", context =>
     return System.Threading.Tasks.Task.CompletedTask;
 });
 
-Log.Information("PensionVault API starting on {Url}", "https://localhost:7001");
+Log.Information("PensionVault API starting on {Url}", "http://localhost:5000");
 app.Run();
 
