@@ -66,6 +66,19 @@ public class InvestmentService : IInvestmentService
         var lastCorpus = await _investmentRepo.GetLastFinalisedCorpusAsync(request.SchemeId);
         var openingCorpus = lastCorpus?.ClosingCorpus ?? 0;
 
+        var closingCorpus =
+            openingCorpus
+            + request.TotalContributions
+            - request.TotalWithdrawals
+            + request.InvestmentIncome
+            - request.ManagementExpenses;
+
+        // Prevent negative closing corpus
+        if (closingCorpus < 0)
+        {
+            throw new InvalidOperationException("Closing corpus cannot be negative.");
+        }
+
         var corpus = new CorpusRecord
         {
             SchemeId = request.SchemeId,
@@ -74,10 +87,10 @@ public class InvestmentService : IInvestmentService
             TotalWithdrawals = request.TotalWithdrawals,
             InvestmentIncome = request.InvestmentIncome,
             ManagementExpenses = request.ManagementExpenses,
-            ClosingCorpus = openingCorpus + request.TotalContributions - request.TotalWithdrawals
-                + request.InvestmentIncome - request.ManagementExpenses,
+            ClosingCorpus = closingCorpus,
             Status = CorpusStatus.Draft
         };
+
         await _investmentRepo.AddCorpusAsync(corpus);
         await _unitOfWork.SaveChangesAsync();
 
@@ -89,8 +102,17 @@ public class InvestmentService : IInvestmentService
     {
         var corpus = await _investmentRepo.FindCorpusByIdAsync(corpusId)
             ?? throw new KeyNotFoundException("Corpus record not found.");
+
+        // Prevent double finalisation
+        if (corpus.Status == CorpusStatus.Finalised)
+        {
+            throw new InvalidOperationException("Corpus record is already finalised.");
+        }
+
         corpus.Status = CorpusStatus.Finalised;
+
         await _unitOfWork.SaveChangesAsync();
+
         return ToCorpusResponse(corpus);
     }
 
