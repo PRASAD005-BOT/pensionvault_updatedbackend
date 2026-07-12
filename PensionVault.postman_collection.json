@@ -87,6 +87,22 @@
             "auth": {"type":"bearer","bearer":[{"key":"token","value":"PASTE_COMPLIANCE_TOKEN","type":"string"}]},
             "url": "http://localhost:7000/api/reports/audit-trail"
           }
+        },
+        {
+          "name": "[27] Get All Users (Admin/FundAdmin Only)",
+          "request": {
+            "method": "GET",
+            "auth": {"type":"bearer","bearer":[{"key":"token","value":"PASTE_ADMIN_TOKEN","type":"string"}]},
+            "url": "http://localhost:7000/api/users"
+          }
+        },
+        {
+          "name": "[28] Get Users by Role",
+          "request": {
+            "method": "GET",
+            "auth": {"type":"bearer","bearer":[{"key":"token","value":"PASTE_USER_TOKEN","type":"string"}]},
+            "url": "http://localhost:7000/api/users/by-role/InvestmentOfficer"
+          }
         }
       ]
     },
