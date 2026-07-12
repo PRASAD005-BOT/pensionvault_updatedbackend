@@ -24,4 +24,3 @@ public enum AnnuityRequestStatus { Pending, Approved, Rejected, Cancelled }
 public enum PensionDisbursementStatus { Pending, Disbursed, Failed }
 public enum NotificationCategory { Contribution, Interest, Claim, Annuity, Compliance, Investment }
 public enum NotificationStatus { Unread, Read, Dismissed }
-

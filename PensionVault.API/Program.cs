@@ -14,13 +14,13 @@ using PensionVault.Infrastructure.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Serilog ────────────────────────────────────────────────────────────────
+// ── Serilog 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .CreateLogger();
 builder.Host.UseSerilog();
 
-// ── Database (SQL Server) ─────────────────────────────────────────────────
+// ── Database
 var connString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -54,7 +54,7 @@ builder.Services.AddScoped<IAnnuityRequestRepository, AnnuityRequestRepository>(
 builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
-// ── Application Services ──────────────────────────────────────────────────
+// ── Application Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IEmployerService, EmployerService>();
@@ -68,7 +68,7 @@ builder.Services.AddScoped<ISchemeService, SchemeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 
-// ── JWT Authentication ────────────────────────────────────────────────────
+// ── JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT Key not configured.");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -88,7 +88,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// ── Controllers ───────────────────────────────────────────────────────────
+// ── Controllers
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<PensionVault.Infrastructure.Filters.AuditLogFilter>();
@@ -100,7 +100,7 @@ builder.Services.AddControllers(options =>
         opts.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
     });
 
-// ── Swagger / OpenAPI ─────────────────────────────────────────────────────
+// ── Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -134,7 +134,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ── CORS (for frontend dev) ───────────────────────────────────────────────
+// ── CORS (for frontend dev) 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -150,7 +150,7 @@ if (!Directory.Exists(wwwrootPath))
 
 var app = builder.Build();
 
-// ── Apply Migrations & Seed ────────────────────────────────────────────────
+// ── Apply Migrations & Seed
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -165,7 +165,7 @@ using (var scope = app.Services.CreateScope())
     if (nullRetirementMembers.Any()) await db.SaveChangesAsync();
 }
 
-// ── Middleware Pipeline ───────────────────────────────────────────────────
+// ── Middleware Pipeline
 app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionMiddleware>();
 

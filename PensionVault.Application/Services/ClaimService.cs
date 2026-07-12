@@ -3,6 +3,7 @@ using PensionVault.Application.Interfaces;
 using PensionVault.Domain.Entities;
 using PensionVault.Domain.Enums;
 using PensionVault.Domain.Interfaces;
+using PensionVault.Domain.Constants;
 
 namespace PensionVault.Application.Services;
 
@@ -15,6 +16,12 @@ public class ClaimService : IClaimService
     private readonly INotificationRepository _notificationRepo;
     private readonly IUserRepository _userRepo;
     private readonly IUnitOfWork _unitOfWork;
+
+    // Allowed reason categories for Partial Withdrawals to fix Bug #7
+    private static readonly HashSet<string> AllowedPartialReasons = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Medical", "Housing", "Education", "Marriage"
+    };
 
     public ClaimService(
         IClaimRepository claimRepo,
@@ -36,16 +43,28 @@ public class ClaimService : IClaimService
 
     public async Task<ClaimResponse> SubmitClaimAsync(CreateClaimRequest request)
     {
+        // Guard Block: Fix Bug #2 & Bug #8 (Empty or missing Member ID)
+        if (request.MemberId == Guid.Empty)
+            throw new ArgumentException("A valid Member ID must be specified.");
+
+        // Guard Block: Fix Bug #1, Bug #5 & Bug #8 (Negative values, typos, or zero amount inputs)
         if (request.EligibleAmount <= 0)
-            throw new ArgumentException("Eligible amount must be greater than zero.");
+            throw new ArgumentException("The claim eligible amount must be strictly greater than zero.");
+
+        // Guard Block: Fix Bug #7 (Prevent cross-wiring domain reason paths)
+        if (request.ClaimType == ClaimType.PartialWithdrawal)
+            throw new ArgumentException("Please use the dedicated partial-withdrawal route for early fund requests.");
 
         var member = await _memberRepo.FindByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
         var account = await _accountRepo.FindActiveByMemberAsync(request.MemberId);
-        var vestedAmount = account != null
-            ? Math.Round(account.TotalBalance * (account.VestingPercent / 100), 2)
-            : 0;
+
+        // Guard Block: Fix Bug #3 (Ensure requested total amount does not bypass active ledger balances)
+        if (account == null || request.EligibleAmount > account.TotalBalance)
+            throw new InvalidOperationException("Submission rejected: Requested claim amount exceeds available ledger balance.");
+
+        var vestedAmount = Math.Round(account.TotalBalance * (account.VestingPercent / 100), 2);
 
         var claim = new BenefitClaim
         {
@@ -114,11 +133,20 @@ public class ClaimService : IClaimService
 
     public async Task<DisbursementResponse> DisburseClaimAsync(Guid claimId, DisburseClaimRequest request)
     {
+        // Guard Block: Fix Bug #6 (Prevent negative disbursement mathematical balance inflation hacks)
         if (request.DisbursedAmount <= 0)
-            throw new ArgumentException("Disbursed amount must be greater than zero.");
+            throw new ArgumentException("Disbursed payment value must be strictly greater than zero.");
+
+        if (request.TaxDeducted < 0)
+            throw new ArgumentException("Tax deduction configuration constraints cannot be negative.");
 
         var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
+
+        // Lifecycle Check: Prevent disbursing already finalized workflows
+        if (claim.Status == ClaimStatus.Disbursed)
+            throw new InvalidOperationException("This asset claim processing transaction has already been fully disbursed.");
+
         if (claim.Status != ClaimStatus.Approved)
             throw new InvalidOperationException("Claim must be approved before disbursement.");
 
@@ -174,11 +202,28 @@ public class ClaimService : IClaimService
 
     public async Task<ClaimResponse> SubmitPartialWithdrawalAsync(CreatePartialWithdrawalRequest request)
     {
+        // Guard Block: Fix Bug #2 & Bug #8 (Empty or missing Member ID)
+        if (request.MemberId == Guid.Empty)
+            throw new ArgumentException("A valid Member ID identity constraint must be specified.");
+
+        // Guard Block: Fix Bug #1, Bug #5 & Bug #8 (Negative values, typos, or zero amount inputs)
         if (request.RequestedAmount <= 0)
-            throw new ArgumentException("Requested amount must be greater than zero.");
+            throw new ArgumentException("The requested withdrawal amount must be strictly greater than zero.");
+
+        // Guard Block: Fix Bug #7 (Block inappropriate reason mappings like 'Retirement')
+        if (string.IsNullOrWhiteSpace(request.Reason) || !AllowedPartialReasons.Contains(request.Reason.Trim()))
+        {
+            throw new ArgumentException($"Invalid operational reason value. Allowed reason contexts are: {string.Join(", ", AllowedPartialReasons)}");
+        }
 
         var member = await _memberRepo.FindByIdAsync(request.MemberId)
-            ?? throw new KeyNotFoundException("Member not found.");
+            ?? throw new KeyNotFoundException(ApplicationConstants.MemberNotFound);
+
+        var account = await _accountRepo.FindActiveByMemberAsync(request.MemberId);
+
+        // Guard Block: Fix Bug #3 (Strict ledger boundary validation for overdraft protection)
+        if (account == null || request.RequestedAmount > account.TotalBalance)
+            throw new InvalidOperationException("Submission rejected: Requested partial withdrawal amount exceeds available ledger balance.");
 
         var claim = new BenefitClaim
         {
@@ -207,26 +252,38 @@ public class ClaimService : IClaimService
 
     public async Task<DisbursementResponse> DisbursePartialWithdrawalAsync(Guid claimId, DisbursePartialWithdrawalRequest request)
     {
+        // Guard Block: Fix Bug #6 (Stop downstream zero/negative disbursement values immediately)
+        if (request.DisbursedAmount <= 0)
+            throw new ArgumentException("Disbursed payout amount context value must be strictly greater than zero.");
+
         var disburseRequest = new DisburseClaimRequest(request.DisbursedAmount, 0, request.BankAccountRef);
         return await DisburseClaimAsync(claimId, disburseRequest);
     }
 
-    private async Task<ClaimResponse> UpdateStatusAsync(Guid claimId, ClaimStatus status, Guid processedById)
+    private async Task<ClaimResponse> UpdateStatusAsync(Guid claimId, ClaimStatus targetStatus, Guid processedById)
     {
         var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
-        claim.Status = status;
+
+        // Guard Block: Fix Bug #4 (State verification check to break infinite loop updates)
+        if (claim.Status == targetStatus)
+            throw new InvalidOperationException($"State processing conflict: This claim transaction file is already in the '{targetStatus}' status registry context.");
+
+        if (claim.Status == ClaimStatus.Disbursed)
+            throw new InvalidOperationException("Modification error: State modifications are locked because funds are already fully disbursed.");
+
+        claim.Status = targetStatus;
         claim.ProcessedById = processedById;
 
         var member = await _memberRepo.FindByIdAsync(claim.MemberId);
         if (member != null)
         {
-            string message = status switch
+            string message = targetStatus switch
             {
                 ClaimStatus.UnderReview => $"Your claim of type {claim.ClaimType} is now under review.",
                 ClaimStatus.Approved => $"Congratulations! Your claim of type {claim.ClaimType} for ₹{claim.EligibleAmount:N2} has been APPROVED.",
                 ClaimStatus.Rejected => $"Your claim of type {claim.ClaimType} has been rejected.",
-                _ => $"Your claim of type {claim.ClaimType} status has been updated to {status}."
+                _ => $"Your claim of type {claim.ClaimType} status has been updated to {targetStatus}."
             };
             await _notificationRepo.AddAsync(new Notification
             {
@@ -241,6 +298,5 @@ public class ClaimService : IClaimService
         await _unitOfWork.SaveChangesAsync();
         return await GetClaimAsync(claimId);
     }
-
 
 }
