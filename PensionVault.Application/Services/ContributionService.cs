@@ -150,6 +150,17 @@ public class ContributionService : IContributionService
         });
         await _notificationRepo.AddRangeAsync(empNotifications);
 
+        var admins = await GetAdminUsersAsync();
+        var adminNotifications = admins.Select(adminUser => new Notification
+        {
+            UserId = adminUser.UserId,
+            Message = $"New remittance of ₹{total:N2} submitted for period {request.RemittancePeriod}. Awaiting reconciliation.",
+            Category = NotificationCategory.Compliance,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+        await _notificationRepo.AddRangeAsync(adminNotifications);
+
         await _unitOfWork.SaveChangesAsync();
         return await GetRemittanceAsync(remittance.RemittanceId);
     }
@@ -195,6 +206,17 @@ public class ContributionService : IContributionService
             CreatedDate = DateTime.UtcNow
         });
         await _notificationRepo.AddRangeAsync(notifications);
+
+        var admins = await GetAdminUsersAsync();
+        var adminNotifications = admins.Select(adminUser => new Notification
+        {
+            UserId = adminUser.UserId,
+            Message = $"Remittance for period {remittance.RemittancePeriod} has been reconciled. Status: {remittance.Status}.",
+            Category = NotificationCategory.Compliance,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+        await _notificationRepo.AddRangeAsync(adminNotifications);
 
         await _unitOfWork.SaveChangesAsync();
         return await GetRemittanceAsync(remittanceId);
@@ -276,5 +298,16 @@ public class ContributionService : IContributionService
             lastRemittance?.RemittancePeriod ?? "None");
     }
 
-
+    private async Task<List<User>> GetAdminUsersAsync()
+    {
+        var admins = await _userRepo.GetByRoleAsync(UserRole.Admin);
+        var fundAdmins = await _userRepo.GetByRoleAsync(UserRole.FundAdmin);
+        var compliance = await _userRepo.GetByRoleAsync(UserRole.Compliance);
+        
+        var all = new List<User>();
+        all.AddRange(admins);
+        all.AddRange(fundAdmins);
+        all.AddRange(compliance);
+        return all.GroupBy(u => u.UserId).Select(g => g.First()).ToList();
+    }
 }

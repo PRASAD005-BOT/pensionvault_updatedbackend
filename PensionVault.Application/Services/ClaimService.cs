@@ -87,6 +87,17 @@ public class ClaimService : IClaimService
             CreatedDate = DateTime.UtcNow
         });
 
+        var admins = await GetAdminUsersAsync();
+        var adminNotifications = admins.Select(adminUser => new Notification
+        {
+            UserId = adminUser.UserId,
+            Message = $"New claim submitted by {member.Name} of type {claim.ClaimType} for ₹{claim.EligibleAmount:N2}.",
+            Category = NotificationCategory.Compliance,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+        await _notificationRepo.AddRangeAsync(adminNotifications);
+
         await _unitOfWork.SaveChangesAsync();
         return await GetClaimAsync(claim.ClaimId);
     }
@@ -256,6 +267,17 @@ public class ClaimService : IClaimService
             CreatedDate = DateTime.UtcNow
         });
 
+        var admins = await GetAdminUsersAsync();
+        var adminNotifications = admins.Select(adminUser => new Notification
+        {
+            UserId = adminUser.UserId,
+            Message = $"New partial withdrawal claim submitted by {member.Name} for ₹{claim.EligibleAmount:N2} due to {request.Reason}.",
+            Category = NotificationCategory.Compliance,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+        await _notificationRepo.AddRangeAsync(adminNotifications);
+
         await _unitOfWork.SaveChangesAsync();
         return await GetClaimAsync(claim.ClaimId);
     }
@@ -309,4 +331,16 @@ public class ClaimService : IClaimService
         return await GetClaimAsync(claimId);
     }
 
+    private async Task<List<User>> GetAdminUsersAsync()
+    {
+        var admins = await _userRepo.GetByRoleAsync(UserRole.Admin);
+        var fundAdmins = await _userRepo.GetByRoleAsync(UserRole.FundAdmin);
+        var compliance = await _userRepo.GetByRoleAsync(UserRole.Compliance);
+        
+        var all = new List<User>();
+        all.AddRange(admins);
+        all.AddRange(fundAdmins);
+        all.AddRange(compliance);
+        return all.GroupBy(u => u.UserId).Select(g => g.First()).ToList();
+    }
 }
