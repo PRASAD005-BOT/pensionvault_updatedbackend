@@ -134,6 +134,17 @@ public class MemberService : IMemberService
             CreatedDate = DateTime.UtcNow
         });
 
+        var admins = await GetAdminUsersAsync();
+        var adminNotifications = admins.Select(adminUser => new Notification
+        {
+            UserId = adminUser.UserId,
+            Message = $"New member enrolled: {member.Name}. Membership Number: {member.MembershipNumber}.",
+            Category = NotificationCategory.Compliance,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+        await _notificationRepo.AddRangeAsync(adminNotifications);
+
         await _unitOfWork.SaveChangesAsync();
         return await GetByIdAsync(member.MemberId);
     }
@@ -212,13 +223,14 @@ public class MemberService : IMemberService
             });
         }
 
-        var adminUserIds = await _userRepo.GetByRoleAsync(UserRole.Admin);
-        var adminNotifications = adminUserIds.Select(adminUser => new Notification
+        var admins = await GetAdminUsersAsync();
+        var adminNotifications = admins.Select(adminUser => new Notification
         {
             UserId = adminUser.UserId,
             Message = $"Employee {user.Name} has submitted their profile. Awaiting Membership Number assignment.",
             Category = NotificationCategory.Compliance,
-            Status = NotificationStatus.Unread
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
         });
         await _notificationRepo.AddRangeAsync(adminNotifications);
 
@@ -329,4 +341,17 @@ public class MemberService : IMemberService
         m.Employer?.CompanyName ?? "", m.JoiningDate,
         m.DateOfRetirement, m.NomineeDetails, m.Status, m.User?.ProfileImageUrl,
         m.User?.Email ?? "", m.UserId);
+
+    private async Task<List<User>> GetAdminUsersAsync()
+    {
+        var admins = await _userRepo.GetByRoleAsync(UserRole.Admin);
+        var fundAdmins = await _userRepo.GetByRoleAsync(UserRole.FundAdmin);
+        var compliance = await _userRepo.GetByRoleAsync(UserRole.Compliance);
+        
+        var all = new List<User>();
+        all.AddRange(admins);
+        all.AddRange(fundAdmins);
+        all.AddRange(compliance);
+        return all.GroupBy(u => u.UserId).Select(g => g.First()).ToList();
+    }
 }

@@ -211,7 +211,17 @@ public class ClaimService : IClaimService
             throw new ArgumentException("The requested withdrawal amount must be strictly greater than zero.");
 
         // Guard Block: Fix Bug #7 (Block inappropriate reason mappings like 'Retirement')
-        if (string.IsNullOrWhiteSpace(request.Reason) || !AllowedPartialReasons.Contains(request.Reason.Trim()))
+        string normalizedReason = null;
+        if (!string.IsNullOrWhiteSpace(request.Reason))
+        {
+            var r = request.Reason.ToLowerInvariant();
+            if (r.Contains("medical")) normalizedReason = "Medical";
+            else if (r.Contains("housing") || r.Contains("house")) normalizedReason = "Housing";
+            else if (r.Contains("education") || r.Contains("study") || r.Contains("college") || r.Contains("school")) normalizedReason = "Education";
+            else if (r.Contains("marriage") || r.Contains("wedding")) normalizedReason = "Marriage";
+        }
+
+        if (normalizedReason == null)
         {
             throw new ArgumentException($"Invalid operational reason value. Allowed reason contexts are: {string.Join(", ", AllowedPartialReasons)}");
         }
