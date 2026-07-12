@@ -19,6 +19,9 @@
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.6" />
   </ItemGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\PensionVault.Domain\PensionVault.Domain.csproj" />
     <ProjectReference Include="..\PensionVault.Application\PensionVault.Application.csproj" />
   </ItemGroup>

@@ -8,8 +8,8 @@ namespace PensionVault.Infrastructure.Repositories;
 
 public class FundAccountRepository : IFundAccountRepository
 {
-    private readonly AppDbContext _context;
-    public FundAccountRepository(AppDbContext context) => _context = context;
+    private readonly ContributionsDbContext _context;
+    public FundAccountRepository(ContributionsDbContext context) => _context = context;
 
     public Task<FundAccount?> FindByIdAsync(Guid accountId)
         => _context.FundAccounts.FindAsync(accountId).AsTask();
@@ -20,7 +20,6 @@ public class FundAccountRepository : IFundAccountRepository
 
     public Task<List<FundAccount>> GetByMemberAsync(Guid memberId)
         => _context.FundAccounts
-            .Include(a => a.Scheme)
             .Where(a => a.MemberId == memberId)
             .ToListAsync();
 

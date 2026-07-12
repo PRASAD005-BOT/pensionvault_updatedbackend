@@ -16,6 +16,5 @@ public class MonthlyPensionDisbursement
     public PensionDisbursementStatus Status { get; set; } = PensionDisbursementStatus.Pending;
 
     // Navigation
-    public AnnuityPlan AnnuityPlan { get; set; } = null!;
-    public Member Member { get; set; } = null!;
+    public AnnuityPlan? AnnuityPlan { get; set; }
 }

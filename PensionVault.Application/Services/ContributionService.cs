@@ -39,8 +39,26 @@ public class ContributionService : IContributionService
 
     public async Task<RemittanceResponse> CreateRemittanceAsync(CreateRemittanceRequest request)
     {
-        var employer = await _employerRepo.FindByIdAsync(request.EmployerId)
-            ?? throw new KeyNotFoundException("Employer not found.");
+        if (request.TotalEmployeeShare <= 0)
+            throw new ArgumentException("Total employee share must be greater than zero.");
+        if (request.TotalEmployerShare <= 0)
+            throw new ArgumentException("Total employer share must be greater than zero.");
+
+        if (request.MemberContributions != null)
+        {
+            foreach (var item in request.MemberContributions)
+            {
+                if (item.EmployeeAmount <= 0)
+                    throw new ArgumentException("Member employee contribution amount must be greater than zero.");
+                if (item.EmployerAmount <= 0)
+                    throw new ArgumentException("Member employer contribution amount must be greater than zero.");
+            }
+        }
+
+        var employer = await _employerRepo.FindByIdAsync(request.EmployerId);
+        // NOTE: In microservices architecture, employer lives in Members DB.
+        // If the proxy returns null (cross-service), we continue without throwing.
+
 
         var total = request.TotalEmployeeShare + request.TotalEmployerShare;
         var remittance = new ContributionRemittance
@@ -49,6 +67,7 @@ public class ContributionService : IContributionService
             RemittancePeriod = request.RemittancePeriod,
             TotalEmployeeShare = request.TotalEmployeeShare,
             TotalEmployerShare = request.TotalEmployerShare,
+            TotalPensionAmount = request.TotalPensionAmount,
             TotalAmount = total,
             RemittanceDate = DateTime.UtcNow,
             CoverageCount = request.CoverageCount,
@@ -65,6 +84,7 @@ public class ContributionService : IContributionService
                 Period = request.RemittancePeriod,
                 EmployeeAmount = item.EmployeeAmount,
                 EmployerAmount = item.EmployerAmount,
+                PensionAmount = item.PensionAmount,
                 TotalAmount = item.EmployeeAmount + item.EmployerAmount,
                 PostedDate = DateTime.UtcNow,
                 Status = ContributionStatus.Posted
@@ -77,6 +97,8 @@ public class ContributionService : IContributionService
                 account.EmployeeContributionBalance += item.EmployeeAmount;
                 account.EmployerContributionBalance += item.EmployerAmount;
                 account.TotalBalance += contribution.TotalAmount;
+
+                // EPF contribution credit ledger entry
                 await _ledgerRepo.AddEntryAsync(new LedgerEntry
                 {
                     AccountId = account.AccountId,
@@ -86,6 +108,21 @@ public class ContributionService : IContributionService
                     ReferenceId = remittance.RemittanceId.ToString(),
                     Status = LedgerEntryStatus.Posted
                 });
+
+                // EPS pension credit — tracked separately in PensionBalance
+                if (item.PensionAmount > 0)
+                {
+                    account.PensionBalance += item.PensionAmount;
+                    await _ledgerRepo.AddEntryAsync(new LedgerEntry
+                    {
+                        AccountId = account.AccountId,
+                        EntryType = EntryType.PensionCredit,
+                        Amount = item.PensionAmount,
+                        BalanceAfter = account.PensionBalance,
+                        ReferenceId = remittance.RemittanceId.ToString(),
+                        Status = LedgerEntryStatus.Posted
+                    });
+                }
             }
 
             var member = await _memberRepo.FindByIdAsync(item.MemberId);
@@ -94,7 +131,7 @@ public class ContributionService : IContributionService
                 await _notificationRepo.AddAsync(new Notification
                 {
                     UserId = member.UserId,
-                    Message = $"A contribution of ₹{item.EmployeeAmount + item.EmployerAmount:N2} has been posted to your account for period {request.RemittancePeriod}.",
+                    Message = $"A contribution of ₹{item.EmployeeAmount + item.EmployerAmount:N2} (Pension: ₹{item.PensionAmount:N2}) has been posted to your account for period {request.RemittancePeriod}.",
                     Category = NotificationCategory.Contribution,
                     Status = NotificationStatus.Unread,
                     CreatedDate = DateTime.UtcNow
@@ -121,13 +158,21 @@ public class ContributionService : IContributionService
     {
         var r = await _contributionRepo.FindRemittanceByIdAsync(remittanceId)
             ?? throw new KeyNotFoundException("Remittance not found.");
-        return ToResponse(r);
+        var employer = await _employerRepo.FindByIdAsync(r.EmployerId);
+        return new RemittanceResponse(
+            r.RemittanceId, r.EmployerId, employer?.CompanyName ?? "",
+            r.RemittancePeriod, r.TotalEmployeeShare, r.TotalEmployerShare,
+            r.TotalPensionAmount, r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status);
     }
 
     public async Task<IEnumerable<RemittanceResponse>> GetEmployerRemittancesAsync(Guid employerId)
     {
         var remittances = await _contributionRepo.GetByEmployerAsync(employerId);
-        return remittances.Select(ToResponse);
+        var employer = await _employerRepo.FindByIdAsync(employerId);
+        return remittances.Select(r => new RemittanceResponse(
+            r.RemittanceId, r.EmployerId, employer?.CompanyName ?? "",
+            r.RemittancePeriod, r.TotalEmployeeShare, r.TotalEmployerShare,
+            r.TotalPensionAmount, r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status));
     }
 
     public async Task<RemittanceResponse> ReconcileAsync(Guid remittanceId)
@@ -158,15 +203,21 @@ public class ContributionService : IContributionService
     public async Task<IEnumerable<RemittanceResponse>> GetAllRemittancesAsync()
     {
         var remittances = await _contributionRepo.GetAllRemittancesAsync();
-        return remittances.Select(ToResponse);
+        var employers = await _employerRepo.GetAllAsync();
+        var employerDict = employers.ToDictionary(e => e.EmployerId, e => e.CompanyName);
+        return remittances.Select(r => new RemittanceResponse(
+            r.RemittanceId, r.EmployerId, employerDict.TryGetValue(r.EmployerId, out var name) ? name : "",
+            r.RemittancePeriod, r.TotalEmployeeShare, r.TotalEmployerShare,
+            r.TotalPensionAmount, r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status));
     }
 
     public async Task<IEnumerable<MemberContributionResponse>> GetMemberContributionsAsync(Guid memberId)
     {
+        var member = await _memberRepo.FindByIdAsync(memberId);
         var contributions = await _contributionRepo.GetByMemberAsync(memberId);
         return contributions.Select(c => new MemberContributionResponse(
-            c.ContributionId, c.MemberId, c.Member.Name,
-            c.Period, c.EmployeeAmount, c.EmployerAmount,
+            c.ContributionId, c.MemberId, member?.Name ?? "",
+            c.Period, c.EmployeeAmount, c.EmployerAmount, c.PensionAmount,
             c.TotalAmount, c.PostedDate, c.Status));
     }
 
@@ -188,20 +239,29 @@ public class ContributionService : IContributionService
     public async Task<IEnumerable<RemittanceResponse>> GetDefaultersAsync()
     {
         var defaults = await _contributionRepo.GetByStatusesAsync(RemittanceStatus.Default, RemittanceStatus.Shortfall);
-        return defaults.Select(ToResponse);
+        var employers = await _employerRepo.GetAllAsync();
+        var employerDict = employers.ToDictionary(e => e.EmployerId, e => e.CompanyName);
+        return defaults.Select(r => new RemittanceResponse(
+            r.RemittanceId, r.EmployerId, employerDict.TryGetValue(r.EmployerId, out var name) ? name : "",
+            r.RemittancePeriod, r.TotalEmployeeShare, r.TotalEmployerShare,
+            r.TotalPensionAmount, r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status));
     }
 
     public async Task<IEnumerable<RemittanceResponse>> GetOverdueRemittancesAsync()
     {
         var overdue = await _contributionRepo.GetByStatusesAsync(
             RemittanceStatus.Received, RemittanceStatus.Shortfall, RemittanceStatus.Default);
-        return overdue.Select(ToResponse);
+        var employers = await _employerRepo.GetAllAsync();
+        var employerDict = employers.ToDictionary(e => e.EmployerId, e => e.CompanyName);
+        return overdue.Select(r => new RemittanceResponse(
+            r.RemittanceId, r.EmployerId, employerDict.TryGetValue(r.EmployerId, out var name) ? name : "",
+            r.RemittancePeriod, r.TotalEmployeeShare, r.TotalEmployerShare,
+            r.TotalPensionAmount, r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status));
     }
 
     public async Task<DefaulterSummaryResponse> GetDefaulterSummaryAsync(Guid employerId)
     {
-        var employer = await _employerRepo.FindByIdAsync(employerId)
-            ?? throw new KeyNotFoundException("Employer not found.");
+        var employer = await _employerRepo.FindByIdAsync(employerId);
 
         var missingOrShortfall = await _contributionRepo.GetByStatusesAsync(RemittanceStatus.Default, RemittanceStatus.Shortfall);
         var employerDefaults = missingOrShortfall.Where(r => r.EmployerId == employerId).ToList();
@@ -210,14 +270,11 @@ public class ContributionService : IContributionService
         var lastRemittance = allRemittances.FirstOrDefault();
 
         return new DefaulterSummaryResponse(
-            employerId, employer.CompanyName,
+            employerId, employer?.CompanyName ?? "",
             employerDefaults.Count,
             employerDefaults.Sum(r => r.TotalAmount),
             lastRemittance?.RemittancePeriod ?? "None");
     }
 
-    private static RemittanceResponse ToResponse(ContributionRemittance r) => new(
-        r.RemittanceId, r.EmployerId, r.Employer?.CompanyName ?? "",
-        r.RemittancePeriod, r.TotalEmployeeShare, r.TotalEmployerShare,
-        r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status);
+
 }

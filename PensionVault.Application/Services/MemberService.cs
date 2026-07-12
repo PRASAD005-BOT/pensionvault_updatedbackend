@@ -68,9 +68,34 @@ public class MemberService : IMemberService
         if (await _memberRepo.ExistsByMembershipNumberAsync(request.MembershipNumber))
             throw new InvalidOperationException("Membership number already exists.");
 
+        var existingUser = await _userRepo.FindByEmailAsync(request.Email)
+            ?? await _userRepo.FindByIdAsync(request.UserId);
+
+        Guid targetUserId;
+        if (existingUser == null)
+        {
+            targetUserId = request.UserId == Guid.Empty ? Guid.NewGuid() : request.UserId;
+            var placeholderUser = new User
+            {
+                UserId = targetUserId,
+                Name = request.Name,
+                Email = request.Email,
+                Role = UserRole.Member,
+                PasswordHash = "",
+                Status = UserStatus.Active,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _userRepo.AddAsync(placeholderUser);
+        }
+        else
+        {
+            targetUserId = existingUser.UserId;
+            existingUser.Name = request.Name;
+        }
+
         var member = new Member
         {
-            UserId = request.UserId,
+            UserId = targetUserId,
             MembershipNumber = request.MembershipNumber,
             Name = request.Name,
             DateOfBirth = request.DateOfBirth,
@@ -119,11 +144,29 @@ public class MemberService : IMemberService
             ?? throw new KeyNotFoundException($"Member {id} not found.");
 
         member.Name = request.Name;
+        member.DateOfBirth = request.DateOfBirth;
         member.Gender = request.Gender;
         member.NationalIdRef = request.NationalIdRef;
         member.DateOfRetirement = request.DateOfRetirement;
         member.NomineeDetails = request.NomineeDetails;
         member.Status = request.Status;
+
+        if (member.EmployerId != request.EmployerId)
+        {
+            var oldEmp = await _employerRepo.FindByIdAsync(member.EmployerId);
+            if (oldEmp != null) oldEmp.EnrolledMemberCount--;
+            member.EmployerId = request.EmployerId;
+            var newEmp = await _employerRepo.FindByIdAsync(request.EmployerId);
+            if (newEmp != null) newEmp.EnrolledMemberCount++;
+        }
+
+        member.JoiningDate = request.JoiningDate;
+
+        if (member.User != null)
+        {
+            member.User.Email = request.Email;
+            member.User.Name = request.Name;
+        }
 
         await _unitOfWork.SaveChangesAsync();
         return await GetByIdAsync(id);
@@ -218,14 +261,23 @@ public class MemberService : IMemberService
     public async Task<IEnumerable<object>> GetFundAccountsAsync(Guid memberId)
     {
         var accounts = await _accountRepo.GetByMemberAsync(memberId);
-        return accounts.Select(a => (object)new
+        var resultList = new List<object>();
+        foreach (var a in accounts)
         {
-            a.AccountId, a.MemberId, a.SchemeId,
-            SchemeName = a.Scheme.SchemeName,
-            a.AccountOpenDate, a.EmployeeContributionBalance,
-            a.EmployerContributionBalance, a.InterestAccrued,
-            a.TotalBalance, a.VestingPercent, Status = a.Status.ToString()
-        });
+            var scheme = await _schemeRepo.FindByIdAsync(a.SchemeId);
+            resultList.Add(new
+            {
+                a.AccountId, a.MemberId, a.SchemeId,
+                SchemeName = scheme?.SchemeName ?? "Employee Provident Fund",
+                a.AccountOpenDate, a.EmployeeContributionBalance,
+                a.EmployerContributionBalance, a.PensionBalance, a.InterestAccrued,
+                a.TotalBalance, a.VestingPercent, Status = a.Status.ToString(),
+                EmployeeContribution = a.EmployeeContributionBalance,
+                EmployerContribution = a.EmployerContributionBalance,
+                InterestEarned = a.InterestAccrued
+            });
+        }
+        return resultList;
     }
 
     public async Task<IEnumerable<object>> GetContributionsAsync(Guid memberId)
@@ -275,5 +327,6 @@ public class MemberService : IMemberService
         m.MemberId, m.MembershipNumber, m.Name, m.DateOfBirth,
         m.Gender, m.NationalIdRef, m.EmployerId,
         m.Employer?.CompanyName ?? "", m.JoiningDate,
-        m.DateOfRetirement, m.NomineeDetails, m.Status, m.User?.ProfileImageUrl);
+        m.DateOfRetirement, m.NomineeDetails, m.Status, m.User?.ProfileImageUrl,
+        m.User?.Email ?? "", m.UserId);
 }

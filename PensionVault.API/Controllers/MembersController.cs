@@ -91,7 +91,12 @@ public class MembersController : ControllerBase
             if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
             var member = await _memberService.GetByUserIdAsync(userId);
             if (member.MemberId != id) return Forbid();
-            request = request with { Status = member.Status };
+            request = request with { 
+                Status = member.Status,
+                EmployerId = member.EmployerId,
+                JoiningDate = member.JoiningDate,
+                Email = member.Email
+            };
         }
         else if (User.IsInRole("Employer"))
         {
@@ -99,6 +104,9 @@ public class MembersController : ControllerBase
             var orgClaim = User.FindFirst("OrganisationId");
             if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId) || member.EmployerId != orgId)
                 return Forbid();
+            request = request with { 
+                EmployerId = orgId
+            };
         }
         return Ok(await _memberService.UpdateAsync(id, request));
     }

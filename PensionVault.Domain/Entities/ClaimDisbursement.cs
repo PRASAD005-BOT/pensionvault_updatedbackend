@@ -15,6 +15,5 @@ public class ClaimDisbursement
     public DisbursementStatus Status { get; set; } = DisbursementStatus.Pending;
 
     // Navigation
-    public BenefitClaim Claim { get; set; } = null!;
-    public Member Member { get; set; } = null!;
+    public BenefitClaim? Claim { get; set; }
 }

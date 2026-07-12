@@ -12,16 +12,21 @@ public record CreateMemberRequest(
     Guid EmployerId,
     DateTime JoiningDate,
     DateTime? DateOfRetirement,
-    string? NomineeDetails
+    string? NomineeDetails,
+    string Email
 );
 
 public record UpdateMemberRequest(
     string Name,
+    DateTime DateOfBirth,
     string? Gender,
     string? NationalIdRef,
     DateTime? DateOfRetirement,
     string? NomineeDetails,
-    MemberStatus Status
+    MemberStatus Status,
+    Guid EmployerId,
+    DateTime JoiningDate,
+    string Email
 );
 
 public record SelfEnrollMemberRequest(
@@ -50,5 +55,7 @@ public record MemberResponse(
     DateTime? DateOfRetirement,
     string? NomineeDetails,
     MemberStatus Status,
-    string? ProfileImageUrl
+    string? ProfileImageUrl,
+    string Email,
+    Guid UserId
 );

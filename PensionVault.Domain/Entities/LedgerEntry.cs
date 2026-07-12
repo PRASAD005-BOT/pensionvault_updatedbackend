@@ -14,5 +14,5 @@ public class LedgerEntry
     public LedgerEntryStatus Status { get; set; } = LedgerEntryStatus.Posted;
 
     // Navigation
-    public FundAccount Account { get; set; } = null!;
+    public FundAccount? Account { get; set; }
 }

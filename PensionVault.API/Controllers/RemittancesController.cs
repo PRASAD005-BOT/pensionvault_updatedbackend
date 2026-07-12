@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PensionVault.Application.DTOs.Contributions;
@@ -61,24 +62,67 @@ public class RemittancesController : ControllerBase
 
     /// <summary>Get all contributions for a specific member</summary>
     [HttpGet("member/{memberId:guid}")]
-    [Authorize(Roles = "Member,FundAdmin,Admin")]
-    public async Task<IActionResult> GetMemberContributions(Guid memberId)
-        => Ok(await _contributionService.GetMemberContributionsAsync(memberId));
+    [Authorize(Roles = "Member,FundAdmin,Admin,Employer")]
+    public async Task<IActionResult> GetMemberContributions(Guid memberId, [FromServices] IMemberService memberService)
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId)) return Forbid();
+            var member = await memberService.GetByIdAsync(memberId);
+            if (member.EmployerId != orgId) return Forbid();
+        }
+        else if (User.IsInRole("Member"))
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
+            var member = await memberService.GetByUserIdAsync(userId);
+            if (member.MemberId != memberId) return Forbid();
+        }
+        return Ok(await _contributionService.GetMemberContributionsAsync(memberId));
+    }
 
     [HttpGet("{id:guid}/reconciliation-report")]
-    [Authorize(Roles = "FundAdmin,Admin")]
+    [Authorize(Roles = "FundAdmin,Admin,Employer")]
     public async Task<IActionResult> GetReconciliationReport(Guid id)
-        => Ok(await _contributionService.GetReconciliationReportAsync(id));
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId)) return Forbid();
+            var remittance = await _contributionService.GetRemittanceAsync(id);
+            if (remittance.EmployerId != orgId) return Forbid();
+        }
+        return Ok(await _contributionService.GetReconciliationReportAsync(id));
+    }
 
     [HttpGet("defaulters")]
-    [Authorize(Roles = "FundAdmin,Admin,Compliance")]
+    [Authorize(Roles = "FundAdmin,Admin,Compliance,Employer")]
     public async Task<IActionResult> GetDefaulters()
-        => Ok(await _contributionService.GetDefaultersAsync());
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId)) return Forbid();
+            var allDefaulters = await _contributionService.GetDefaultersAsync();
+            return Ok(allDefaulters.Where(d => d.EmployerId == orgId));
+        }
+        return Ok(await _contributionService.GetDefaultersAsync());
+    }
 
     [HttpGet("overdue")]
-    [Authorize(Roles = "FundAdmin,Admin,Compliance")]
+    [Authorize(Roles = "FundAdmin,Admin,Compliance,Employer")]
     public async Task<IActionResult> GetOverdueRemittances()
-        => Ok(await _contributionService.GetOverdueRemittancesAsync());
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId)) return Forbid();
+            var allOverdue = await _contributionService.GetOverdueRemittancesAsync();
+            return Ok(allOverdue.Where(o => o.EmployerId == orgId));
+        }
+        return Ok(await _contributionService.GetOverdueRemittancesAsync());
+    }
 
     [HttpGet("employer/{employerId:guid}/defaulter-summary")]
     [Authorize(Roles = "FundAdmin,Admin,Compliance,Employer")]

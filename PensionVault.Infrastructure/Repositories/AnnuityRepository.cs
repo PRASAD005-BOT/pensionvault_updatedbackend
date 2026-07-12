@@ -8,31 +8,31 @@ namespace PensionVault.Infrastructure.Repositories;
 
 public class AnnuityRepository : IAnnuityRepository
 {
-    private readonly AppDbContext _context;
-    public AnnuityRepository(AppDbContext context) => _context = context;
+    private readonly AnnuityDbContext _context;
+    public AnnuityRepository(AnnuityDbContext context) => _context = context;
 
     public Task<AnnuityPlan?> FindByIdAsync(Guid annuityId)
         => _context.AnnuityPlans
-            .Include(a => a.Member)
             .FirstOrDefaultAsync(a => a.AnnuityId == annuityId);
 
     public Task<List<AnnuityPlan>> GetAllAsync()
         => _context.AnnuityPlans
-            .Include(a => a.Member)
             .OrderByDescending(a => a.AnnuityStartDate)
             .ToListAsync();
 
     public Task<List<MonthlyPensionDisbursement>> GetDisbursementsAsync(Guid annuityId)
         => _context.MonthlyPensionDisbursements
-            .Include(d => d.Member)
             .Where(d => d.AnnuityId == annuityId)
             .OrderByDescending(d => d.Year).ThenByDescending(d => d.Month)
             .ToListAsync();
 
     public Task<MonthlyPensionDisbursement?> FindDisbursementByIdAsync(Guid disbursementId)
         => _context.MonthlyPensionDisbursements
-            .Include(d => d.Member)
             .FirstOrDefaultAsync(d => d.DisbursementId == disbursementId);
+
+    public Task<bool> ExistsDisbursementForMonthAsync(Guid annuityId, int month, int year)
+        => _context.MonthlyPensionDisbursements
+            .AnyAsync(d => d.AnnuityId == annuityId && d.Month == month && d.Year == year);
 
     public async Task AddAsync(AnnuityPlan plan)
         => await _context.AnnuityPlans.AddAsync(plan);

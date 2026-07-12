@@ -18,10 +18,6 @@ public class Member
     public MemberStatus Status { get; set; } = MemberStatus.Active;
 
     // Navigation
-    public User User { get; set; } = null!;
-    public Employer Employer { get; set; } = null!;
-    public ICollection<FundAccount> FundAccounts { get; set; } = new List<FundAccount>();
-    public ICollection<MemberContribution> Contributions { get; set; } = new List<MemberContribution>();
-    public ICollection<BenefitClaim> Claims { get; set; } = new List<BenefitClaim>();
-    public ICollection<AnnuityPlan> AnnuityPlans { get; set; } = new List<AnnuityPlan>();
+    public User? User { get; set; }
+    public Employer? Employer { get; set; }
 }

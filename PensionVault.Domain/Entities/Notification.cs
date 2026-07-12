@@ -12,5 +12,5 @@ public class Notification
     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
     // Navigation
-    public User User { get; set; } = null!;
+    public User? User { get; set; }
 }

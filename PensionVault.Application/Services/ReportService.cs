@@ -7,6 +7,7 @@ namespace PensionVault.Application.Services;
 public class ReportService : IReportService
 {
     private readonly IContributionRepository _contributionRepo;
+    private readonly IEmployerRepository _employerRepo;
     private readonly IFundSchemeRepository _schemeRepo;
     private readonly IFundAccountRepository _accountRepo;
     private readonly IAnnuityRepository _annuityRepo;
@@ -14,12 +15,14 @@ public class ReportService : IReportService
 
     public ReportService(
         IContributionRepository contributionRepo,
+        IEmployerRepository employerRepo,
         IFundSchemeRepository schemeRepo,
         IFundAccountRepository accountRepo,
         IAnnuityRepository annuityRepo,
         ILedgerRepository ledgerRepo)
     {
         _contributionRepo = contributionRepo;
+        _employerRepo = employerRepo;
         _schemeRepo = schemeRepo;
         _accountRepo = accountRepo;
         _annuityRepo = annuityRepo;
@@ -31,10 +34,13 @@ public class ReportService : IReportService
         var defaults = await _contributionRepo.GetByStatusesAsync(
             RemittanceStatus.Default, RemittanceStatus.Shortfall);
 
+        var employers = await _employerRepo.GetAllAsync();
+        var employerDict = employers.ToDictionary(e => e.EmployerId, e => e.CompanyName);
+
         return defaults.Select(r => (object)new
         {
             r.RemittanceId, r.EmployerId,
-            EmployerName = r.Employer?.CompanyName ?? "",
+            EmployerName = employerDict.TryGetValue(r.EmployerId, out var name) ? name : "",
             r.RemittancePeriod, r.TotalAmount,
             Status = r.Status.ToString(), r.RemittanceDate
         });

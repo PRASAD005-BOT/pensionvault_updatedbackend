@@ -7,8 +7,8 @@ namespace PensionVault.Infrastructure.Repositories;
 
 public class EmployerRepository : IEmployerRepository
 {
-    private readonly AppDbContext _context;
-    public EmployerRepository(AppDbContext context) => _context = context;
+    private readonly MembersDbContext _context;
+    public EmployerRepository(MembersDbContext context) => _context = context;
 
     public Task<Employer?> FindByIdAsync(Guid employerId)
         => _context.Employers.FindAsync(employerId).AsTask();

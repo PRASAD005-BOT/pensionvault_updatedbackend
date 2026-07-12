@@ -8,8 +8,8 @@ namespace PensionVault.Infrastructure.Repositories;
 
 public class LedgerRepository : ILedgerRepository
 {
-    private readonly AppDbContext _context;
-    public LedgerRepository(AppDbContext context) => _context = context;
+    private readonly ContributionsDbContext _context;
+    public LedgerRepository(ContributionsDbContext context) => _context = context;
 
     public Task<List<LedgerEntry>> GetByAccountAsync(Guid accountId)
         => _context.LedgerEntries

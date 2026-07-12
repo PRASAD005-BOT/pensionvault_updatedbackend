@@ -15,7 +15,5 @@ public class BenefitClaim
     public ClaimStatus Status { get; set; } = ClaimStatus.Submitted;
 
     // Navigation
-    public Member Member { get; set; } = null!;
-    public User? ProcessedBy { get; set; }
     public ICollection<ClaimDisbursement> Disbursements { get; set; } = new List<ClaimDisbursement>();
 }

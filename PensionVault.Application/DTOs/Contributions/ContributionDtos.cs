@@ -7,6 +7,7 @@ public record CreateRemittanceRequest(
     string RemittancePeriod,
     decimal TotalEmployeeShare,
     decimal TotalEmployerShare,
+    decimal TotalPensionAmount,
     int CoverageCount,
     List<MemberContributionItem> MemberContributions
 );
@@ -14,7 +15,8 @@ public record CreateRemittanceRequest(
 public record MemberContributionItem(
     Guid MemberId,
     decimal EmployeeAmount,
-    decimal EmployerAmount
+    decimal EmployerAmount,
+    decimal PensionAmount
 );
 
 public record RemittanceResponse(
@@ -24,6 +26,7 @@ public record RemittanceResponse(
     string RemittancePeriod,
     decimal TotalEmployeeShare,
     decimal TotalEmployerShare,
+    decimal TotalPensionAmount,
     decimal TotalAmount,
     DateTime RemittanceDate,
     int CoverageCount,
@@ -37,6 +40,7 @@ public record MemberContributionResponse(
     string Period,
     decimal EmployeeAmount,
     decimal EmployerAmount,
+    decimal PensionAmount,
     decimal TotalAmount,
     DateTime PostedDate,
     ContributionStatus Status

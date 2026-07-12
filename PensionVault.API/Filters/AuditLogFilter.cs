@@ -7,11 +7,21 @@ namespace PensionVault.API.Filters;
 
 public class AuditLogFilter : IAsyncActionFilter
 {
-    private readonly AppDbContext _context;
+    private readonly AppDbContext? _context;
+    private readonly AuditDbContext? _auditContext;
 
+    // Used by the main monolith (AppDbContext has AuditLogs)
     public AuditLogFilter(AppDbContext context)
     {
         _context = context;
+        _auditContext = null;
+    }
+
+    // Used by non-Members microservices (only AuditDbContext)
+    public AuditLogFilter(AuditDbContext auditContext)
+    {
+        _context = null;
+        _auditContext = auditContext;
     }
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -20,8 +30,8 @@ public class AuditLogFilter : IAsyncActionFilter
         var resultContext = await next();
 
         // 2. Check if action succeeded (no exception and HTTP status 2xx)
-        if (resultContext.Exception == null && 
-            resultContext.HttpContext.Response.StatusCode >= 200 && 
+        if (resultContext.Exception == null &&
+            resultContext.HttpContext.Response.StatusCode >= 200 &&
             resultContext.HttpContext.Response.StatusCode < 300)
         {
             var httpContext = resultContext.HttpContext;
@@ -31,7 +41,7 @@ public class AuditLogFilter : IAsyncActionFilter
             if (method == "POST" || method == "PUT" || method == "DELETE")
             {
                 var path = httpContext.Request.Path.Value ?? "";
-                
+
                 // Skip authentication paths except registration (which creates a user)
                 if (path.Contains("/api/auth/login") || path.Contains("/api/auth/refresh"))
                     return;
@@ -59,7 +69,7 @@ public class AuditLogFilter : IAsyncActionFilter
 
                     // Form a clean Action name (e.g. "CreateMember", "ReconcileRemittance")
                     var cleanAction = $"{actionName}{controllerName}";
-                    if (cleanAction.EndsWith("sController")) 
+                    if (cleanAction.EndsWith("sController"))
                         cleanAction = cleanAction.Substring(0, cleanAction.Length - 11);
                     else if (cleanAction.EndsWith("Controller"))
                         cleanAction = cleanAction.Substring(0, cleanAction.Length - 10);
@@ -82,8 +92,23 @@ public class AuditLogFilter : IAsyncActionFilter
                         Timestamp = DateTime.UtcNow
                     };
 
-                    _context.AuditLogs.Add(auditLog);
-                    await _context.SaveChangesAsync();
+                    try
+                    {
+                        if (_context != null)
+                        {
+                            _context.AuditLogs.Add(auditLog);
+                            await _context.SaveChangesAsync();
+                        }
+                        else if (_auditContext != null)
+                        {
+                            _auditContext.AuditLogs.Add(auditLog);
+                            await _auditContext.SaveChangesAsync();
+                        }
+                    }
+                    catch
+                    {
+                        // Audit logging must never break the main request
+                    }
                 }
             }
         }

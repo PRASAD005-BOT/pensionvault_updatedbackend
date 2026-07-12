@@ -13,8 +13,4 @@ public class FundScheme
     public string? VestingSchedule { get; set; } // JSON
     public SchemeStatus Status { get; set; } = SchemeStatus.Active;
 
-    // Navigation
-    public ICollection<FundAccount> FundAccounts { get; set; } = new List<FundAccount>();
-    public ICollection<InvestmentPortfolio> Portfolios { get; set; } = new List<InvestmentPortfolio>();
-    public ICollection<CorpusRecord> CorpusRecords { get; set; } = new List<CorpusRecord>();
 }

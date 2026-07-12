@@ -40,6 +40,9 @@ public class LedgerService : ILedgerService
 
     public async Task<InterestCreditResponse> CreditInterestAsync(CreditInterestRequest request)
     {
+        if (request.InterestRate <= 0)
+            throw new ArgumentException("Interest rate must be greater than zero.");
+
         var account = await _accountRepo.FindByIdAsync(request.AccountId)
             ?? throw new KeyNotFoundException("Fund account not found.");
 

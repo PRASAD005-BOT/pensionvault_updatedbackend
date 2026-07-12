@@ -10,14 +10,15 @@ public class FundAccount
     public DateTime AccountOpenDate { get; set; }
     public decimal EmployeeContributionBalance { get; set; }
     public decimal EmployerContributionBalance { get; set; }
+    public decimal PensionBalance { get; set; }         // EPS pension corpus (separate from EPF)
     public decimal InterestAccrued { get; set; }
     public decimal TotalBalance { get; set; }
     public decimal VestingPercent { get; set; }
     public FundAccountStatus Status { get; set; } = FundAccountStatus.Active;
 
     // Navigation
-    public Member Member { get; set; } = null!;
-    public FundScheme Scheme { get; set; } = null!;
+    public FundScheme? Scheme { get; set; }
     public ICollection<LedgerEntry> LedgerEntries { get; set; } = new List<LedgerEntry>();
     public ICollection<InterestCreditRecord> InterestRecords { get; set; } = new List<InterestCreditRecord>();
 }
+

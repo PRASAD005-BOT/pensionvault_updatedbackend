@@ -15,5 +15,4 @@ public class Employer
 
     // Navigation
     public ICollection<Member> Members { get; set; } = new List<Member>();
-    public ICollection<ContributionRemittance> Remittances { get; set; } = new List<ContributionRemittance>();
 }

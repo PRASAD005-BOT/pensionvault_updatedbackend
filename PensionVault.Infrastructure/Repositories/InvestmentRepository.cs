@@ -8,17 +8,16 @@ namespace PensionVault.Infrastructure.Repositories;
 
 public class InvestmentRepository : IInvestmentRepository
 {
-    private readonly AppDbContext _context;
-    public InvestmentRepository(AppDbContext context) => _context = context;
+    private readonly ContributionsDbContext _context;
+    public InvestmentRepository(ContributionsDbContext context) => _context = context;
 
     public Task<InvestmentPortfolio?> FindPortfolioByIdAsync(Guid portfolioId)
         => _context.InvestmentPortfolios
-            .Include(p => p.Scheme)
             .FirstOrDefaultAsync(p => p.PortfolioId == portfolioId);
 
     public Task<List<InvestmentPortfolio>> GetPortfoliosAsync(Guid? schemeId = null)
     {
-        var query = _context.InvestmentPortfolios.Include(p => p.Scheme).AsQueryable();
+        var query = _context.InvestmentPortfolios.AsQueryable();
         if (schemeId.HasValue) query = query.Where(p => p.SchemeId == schemeId);
         return query.ToListAsync();
     }
@@ -28,12 +27,11 @@ public class InvestmentRepository : IInvestmentRepository
 
     public Task<CorpusRecord?> FindCorpusByIdAsync(Guid corpusId)
         => _context.CorpusRecords
-            .Include(c => c.Scheme)
             .FirstOrDefaultAsync(c => c.CorpusId == corpusId);
 
     public Task<List<CorpusRecord>> GetCorpusRecordsAsync(Guid? schemeId = null)
     {
-        var query = _context.CorpusRecords.Include(c => c.Scheme).AsQueryable();
+        var query = _context.CorpusRecords.AsQueryable();
         if (schemeId.HasValue) query = query.Where(c => c.SchemeId == schemeId);
         return query.OrderByDescending(c => c.RecordDate).ToListAsync();
     }

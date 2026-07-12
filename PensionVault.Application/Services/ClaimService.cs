@@ -13,6 +13,7 @@ public class ClaimService : IClaimService
     private readonly IFundAccountRepository _accountRepo;
     private readonly ILedgerRepository _ledgerRepo;
     private readonly INotificationRepository _notificationRepo;
+    private readonly IUserRepository _userRepo;
     private readonly IUnitOfWork _unitOfWork;
 
     public ClaimService(
@@ -21,6 +22,7 @@ public class ClaimService : IClaimService
         IFundAccountRepository accountRepo,
         ILedgerRepository ledgerRepo,
         INotificationRepository notificationRepo,
+        IUserRepository userRepo,
         IUnitOfWork unitOfWork)
     {
         _claimRepo = claimRepo;
@@ -28,11 +30,15 @@ public class ClaimService : IClaimService
         _accountRepo = accountRepo;
         _ledgerRepo = ledgerRepo;
         _notificationRepo = notificationRepo;
+        _userRepo = userRepo;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<ClaimResponse> SubmitClaimAsync(CreateClaimRequest request)
     {
+        if (request.EligibleAmount <= 0)
+            throw new ArgumentException("Eligible amount must be greater than zero.");
+
         var member = await _memberRepo.FindByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
@@ -69,14 +75,32 @@ public class ClaimService : IClaimService
     public async Task<IEnumerable<ClaimResponse>> GetAllClaimsAsync()
     {
         var claims = await _claimRepo.GetAllAsync();
-        return claims.Select(ToResponse);
+        var members = await _memberRepo.GetAllAsync();
+        var memberDict = members.ToDictionary(m => m.MemberId, m => m.Name);
+        var list = new List<ClaimResponse>();
+        foreach (var c in claims)
+        {
+            var processedBy = c.ProcessedById.HasValue ? await _userRepo.FindByIdAsync(c.ProcessedById.Value) : null;
+            list.Add(new ClaimResponse(
+                c.ClaimId, c.MemberId, memberDict.TryGetValue(c.MemberId, out var name) ? name : "",
+                c.ClaimType, c.ClaimDate, c.EligibleAmount,
+                c.VestedAmount, c.TaxDeductible,
+                processedBy?.Name, c.Status));
+        }
+        return list;
     }
 
     public async Task<ClaimResponse> GetClaimAsync(Guid claimId)
     {
         var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
-        return ToResponse(claim);
+        var member = await _memberRepo.FindByIdAsync(claim.MemberId);
+        var processedBy = claim.ProcessedById.HasValue ? await _userRepo.FindByIdAsync(claim.ProcessedById.Value) : null;
+        return new ClaimResponse(
+            claim.ClaimId, claim.MemberId, member?.Name ?? "",
+            claim.ClaimType, claim.ClaimDate, claim.EligibleAmount,
+            claim.VestedAmount, claim.TaxDeductible,
+            processedBy?.Name, claim.Status);
     }
 
     public Task<ClaimResponse> ReviewClaimAsync(Guid claimId, Guid processedById)
@@ -90,6 +114,9 @@ public class ClaimService : IClaimService
 
     public async Task<DisbursementResponse> DisburseClaimAsync(Guid claimId, DisburseClaimRequest request)
     {
+        if (request.DisbursedAmount <= 0)
+            throw new ArgumentException("Disbursed amount must be greater than zero.");
+
         var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
         if (claim.Status != ClaimStatus.Approved)
@@ -124,11 +151,12 @@ public class ClaimService : IClaimService
             });
         }
 
-        if (claim.Member != null)
+        var member = await _memberRepo.FindByIdAsync(claim.MemberId);
+        if (member != null)
         {
             await _notificationRepo.AddAsync(new Notification
             {
-                UserId = claim.Member.UserId,
+                UserId = member.UserId,
                 Message = $"Your claim payout of ₹{disbursement.NetAmount:N2} has been disbursed to bank account {disbursement.BankAccountRef}.",
                 Category = NotificationCategory.Claim,
                 Status = NotificationStatus.Unread,
@@ -146,6 +174,9 @@ public class ClaimService : IClaimService
 
     public async Task<ClaimResponse> SubmitPartialWithdrawalAsync(CreatePartialWithdrawalRequest request)
     {
+        if (request.RequestedAmount <= 0)
+            throw new ArgumentException("Requested amount must be greater than zero.");
+
         var member = await _memberRepo.FindByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
@@ -187,7 +218,8 @@ public class ClaimService : IClaimService
         claim.Status = status;
         claim.ProcessedById = processedById;
 
-        if (claim.Member != null)
+        var member = await _memberRepo.FindByIdAsync(claim.MemberId);
+        if (member != null)
         {
             string message = status switch
             {
@@ -198,7 +230,7 @@ public class ClaimService : IClaimService
             };
             await _notificationRepo.AddAsync(new Notification
             {
-                UserId = claim.Member.UserId,
+                UserId = member.UserId,
                 Message = message,
                 Category = NotificationCategory.Claim,
                 Status = NotificationStatus.Unread,
@@ -210,9 +242,5 @@ public class ClaimService : IClaimService
         return await GetClaimAsync(claimId);
     }
 
-    private static ClaimResponse ToResponse(BenefitClaim c) => new(
-        c.ClaimId, c.MemberId, c.Member?.Name ?? "",
-        c.ClaimType, c.ClaimDate, c.EligibleAmount,
-        c.VestedAmount, c.TaxDeductible,
-        c.ProcessedBy?.Name, c.Status);
+
 }

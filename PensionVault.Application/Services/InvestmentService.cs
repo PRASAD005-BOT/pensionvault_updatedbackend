@@ -10,11 +10,19 @@ public class InvestmentService : IInvestmentService
 {
     private readonly IInvestmentRepository _investmentRepo;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationRepository _notificationRepo;
+    private readonly IUserRepository _userRepo;
 
-    public InvestmentService(IInvestmentRepository investmentRepo, IUnitOfWork unitOfWork)
+    public InvestmentService(
+        IInvestmentRepository investmentRepo, 
+        IUnitOfWork unitOfWork,
+        INotificationRepository notificationRepo,
+        IUserRepository userRepo)
     {
         _investmentRepo = investmentRepo;
         _unitOfWork = unitOfWork;
+        _notificationRepo = notificationRepo;
+        _userRepo = userRepo;
     }
 
     public async Task<IEnumerable<PortfolioResponse>> GetPortfoliosAsync(Guid? schemeId = null)
@@ -25,17 +33,40 @@ public class InvestmentService : IInvestmentService
 
     public async Task<PortfolioResponse> CreatePortfolioAsync(CreatePortfolioRequest request)
     {
+        var portfolios = await _investmentRepo.GetPortfoliosAsync(request.SchemeId);
+        var existing = portfolios.FirstOrDefault(p => p.AssetClass == request.AssetClass);
+
+        if (existing != null)
+        {
+            existing.InvestedValue += request.InvestedValue;
+            existing.CurrentValue += request.CurrentValue;
+            existing.YieldEarned += request.YieldEarned;
+            existing.LastUpdated = DateTime.UtcNow;
+
+            await RecalculateAllocationsAsync(request.SchemeId);
+
+            await CreateInvestmentNotificationAsync($"Investment added to existing fund for asset class {existing.AssetClass}. Added: ₹{request.InvestedValue:N2}, new total current value: ₹{existing.CurrentValue:N2}.");
+            await _unitOfWork.SaveChangesAsync();
+
+            var updated = await _investmentRepo.FindPortfolioByIdAsync(existing.PortfolioId);
+            return ToPortfolioResponse(updated!);
+        }
+
         var portfolio = new InvestmentPortfolio
         {
             SchemeId = request.SchemeId,
             AssetClass = request.AssetClass,
-            AllocationPercent = request.AllocationPercent,
             InvestedValue = request.InvestedValue,
             CurrentValue = request.CurrentValue,
             YieldEarned = request.YieldEarned,
             LastUpdated = DateTime.UtcNow
         };
         await _investmentRepo.AddPortfolioAsync(portfolio);
+        await _unitOfWork.SaveChangesAsync();
+
+        await RecalculateAllocationsAsync(request.SchemeId);
+
+        await CreateInvestmentNotificationAsync($"New portfolio created for asset class {portfolio.AssetClass}.");
         await _unitOfWork.SaveChangesAsync();
 
         var created = await _investmentRepo.FindPortfolioByIdAsync(portfolio.PortfolioId);
@@ -46,13 +77,40 @@ public class InvestmentService : IInvestmentService
     {
         var portfolio = await _investmentRepo.FindPortfolioByIdAsync(portfolioId)
             ?? throw new KeyNotFoundException("Portfolio not found.");
-        portfolio.AllocationPercent = request.AllocationPercent;
         portfolio.InvestedValue = request.InvestedValue;
         portfolio.CurrentValue = request.CurrentValue;
         portfolio.YieldEarned = request.YieldEarned;
         portfolio.LastUpdated = DateTime.UtcNow;
+
+        await RecalculateAllocationsAsync(portfolio.SchemeId);
+
+        await CreateInvestmentNotificationAsync($"Portfolio for asset class {portfolio.AssetClass} updated. Current value: ₹{portfolio.CurrentValue:N2}, Yield: ₹{portfolio.YieldEarned:N2}.");
         await _unitOfWork.SaveChangesAsync();
-        return ToPortfolioResponse(portfolio);
+        
+        var updated = await _investmentRepo.FindPortfolioByIdAsync(portfolioId);
+        return ToPortfolioResponse(updated!);
+    }
+
+    private async Task RecalculateAllocationsAsync(Guid schemeId)
+    {
+        var portfolios = await _investmentRepo.GetPortfoliosAsync(schemeId);
+        decimal totalCurrentValue = portfolios.Sum(p => p.CurrentValue);
+
+        if (totalCurrentValue > 0)
+        {
+            foreach (var p in portfolios)
+            {
+                p.AllocationPercent = Math.Round((p.CurrentValue / totalCurrentValue) * 100, 2);
+            }
+        }
+        else if (portfolios.Any())
+        {
+            decimal equalShare = Math.Round(100.00m / portfolios.Count, 2);
+            foreach (var p in portfolios)
+            {
+                p.AllocationPercent = equalShare;
+            }
+        }
     }
 
     public async Task<IEnumerable<CorpusResponse>> GetCorpusRecordsAsync(Guid? schemeId = null)
@@ -79,6 +137,7 @@ public class InvestmentService : IInvestmentService
             Status = CorpusStatus.Draft
         };
         await _investmentRepo.AddCorpusAsync(corpus);
+        await CreateInvestmentNotificationAsync($"New draft corpus record created for date {corpus.RecordDate:yyyy-MM-dd}. Closing corpus: ₹{corpus.ClosingCorpus:N2}.");
         await _unitOfWork.SaveChangesAsync();
 
         var created = await _investmentRepo.FindCorpusByIdAsync(corpus.CorpusId);
@@ -90,6 +149,7 @@ public class InvestmentService : IInvestmentService
         var corpus = await _investmentRepo.FindCorpusByIdAsync(corpusId)
             ?? throw new KeyNotFoundException("Corpus record not found.");
         corpus.Status = CorpusStatus.Finalised;
+        await CreateInvestmentNotificationAsync($"Corpus record for date {corpus.RecordDate:yyyy-MM-dd} has been finalised. Final closing corpus: ₹{corpus.ClosingCorpus:N2}.");
         await _unitOfWork.SaveChangesAsync();
         return ToCorpusResponse(corpus);
     }
@@ -105,4 +165,22 @@ public class InvestmentService : IInvestmentService
         c.ClosingCorpus - c.TotalContributions + c.TotalWithdrawals - c.InvestmentIncome + c.ManagementExpenses,
         c.TotalContributions, c.TotalWithdrawals,
         c.InvestmentIncome, c.ManagementExpenses, c.ClosingCorpus, c.Status);
+
+    private async Task CreateInvestmentNotificationAsync(string message)
+    {
+        var ioUsers = await _userRepo.GetByRoleAsync(UserRole.InvestmentOfficer);
+        var notifications = ioUsers.Select(user => new Notification
+        {
+            UserId = user.UserId,
+            Message = message,
+            Category = NotificationCategory.Investment,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        }).ToList();
+
+        if (notifications.Any())
+        {
+            await _notificationRepo.AddRangeAsync(notifications);
+        }
+    }
 }

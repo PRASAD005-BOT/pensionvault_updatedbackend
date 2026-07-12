@@ -14,5 +14,5 @@ public class InvestmentPortfolio
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
     // Navigation
-    public FundScheme Scheme { get; set; } = null!;
+    public FundScheme? Scheme { get; set; }
 }

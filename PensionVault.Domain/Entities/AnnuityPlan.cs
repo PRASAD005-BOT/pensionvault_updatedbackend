@@ -14,6 +14,5 @@ public class AnnuityPlan
     public AnnuityStatus Status { get; set; } = AnnuityStatus.Active;
 
     // Navigation
-    public Member Member { get; set; } = null!;
     public ICollection<MonthlyPensionDisbursement> PensionDisbursements { get; set; } = new List<MonthlyPensionDisbursement>();
 }

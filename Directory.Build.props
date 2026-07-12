@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <WarningLevel>0</WarningLevel>
+    <NoWarn>$(NoWarn);NU1510;NU1605;NU5105;NU1504;NU1505;NU1701</NoWarn>
+  </PropertyGroup>
+</Project>

@@ -15,5 +15,5 @@ public class CorpusRecord
     public CorpusStatus Status { get; set; } = CorpusStatus.Draft;
 
     // Navigation
-    public FundScheme Scheme { get; set; } = null!;
+    public FundScheme? Scheme { get; set; }
 }

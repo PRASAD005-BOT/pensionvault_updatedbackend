@@ -10,7 +10,7 @@ public enum MemberStatus { Active, Resigned, Retired, Deceased, Transferred }
 public enum FundAccountStatus { Active, Settled, Frozen }
 public enum RemittanceStatus { Received, Reconciled, Shortfall, Default }
 public enum ContributionStatus { Posted, Reversed, Pending }
-public enum EntryType { ContributionCredit, InterestCredit, PartialWithdrawal, TransferIn, TransferOut, ClaimDebit, AnnuityDebit }
+public enum EntryType { ContributionCredit, InterestCredit, PartialWithdrawal, TransferIn, TransferOut, ClaimDebit, AnnuityDebit, PensionCredit }
 public enum LedgerEntryStatus { Posted, Reversed }
 public enum InterestCreditStatus { Computed, Credited }
 public enum ClaimType { Retirement, Resignation, PartialWithdrawal, DeathClaim, Disability, Marriage, Housing }
@@ -20,6 +20,8 @@ public enum AssetClass { GovernmentSecurities, CorporateBonds, Equity, FixedDepo
 public enum CorpusStatus { Draft, Finalised }
 public enum AnnuityPlanType { LifeAnnuity, JointAnnuity, TemporaryAnnuity, GuaranteedAnnuity }
 public enum AnnuityStatus { Active, Suspended, Lapsed, Settled, Terminated }
+public enum AnnuityRequestStatus { Pending, Approved, Rejected, Cancelled }
 public enum PensionDisbursementStatus { Pending, Disbursed, Failed }
 public enum NotificationCategory { Contribution, Interest, Claim, Annuity, Compliance, Investment }
 public enum NotificationStatus { Unread, Read, Dismissed }
+

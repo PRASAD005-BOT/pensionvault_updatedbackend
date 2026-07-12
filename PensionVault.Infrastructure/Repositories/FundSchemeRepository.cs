@@ -7,8 +7,8 @@ namespace PensionVault.Infrastructure.Repositories;
 
 public class FundSchemeRepository : IFundSchemeRepository
 {
-    private readonly AppDbContext _context;
-    public FundSchemeRepository(AppDbContext context) => _context = context;
+    private readonly MembersDbContext _context;
+    public FundSchemeRepository(MembersDbContext context) => _context = context;
 
     public Task<FundScheme?> FindByIdAsync(Guid schemeId)
         => _context.FundSchemes.FindAsync(schemeId).AsTask();

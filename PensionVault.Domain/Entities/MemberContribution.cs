@@ -10,11 +10,11 @@ public class MemberContribution
     public string Period { get; set; } = string.Empty; // YYYY-MM
     public decimal EmployeeAmount { get; set; }
     public decimal EmployerAmount { get; set; }
+    public decimal PensionAmount { get; set; }  // EPS (Employee Pension Scheme) portion
     public decimal TotalAmount { get; set; }
     public DateTime PostedDate { get; set; } = DateTime.UtcNow;
     public ContributionStatus Status { get; set; } = ContributionStatus.Pending;
 
     // Navigation
-    public ContributionRemittance Remittance { get; set; } = null!;
-    public Member Member { get; set; } = null!;
+    public ContributionRemittance? Remittance { get; set; }
 }

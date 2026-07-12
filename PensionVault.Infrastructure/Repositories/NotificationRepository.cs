@@ -7,8 +7,8 @@ namespace PensionVault.Infrastructure.Repositories;
 
 public class NotificationRepository : INotificationRepository
 {
-    private readonly AppDbContext _context;
-    public NotificationRepository(AppDbContext context) => _context = context;
+    private readonly MembersDbContext _context;
+    public NotificationRepository(MembersDbContext context) => _context = context;
 
     public Task<List<Notification>> GetByUserAsync(Guid userId)
         => _context.Notifications

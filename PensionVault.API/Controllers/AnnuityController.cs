@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PensionVault.Application.DTOs.Annuity;
@@ -12,13 +13,22 @@ namespace PensionVault.API.Controllers;
 public class AnnuityController : ControllerBase
 {
     private readonly IAnnuityService _annuityService;
-    public AnnuityController(IAnnuityService annuityService) => _annuityService = annuityService;
+    private readonly IMemberService _memberService;
+    public AnnuityController(IAnnuityService annuityService, IMemberService memberService)
+    {
+        _annuityService = annuityService;
+        _memberService = memberService;
+    }
 
+    // ── Approved Annuity Plans ─────────────────────────────────────────────────
+
+    /// <summary>Get all approved annuity plans (Admin/FundAdmin view)</summary>
     [HttpGet]
     [Authorize(Roles = "FundAdmin,Admin,Compliance")]
     public async Task<IActionResult> GetAll()
         => Ok(await _annuityService.GetAllAnnuitiesAsync());
 
+    /// <summary>Manually create an annuity plan (Admin override)</summary>
     [HttpPost]
     [Authorize(Roles = "FundAdmin,Admin")]
     public async Task<IActionResult> Create([FromBody] CreateAnnuityRequest request)
@@ -48,8 +58,113 @@ public class AnnuityController : ControllerBase
     public async Task<IActionResult> ProcessNomineeSettlement(Guid id, [FromBody] NomineeSettlementRequest request)
         => Ok(await _annuityService.ProcessNomineeSettlementAsync(id, request));
 
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> UpdateAnnuity(Guid id, [FromBody] UpdateAnnuityRequest request)
+        => Ok(await _annuityService.UpdateAnnuityAsync(id, request));
+
     [HttpPut("{id:guid}/terminate")]
     [Authorize(Roles = "FundAdmin,Admin")]
     public async Task<IActionResult> TerminateAnnuity(Guid id)
         => Ok(await _annuityService.TerminateAnnuityAsync(id));
+
+    // ── Annuity Requests (pre-approval) ──────────────────────────────────────
+
+    /// <summary>Member submits an annuity request (eligibility enforced)</summary>
+    [HttpPost("requests")]
+    [Authorize(Roles = "Member,FundAdmin,Admin")]
+    public async Task<IActionResult> SubmitRequest([FromBody] SubmitAnnuityRequestDto dto)
+    {
+        if (User.IsInRole("Member"))
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdStr, out var userId)) return Unauthorized();
+            try {
+                var member = await _memberService.GetByUserIdAsync(userId);
+                dto = dto with { MemberId = member.MemberId };
+            } catch { return BadRequest("Could not determine member identity from token."); }
+        }
+        var result = await _annuityService.SubmitAnnuityRequestAsync(dto);
+        return Ok(result);
+    }
+
+    /// <summary>Admin/FundAdmin: get all pending annuity requests</summary>
+    [HttpGet("requests")]
+    [Authorize(Roles = "FundAdmin,Admin,Compliance")]
+    public async Task<IActionResult> GetPendingRequests()
+        => Ok(await _annuityService.GetPendingRequestsAsync());
+
+    /// <summary>Member: get their own annuity request history</summary>
+    [HttpGet("requests/my")]
+    [Authorize(Roles = "Member")]
+    public async Task<IActionResult> GetMyRequests()
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdStr, out var userId)) return Unauthorized();
+        try {
+            var member = await _memberService.GetByUserIdAsync(userId);
+            return Ok(await _annuityService.GetMemberRequestsAsync(member.MemberId));
+        } catch { return BadRequest("Could not determine member identity from token."); }
+    }
+
+    /// <summary>Admin/FundAdmin: approve a pending annuity request</summary>
+    [HttpPut("requests/{requestId:guid}/approve")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> ApproveRequest(Guid requestId)
+    {
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                     ?? User.FindFirst("sub")?.Value
+                     ?? Guid.Empty.ToString();
+        Guid.TryParse(userIdStr, out var reviewerUserId);
+        return Ok(await _annuityService.ApproveRequestAsync(requestId, reviewerUserId));
+    }
+
+    /// <summary>Admin/FundAdmin: reject a pending annuity request</summary>
+    [HttpPut("requests/{requestId:guid}/reject")]
+    [Authorize(Roles = "FundAdmin,Admin")]
+    public async Task<IActionResult> RejectRequest(Guid requestId, [FromBody] RejectRequestDto body)
+    {
+        var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                     ?? User.FindFirst("sub")?.Value
+                     ?? Guid.Empty.ToString();
+        Guid.TryParse(userIdStr, out var reviewerUserId);
+        return Ok(await _annuityService.RejectRequestAsync(requestId, reviewerUserId, body.ReviewNote));
+    }
+
+    /// <summary>Member: cancel their own pending annuity request</summary>
+    [HttpPut("requests/{requestId:guid}/cancel")]
+    [Authorize(Roles = "Member,FundAdmin,Admin")]
+    public async Task<IActionResult> CancelRequest(Guid requestId)
+    {
+        Guid memberId = Guid.Empty;
+        if (User.IsInRole("Member")) {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdStr, out var userId)) return Unauthorized();
+            try {
+                var member = await _memberService.GetByUserIdAsync(userId);
+                memberId = member.MemberId;
+            } catch { return BadRequest("Could not determine member identity."); }
+        }
+        return Ok(await _annuityService.CancelRequestAsync(requestId, memberId));
+    }
+
+    /// <summary>Check if a member is eligible to request an annuity</summary>
+    [HttpGet("eligibility/{memberId:guid}")]
+    [Authorize(Roles = "Member,FundAdmin,Admin")]
+    public async Task<IActionResult> CheckEligibility(Guid memberId)
+    {
+        if (User.IsInRole("Member"))
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(userIdStr, out var userId)) return Unauthorized();
+            try {
+                var member = await _memberService.GetByUserIdAsync(userId);
+                if (member.MemberId != memberId) return Forbid();
+            } catch { return Forbid(); }
+        }
+        return Ok(await _annuityService.CheckEligibilityAsync(memberId));
+    }
 }
+
+/// <summary>Body for reject request endpoint</summary>
+public record RejectRequestDto(string? ReviewNote);

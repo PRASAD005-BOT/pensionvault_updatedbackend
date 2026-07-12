@@ -23,6 +23,7 @@ public class AppDbContext : DbContext
     public DbSet<InvestmentPortfolio> InvestmentPortfolios => Set<InvestmentPortfolio>();
     public DbSet<CorpusRecord> CorpusRecords => Set<CorpusRecord>();
     public DbSet<AnnuityPlan> AnnuityPlans => Set<AnnuityPlan>();
+    public DbSet<AnnuityRequest> AnnuityRequests => Set<AnnuityRequest>();
     public DbSet<MonthlyPensionDisbursement> MonthlyPensionDisbursements => Set<MonthlyPensionDisbursement>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
@@ -102,12 +103,11 @@ public class AppDbContext : DbContext
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.EmployeeContributionBalance).HasPrecision(18, 2);
             e.Property(x => x.EmployerContributionBalance).HasPrecision(18, 2);
+            e.Property(x => x.PensionBalance).HasPrecision(18, 2);
             e.Property(x => x.InterestAccrued).HasPrecision(18, 2);
             e.Property(x => x.TotalBalance).HasPrecision(18, 2);
             e.Property(x => x.VestingPercent).HasPrecision(5, 2);
-            e.HasOne(x => x.Member).WithMany(m => m.FundAccounts)
-                .HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Restrict);
-            e.HasOne(x => x.Scheme).WithMany(s => s.FundAccounts)
+            e.HasOne(x => x.Scheme).WithMany()
                 .HasForeignKey(x => x.SchemeId).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -119,9 +119,8 @@ public class AppDbContext : DbContext
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.TotalEmployeeShare).HasPrecision(18, 2);
             e.Property(x => x.TotalEmployerShare).HasPrecision(18, 2);
+            e.Property(x => x.TotalPensionAmount).HasPrecision(18, 2);
             e.Property(x => x.TotalAmount).HasPrecision(18, 2);
-            e.HasOne(x => x.Employer).WithMany(emp => emp.Remittances)
-                .HasForeignKey(x => x.EmployerId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── MemberContribution ────────────────────────────────────────────
@@ -132,11 +131,10 @@ public class AppDbContext : DbContext
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.EmployeeAmount).HasPrecision(18, 2);
             e.Property(x => x.EmployerAmount).HasPrecision(18, 2);
+            e.Property(x => x.PensionAmount).HasPrecision(18, 2);
             e.Property(x => x.TotalAmount).HasPrecision(18, 2);
             e.HasOne(x => x.Remittance).WithMany(r => r.MemberContributions)
                 .HasForeignKey(x => x.RemittanceId).OnDelete(DeleteBehavior.Restrict);
-            e.HasOne(x => x.Member).WithMany(m => m.Contributions)
-                .HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── LedgerEntry ───────────────────────────────────────────────────
@@ -176,10 +174,6 @@ public class AppDbContext : DbContext
             e.Property(x => x.EligibleAmount).HasPrecision(18, 2);
             e.Property(x => x.VestedAmount).HasPrecision(18, 2);
             e.Property(x => x.TaxDeductible).HasPrecision(18, 2);
-            e.HasOne(x => x.Member).WithMany(m => m.Claims)
-                .HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Restrict);
-            e.HasOne(x => x.ProcessedBy).WithMany()
-                .HasForeignKey(x => x.ProcessedById).OnDelete(DeleteBehavior.SetNull);
         });
 
         // ── ClaimDisbursement ─────────────────────────────────────────────
@@ -193,8 +187,6 @@ public class AppDbContext : DbContext
             e.Property(x => x.NetAmount).HasPrecision(18, 2);
             e.HasOne(x => x.Claim).WithMany(c => c.Disbursements)
                 .HasForeignKey(x => x.ClaimId).OnDelete(DeleteBehavior.Restrict);
-            e.HasOne(x => x.Member).WithMany()
-                .HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── InvestmentPortfolio ───────────────────────────────────────────
@@ -206,7 +198,7 @@ public class AppDbContext : DbContext
             e.Property(x => x.InvestedValue).HasPrecision(18, 2);
             e.Property(x => x.CurrentValue).HasPrecision(18, 2);
             e.Property(x => x.YieldEarned).HasPrecision(18, 2);
-            e.HasOne(x => x.Scheme).WithMany(s => s.Portfolios)
+            e.HasOne(x => x.Scheme).WithMany()
                 .HasForeignKey(x => x.SchemeId).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -220,7 +212,7 @@ public class AppDbContext : DbContext
             e.Property(x => x.InvestmentIncome).HasPrecision(18, 2);
             e.Property(x => x.ManagementExpenses).HasPrecision(18, 2);
             e.Property(x => x.ClosingCorpus).HasPrecision(18, 2);
-            e.HasOne(x => x.Scheme).WithMany(s => s.CorpusRecords)
+            e.HasOne(x => x.Scheme).WithMany()
                 .HasForeignKey(x => x.SchemeId).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -232,8 +224,6 @@ public class AppDbContext : DbContext
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.PurchaseValue).HasPrecision(18, 2);
             e.Property(x => x.MonthlyPension).HasPrecision(18, 2);
-            e.HasOne(x => x.Member).WithMany(m => m.AnnuityPlans)
-                .HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // ── MonthlyPensionDisbursement ────────────────────────────────────
@@ -246,8 +236,18 @@ public class AppDbContext : DbContext
             e.Property(x => x.NetAmount).HasPrecision(18, 2);
             e.HasOne(x => x.AnnuityPlan).WithMany(a => a.PensionDisbursements)
                 .HasForeignKey(x => x.AnnuityId).OnDelete(DeleteBehavior.Restrict);
-            e.HasOne(x => x.Member).WithMany()
-                .HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── AnnuityRequest ────────────────────────────────────────────────────
+        modelBuilder.Entity<AnnuityRequest>(e =>
+        {
+            e.HasKey(x => x.RequestId);
+            e.Property(x => x.PlanType).HasConversion<string>().HasMaxLength(30);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.PensionBalanceAtRequest).HasPrecision(18, 2);
+            e.Property(x => x.EstimatedMonthly).HasPrecision(18, 2);
+            e.Property(x => x.Note).HasMaxLength(500);
+            e.Property(x => x.ReviewNote).HasMaxLength(500);
         });
 
         // ── Notification ──────────────────────────────────────────────────

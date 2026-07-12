@@ -11,5 +11,5 @@ public class AuditLog
     public string? RecordId { get; set; }
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
-    public User User { get; set; } = null!;
+    public User? User { get; set; }
 }

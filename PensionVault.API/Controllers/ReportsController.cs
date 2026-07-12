@@ -9,7 +9,7 @@ namespace PensionVault.API.Controllers;
 
 [ApiController]
 [Route("api/reports")]
-[Authorize(Roles = "Compliance,Admin,FundAdmin")]
+[Authorize(Roles = "Compliance,Admin,FundAdmin,InvestmentOfficer")]
 [Produces("application/json")]
 public class ReportsController : ControllerBase
 {
@@ -29,7 +29,7 @@ public class ReportsController : ControllerBase
 
     /// <summary>Get audit trail with optional filters</summary>
     [HttpGet("audit-trail")]
-    [Authorize(Roles = "Compliance,Admin,FundAdmin")]
+    [Authorize(Roles = "Compliance,Admin,FundAdmin,InvestmentOfficer")]
     public async Task<IActionResult> AuditTrail(
         [FromQuery] string? entityType,
         [FromQuery] DateTime? from,

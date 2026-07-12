@@ -16,5 +16,5 @@ public class InterestCreditRecord
     public InterestCreditStatus Status { get; set; } = InterestCreditStatus.Computed;
 
     // Navigation
-    public FundAccount Account { get; set; } = null!;
+    public FundAccount? Account { get; set; }
 }

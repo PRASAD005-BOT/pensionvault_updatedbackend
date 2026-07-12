@@ -62,6 +62,57 @@ namespace PensionVault.Infrastructure.Migrations
                     b.ToTable("AnnuityPlans");
                 });
 
+            modelBuilder.Entity("PensionVault.Domain.Entities.AnnuityRequest", b =>
+                {
+                    b.Property<Guid>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("EstimatedMonthly")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("PensionBalanceAtRequest")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PlanType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReviewNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReviewedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("RequestId");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("AnnuityRequests");
+                });
+
             modelBuilder.Entity("PensionVault.Domain.Entities.AuditLog", b =>
                 {
                     b.Property<Guid>("AuditId")
@@ -223,6 +274,10 @@ namespace PensionVault.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("TotalPensionAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("RemittanceId");
 
                     b.HasIndex("EmployerId");
@@ -342,6 +397,10 @@ namespace PensionVault.Infrastructure.Migrations
 
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PensionBalance")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("SchemeId")
                         .HasColumnType("uniqueidentifier");
@@ -616,6 +675,10 @@ namespace PensionVault.Infrastructure.Migrations
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("PensionAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Period")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -790,6 +853,17 @@ namespace PensionVault.Infrastructure.Migrations
                 {
                     b.HasOne("PensionVault.Domain.Entities.Member", "Member")
                         .WithMany("AnnuityPlans")
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("PensionVault.Domain.Entities.AnnuityRequest", b =>
+                {
+                    b.HasOne("PensionVault.Domain.Entities.Member", "Member")
+                        .WithMany()
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

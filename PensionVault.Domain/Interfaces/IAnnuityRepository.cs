@@ -8,6 +8,7 @@ public interface IAnnuityRepository
     Task<List<AnnuityPlan>> GetAllAsync();
     Task<List<MonthlyPensionDisbursement>> GetDisbursementsAsync(Guid annuityId);
     Task<MonthlyPensionDisbursement?> FindDisbursementByIdAsync(Guid disbursementId);
+    Task<bool> ExistsDisbursementForMonthAsync(Guid annuityId, int month, int year);
     Task AddAsync(AnnuityPlan plan);
     Task AddDisbursementAsync(MonthlyPensionDisbursement disbursement);
 }

@@ -27,8 +27,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connString,
         sql => sql.MigrationsAssembly("PensionVault.Infrastructure")));
 
+builder.Services.AddDbContext<MembersDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MembersConnection")));
+
+builder.Services.AddDbContext<ContributionsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ContributionsConnection")));
+
+builder.Services.AddDbContext<AnnuityDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AnnuityConnection")));
+
+builder.Services.AddDbContext<ClaimsDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ClaimsConnection")));
+
 // ── Repositories (Infrastructure) ────────────────────────────────────────
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, GenericUnitOfWork<AppDbContext>>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<IEmployerRepository, EmployerRepository>();
@@ -38,6 +50,7 @@ builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
 builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
 builder.Services.AddScoped<ILedgerRepository, LedgerRepository>();
 builder.Services.AddScoped<IAnnuityRepository, AnnuityRepository>();
+builder.Services.AddScoped<IAnnuityRequestRepository, AnnuityRequestRepository>();
 builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
@@ -78,7 +91,7 @@ builder.Services.AddAuthorization();
 // ── Controllers ───────────────────────────────────────────────────────────
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add<PensionVault.API.Filters.AuditLogFilter>();
+    options.Filters.Add<PensionVault.Infrastructure.Filters.AuditLogFilter>();
 })
     .AddJsonOptions(opts => {
         opts.JsonSerializerOptions.DefaultIgnoreCondition =
