@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Annuity.API</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
+    
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PensionVault.Shared\PensionVault.Shared.csproj" />
+    <ProjectReference Include="..\Annuity.Domain\Annuity.Domain.csproj" />
+    <ProjectReference Include="..\Annuity.Data\Annuity.Data.csproj" />
+    <ProjectReference Include="..\Annuity.Services\Annuity.Services.csproj" />
+  </ItemGroup>
+</Project>
+
+
+

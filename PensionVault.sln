@@ -2,158 +2,157 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.API", "PensionVault.API\PensionVault.API.csproj", "{A1B2C3D4-0001-0001-0001-000000000001}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Application", "PensionVault.Application\PensionVault.Application.csproj", "{A1B2C3D4-0002-0002-0002-000000000002}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Domain", "PensionVault.Domain\PensionVault.Domain.csproj", "{A1B2C3D4-0003-0003-0003-000000000003}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Infrastructure", "PensionVault.Infrastructure\PensionVault.Infrastructure.csproj", "{A1B2C3D4-0004-0004-0004-000000000004}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Gateway", "PensionVault.Gateway\PensionVault.Gateway.csproj", "{A1B2C3D4-0005-0005-0005-000000000005}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Members.Service", "microservices\PensionVault.Members.Service\PensionVault.Members.Service.csproj", "{A1B2C3D4-0006-0006-0006-000000000006}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "microservices", "microservices", "{8A367DDA-5161-A942-4F09-60E4726C9306}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Claims.Service", "microservices\PensionVault.Claims.Service\PensionVault.Claims.Service.csproj", "{A1B2C3D4-0007-0007-0007-000000000007}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Shared", "microservices\PensionVault.Shared\PensionVault.Shared.csproj", "{26E28BFA-99D2-4923-B6C7-8CCB5A8D4021}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Annuity.Service", "microservices\PensionVault.Annuity.Service\PensionVault.Annuity.Service.csproj", "{A1B2C3D4-0008-0008-0008-000000000008}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PensionVault.Members.Service", "microservices\PensionVault.Members.Service", "{MS0001-0000-0000-0000-000000000001}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Contributions.Service", "microservices\PensionVault.Contributions.Service\PensionVault.Contributions.Service.csproj", "{A1B2C3D4-0009-0009-0009-000000000009}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Members.API", "microservices\PensionVault.Members.Service\Members.API\Members.API.csproj", "{A1B2C3D4-0006-0006-0006-000000000006}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PensionVault.Tests", "PensionVault.Tests\PensionVault.Tests.csproj", "{0025330A-6C13-453C-8240-78576E76D490}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Members.Domain", "microservices\PensionVault.Members.Service\Members.Domain\Members.Domain.csproj", "{MS0001-0000-0000-0000-000000000002}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Members.Data", "microservices\PensionVault.Members.Service\Members.Data\Members.Data.csproj", "{MS0001-0000-0000-0000-000000000003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Members.Services", "microservices\PensionVault.Members.Service\Members.Services\Members.Services.csproj", "{MS0001-0000-0000-0000-000000000004}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PensionVault.Claims.Service", "microservices\PensionVault.Claims.Service", "{CL0001-0000-0000-0000-000000000001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.API", "microservices\PensionVault.Claims.Service\Claims.API\Claims.API.csproj", "{A1B2C3D4-0007-0007-0007-000000000007}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Domain", "microservices\PensionVault.Claims.Service\Claims.Domain\Claims.Domain.csproj", "{CL0001-0000-0000-0000-000000000002}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Data", "microservices\PensionVault.Claims.Service\Claims.Data\Claims.Data.csproj", "{CL0001-0000-0000-0000-000000000003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Claims.Services", "microservices\PensionVault.Claims.Service\Claims.Services\Claims.Services.csproj", "{CL0001-0000-0000-0000-000000000004}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PensionVault.Annuity.Service", "microservices\PensionVault.Annuity.Service", "{AN0001-0000-0000-0000-000000000001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annuity.API", "microservices\PensionVault.Annuity.Service\Annuity.API\Annuity.API.csproj", "{A1B2C3D4-0008-0008-0008-000000000008}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annuity.Domain", "microservices\PensionVault.Annuity.Service\Annuity.Domain\Annuity.Domain.csproj", "{AN0001-0000-0000-0000-000000000002}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annuity.Data", "microservices\PensionVault.Annuity.Service\Annuity.Data\Annuity.Data.csproj", "{AN0001-0000-0000-0000-000000000003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Annuity.Services", "microservices\PensionVault.Annuity.Service\Annuity.Services\Annuity.Services.csproj", "{AN0001-0000-0000-0000-000000000004}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PensionVault.Contributions.Service", "microservices\PensionVault.Contributions.Service", "{CO0001-0000-0000-0000-000000000001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contributions.API", "microservices\PensionVault.Contributions.Service\Contributions.API\Contributions.API.csproj", "{A1B2C3D4-0009-0009-0009-000000000009}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contributions.Domain", "microservices\PensionVault.Contributions.Service\Contributions.Domain\Contributions.Domain.csproj", "{CO0001-0000-0000-0000-000000000002}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contributions.Data", "microservices\PensionVault.Contributions.Service\Contributions.Data\Contributions.Data.csproj", "{CO0001-0000-0000-0000-000000000003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contributions.Services", "microservices\PensionVault.Contributions.Service\Contributions.Services\Contributions.Services.csproj", "{CO0001-0000-0000-0000-000000000004}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A1B2C3D4-0001-0001-0001-000000000001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Debug|x86.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0001-0001-0001-000000000001}.Release|x86.Build.0 = Release|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Debug|x86.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0002-0002-0002-000000000002}.Release|x86.Build.0 = Release|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Debug|x86.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0003-0003-0003-000000000003}.Release|x86.Build.0 = Release|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Debug|x86.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0004-0004-0004-000000000004}.Release|x86.Build.0 = Release|Any CPU
 		{A1B2C3D4-0005-0005-0005-000000000005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B2C3D4-0005-0005-0005-000000000005}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Debug|x86.Build.0 = Debug|Any CPU
 		{A1B2C3D4-0005-0005-0005-000000000005}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-0005-0005-0005-000000000005}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0005-0005-0005-000000000005}.Release|x86.Build.0 = Release|Any CPU
+		{26E28BFA-99D2-4923-B6C7-8CCB5A8D4021}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26E28BFA-99D2-4923-B6C7-8CCB5A8D4021}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26E28BFA-99D2-4923-B6C7-8CCB5A8D4021}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26E28BFA-99D2-4923-B6C7-8CCB5A8D4021}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1B2C3D4-0006-0006-0006-000000000006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B2C3D4-0006-0006-0006-000000000006}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Debug|x86.Build.0 = Debug|Any CPU
 		{A1B2C3D4-0006-0006-0006-000000000006}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-0006-0006-0006-000000000006}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0006-0006-0006-000000000006}.Release|x86.Build.0 = Release|Any CPU
+		{MS0001-0000-0000-0000-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{MS0001-0000-0000-0000-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{MS0001-0000-0000-0000-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{MS0001-0000-0000-0000-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{MS0001-0000-0000-0000-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{MS0001-0000-0000-0000-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{MS0001-0000-0000-0000-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{MS0001-0000-0000-0000-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{MS0001-0000-0000-0000-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{MS0001-0000-0000-0000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{MS0001-0000-0000-0000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{MS0001-0000-0000-0000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1B2C3D4-0007-0007-0007-000000000007}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B2C3D4-0007-0007-0007-000000000007}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Debug|x86.Build.0 = Debug|Any CPU
 		{A1B2C3D4-0007-0007-0007-000000000007}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-0007-0007-0007-000000000007}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0007-0007-0007-000000000007}.Release|x86.Build.0 = Release|Any CPU
+		{CL0001-0000-0000-0000-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CL0001-0000-0000-0000-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CL0001-0000-0000-0000-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CL0001-0000-0000-0000-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CL0001-0000-0000-0000-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CL0001-0000-0000-0000-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CL0001-0000-0000-0000-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CL0001-0000-0000-0000-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CL0001-0000-0000-0000-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CL0001-0000-0000-0000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CL0001-0000-0000-0000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CL0001-0000-0000-0000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1B2C3D4-0008-0008-0008-000000000008}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B2C3D4-0008-0008-0008-000000000008}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Debug|x86.Build.0 = Debug|Any CPU
 		{A1B2C3D4-0008-0008-0008-000000000008}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-0008-0008-0008-000000000008}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0008-0008-0008-000000000008}.Release|x86.Build.0 = Release|Any CPU
+		{AN0001-0000-0000-0000-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AN0001-0000-0000-0000-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AN0001-0000-0000-0000-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AN0001-0000-0000-0000-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AN0001-0000-0000-0000-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AN0001-0000-0000-0000-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AN0001-0000-0000-0000-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AN0001-0000-0000-0000-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AN0001-0000-0000-0000-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AN0001-0000-0000-0000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AN0001-0000-0000-0000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AN0001-0000-0000-0000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A1B2C3D4-0009-0009-0009-000000000009}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A1B2C3D4-0009-0009-0009-000000000009}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Debug|x64.Build.0 = Debug|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Debug|x86.Build.0 = Debug|Any CPU
 		{A1B2C3D4-0009-0009-0009-000000000009}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1B2C3D4-0009-0009-0009-000000000009}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Release|x64.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Release|x64.Build.0 = Release|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Release|x86.ActiveCfg = Release|Any CPU
-		{A1B2C3D4-0009-0009-0009-000000000009}.Release|x86.Build.0 = Release|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Debug|x64.Build.0 = Debug|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Debug|x86.Build.0 = Debug|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Release|x64.ActiveCfg = Release|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Release|x64.Build.0 = Release|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Release|x86.ActiveCfg = Release|Any CPU
-		{0025330A-6C13-453C-8240-78576E76D490}.Release|x86.Build.0 = Release|Any CPU
+		{CO0001-0000-0000-0000-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CO0001-0000-0000-0000-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CO0001-0000-0000-0000-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CO0001-0000-0000-0000-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CO0001-0000-0000-0000-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CO0001-0000-0000-0000-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CO0001-0000-0000-0000-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CO0001-0000-0000-0000-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CO0001-0000-0000-0000-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CO0001-0000-0000-0000-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CO0001-0000-0000-0000-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CO0001-0000-0000-0000-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{26E28BFA-99D2-4923-B6C7-8CCB5A8D4021} = {8A367DDA-5161-A942-4F09-60E4726C9306}
+		{MS0001-0000-0000-0000-000000000001} = {8A367DDA-5161-A942-4F09-60E4726C9306}
+		{A1B2C3D4-0006-0006-0006-000000000006} = {MS0001-0000-0000-0000-000000000001}
+		{MS0001-0000-0000-0000-000000000002} = {MS0001-0000-0000-0000-000000000001}
+		{MS0001-0000-0000-0000-000000000003} = {MS0001-0000-0000-0000-000000000001}
+		{MS0001-0000-0000-0000-000000000004} = {MS0001-0000-0000-0000-000000000001}
+		{CL0001-0000-0000-0000-000000000001} = {8A367DDA-5161-A942-4F09-60E4726C9306}
+		{A1B2C3D4-0007-0007-0007-000000000007} = {CL0001-0000-0000-0000-000000000001}
+		{CL0001-0000-0000-0000-000000000002} = {CL0001-0000-0000-0000-000000000001}
+		{CL0001-0000-0000-0000-000000000003} = {CL0001-0000-0000-0000-000000000001}
+		{CL0001-0000-0000-0000-000000000004} = {CL0001-0000-0000-0000-000000000001}
+		{AN0001-0000-0000-0000-000000000001} = {8A367DDA-5161-A942-4F09-60E4726C9306}
+		{A1B2C3D4-0008-0008-0008-000000000008} = {AN0001-0000-0000-0000-000000000001}
+		{AN0001-0000-0000-0000-000000000002} = {AN0001-0000-0000-0000-000000000001}
+		{AN0001-0000-0000-0000-000000000003} = {AN0001-0000-0000-0000-000000000001}
+		{AN0001-0000-0000-0000-000000000004} = {AN0001-0000-0000-0000-000000000001}
+		{CO0001-0000-0000-0000-000000000001} = {8A367DDA-5161-A942-4F09-60E4726C9306}
+		{A1B2C3D4-0009-0009-0009-000000000009} = {CO0001-0000-0000-0000-000000000001}
+		{CO0001-0000-0000-0000-000000000002} = {CO0001-0000-0000-0000-000000000001}
+		{CO0001-0000-0000-0000-000000000003} = {CO0001-0000-0000-0000-000000000001}
+		{CO0001-0000-0000-0000-000000000004} = {CO0001-0000-0000-0000-000000000001}
+	EndGlobalSection
 EndGlobal
+
+

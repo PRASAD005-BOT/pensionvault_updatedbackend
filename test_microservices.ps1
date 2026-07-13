@@ -140,7 +140,7 @@ Write-Host "Remittance Reconciled Successfully!" -ForegroundColor Green
 Write-Host "`n11. Crediting Interest..."
 $accounts = Invoke-RestMethod -Uri "$BaseUrl/members/$memberId/fund-accounts" -Method Get -Headers $faAuthHeader
 $accId = $accounts[0].accountId
-$intBody = @{ accountId = $accId; financialYear = "2025-2026"; interestRate = 8.25 } | ConvertTo-Json
+$intBody = @{ accountId = $accId; financialYear = "2025-26"; interestRate = 8.25 } | ConvertTo-Json
 Invoke-RestMethod -Uri "$BaseUrl/ledger/interest-credit" -Method Post -Body $intBody -Headers $faAuthHeader > $null
 Write-Host "Interest Credited Successfully!" -ForegroundColor Green
 
