@@ -1,0 +1,16 @@
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\bin\Debug\net10.0\PensionVault.Application.deps.json
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\bin\Debug\net10.0\PensionVault.Application.dll
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\bin\Debug\net10.0\PensionVault.Application.pdb
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\bin\Debug\net10.0\PensionVault.Domain.dll
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\bin\Debug\net10.0\PensionVault.Domain.pdb
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.csproj.AssemblyReference.cache
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.AssemblyInfoInputs.cache
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.AssemblyInfo.cs
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.csproj.CoreCompileInputs.cache
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.sourcelink.json
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionV.3F95C36C.Up2Date
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.dll
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\refint\PensionVault.Application.dll
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\PensionVault.Application.pdb
+C:\pensionvault\Pensionvault-backend\PensionVault.Application\obj\Debug\net10.0\ref\PensionVault.Application.dll

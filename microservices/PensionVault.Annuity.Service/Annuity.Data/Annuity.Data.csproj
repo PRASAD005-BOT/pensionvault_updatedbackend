@@ -6,8 +6,14 @@
     <RootNamespace>Annuity.Data</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+<<<<<<< HEAD:microservices/PensionVault.Annuity.Service/Annuity.Data/Annuity.Data.csproj
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+=======
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
+>>>>>>> 62da4b668caf28d68984d044e8849bcee250dad4:PensionVault.Infrastructure/PensionVault.Infrastructure.csproj
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
