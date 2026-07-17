@@ -28,7 +28,7 @@ public class EmployersController : ControllerBase
     public async Task<IActionResult> GetAll() => Ok(await _employerService.GetAllAsync());
 
     [HttpGet("{id:guid}")]
-    [Authorize(Roles = "Employer,FundAdmin,Admin,Compliance")]
+    [Authorize(Roles = "Member,Employer,FundAdmin,Admin,Compliance")]
     public async Task<IActionResult> GetById(Guid id) => Ok(await _employerService.GetByIdAsync(id));
 
     [HttpGet("me")]
@@ -57,12 +57,20 @@ public class EmployersController : ControllerBase
             var orgClaim = User.FindFirst("OrganisationId");
             if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId) || orgId != id)
                 return Forbid();
-            
-            var current = await _employerService.GetByIdAsync(id);
-            request = request with { Status = Enum.Parse<EmployerStatus>(current.Status) };
+
+            // Employers cannot change their own approval/compliance status.
+            request = request with { Status = null };
         }
         return Ok(await _employerService.UpdateAsync(id, request));
     }
+
+    [HttpPut("{id:guid}/approve")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Approve(Guid id) => Ok(await _employerService.ApproveAsync(id));
+
+    [HttpPut("{id:guid}/reject")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Reject(Guid id) => Ok(await _employerService.RejectAsync(id));
 
     [HttpGet("{id:guid}/remittances")]
     [Authorize(Roles = "Employer,FundAdmin,Admin")]

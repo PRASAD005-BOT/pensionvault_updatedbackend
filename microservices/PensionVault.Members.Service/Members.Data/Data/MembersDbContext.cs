@@ -60,6 +60,8 @@ public class MembersDbContext : DbContext
         {
             e.HasKey(x => x.EmployerId);
             e.HasIndex(x => x.RegistrationNumber).IsUnique();
+            e.HasIndex(x => x.EmployerCode).IsUnique();
+            e.Property(x => x.EmployerCode).HasMaxLength(20);
             e.Property(x => x.CompanyName).HasMaxLength(200).IsRequired();
             e.Property(x => x.RegistrationNumber).HasMaxLength(100);
             e.Property(x => x.Industry).HasMaxLength(100);

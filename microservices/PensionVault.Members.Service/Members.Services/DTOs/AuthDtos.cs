@@ -1,15 +1,18 @@
-﻿namespace Members.Services.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record LoginRequest(string Email, string Password);
+namespace Members.Services.DTOs;
+
+public record LoginRequest([EmailAddress] string Email, string Password, string? Role = null);
 
 public record RegisterRequest(
     string Name,
-    string Email,
-    string Password,
+    [EmailAddress] string Email,
+    [MinLength(6)] string Password,
     string Role,
     string? Phone,
     Guid? OrganisationId,
-    string? EmployeeId
+    string? EmployeeId,
+    string? CompanyName = null
 );
 
 public record RefreshTokenRequest(string RefreshToken);

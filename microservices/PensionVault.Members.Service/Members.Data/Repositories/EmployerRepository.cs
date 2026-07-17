@@ -19,6 +19,9 @@ public class EmployerRepository : IEmployerRepository
     public Task<bool> ExistsByRegistrationNumberAsync(string registrationNumber)
         => _context.Employers.AnyAsync(e => e.RegistrationNumber == registrationNumber);
 
+    public Task<bool> ExistsByEmployerCodeAsync(string employerCode)
+        => _context.Employers.AnyAsync(e => e.EmployerCode == employerCode);
+
     public async Task AddAsync(Employer employer)
         => await _context.Employers.AddAsync(employer);
 }
