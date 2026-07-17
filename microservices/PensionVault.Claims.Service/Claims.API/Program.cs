@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using PensionVault.Shared.Auth;
@@ -36,19 +37,19 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<MembersServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:MembersUrl"] ?? "http://localhost:5001/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<ContributionsServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:ContributionsUrl"] ?? "http://localhost:5004/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<NotificationServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:MembersUrl"] ?? "http://localhost:5001/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<AuditServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:MembersUrl"] ?? "http://localhost:5001/");
-});
+}).AddStandardResilienceHandler();
 
 // JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);
