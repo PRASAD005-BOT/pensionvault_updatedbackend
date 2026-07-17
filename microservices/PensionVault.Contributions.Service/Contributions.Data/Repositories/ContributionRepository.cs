@@ -49,6 +49,9 @@ public class ContributionRepository : IContributionRepository
             .OrderByDescending(c => c.PostedDate)
             .ToListAsync();
 
+    public Task<MemberContribution?> FindContributionByIdAsync(Guid contributionId)
+        => _context.MemberContributions.FirstOrDefaultAsync(c => c.ContributionId == contributionId);
+
     public async Task AddRemittanceAsync(ContributionRemittance remittance)
         => await _context.ContributionRemittances.AddAsync(remittance);
 

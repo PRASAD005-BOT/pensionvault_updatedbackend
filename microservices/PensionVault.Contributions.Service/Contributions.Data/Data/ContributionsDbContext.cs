@@ -16,6 +16,7 @@ public class ContributionsDbContext : DbContext
     public DbSet<InvestmentPortfolio> InvestmentPortfolios => Set<InvestmentPortfolio>();
     public DbSet<CorpusRecord> CorpusRecords => Set<CorpusRecord>();
     public DbSet<FundScheme> FundSchemes => Set<FundScheme>();
+    public DbSet<ShortfallRequest> ShortfallRequests => Set<ShortfallRequest>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,6 +114,17 @@ public class ContributionsDbContext : DbContext
             e.Property(x => x.YieldEarned).HasPrecision(18, 2);
             e.HasOne(x => x.Scheme).WithMany()
                 .HasForeignKey(x => x.SchemeId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ShortfallRequest
+        modelBuilder.Entity<ShortfallRequest>(e =>
+        {
+            e.HasKey(x => x.ShortfallRequestId);
+            e.Property(x => x.Reason).HasMaxLength(1000).IsRequired();
+            e.Property(x => x.ResolutionNote).HasMaxLength(1000);
+            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.HasOne(x => x.Contribution).WithMany()
+                .HasForeignKey(x => x.ContributionId).OnDelete(DeleteBehavior.Restrict);
         });
 
         // CorpusRecord

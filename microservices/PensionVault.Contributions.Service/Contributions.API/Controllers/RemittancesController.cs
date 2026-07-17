@@ -82,6 +82,27 @@ public class RemittancesController : ControllerBase
         return Ok(await _contributionService.GetMemberContributionsAsync(memberId));
     }
 
+    [HttpGet("member/{memberId:guid}/shortfalls")]
+    [Authorize(Roles = "Member,FundAdmin,Admin,Employer")]
+    public async Task<IActionResult> GetMemberShortfalls(Guid memberId, [FromServices] MemberServiceClient memberClient)
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId)) return Forbid();
+            var member = await memberClient.GetMemberByIdAsync(memberId);
+            if (member == null || member.EmployerId != orgId) return Forbid();
+        }
+        else if (User.IsInRole("Member"))
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
+            var member = await memberClient.GetMemberByUserIdAsync(userId);
+            if (member == null || member.MemberId != memberId) return Forbid();
+        }
+        return Ok(await _contributionService.GetMemberShortfallsAsync(memberId));
+    }
+
     [HttpGet("{id:guid}/reconciliation-report")]
     [Authorize(Roles = "FundAdmin,Admin,Employer")]
     public async Task<IActionResult> GetReconciliationReport(Guid id)

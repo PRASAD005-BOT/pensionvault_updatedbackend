@@ -17,10 +17,13 @@ public class ReportService : IReportService
         _memberClient = memberClient;
     }
 
-    public async Task<IEnumerable<object>> GetContributionDefaultsAsync()
+    public async Task<IEnumerable<object>> GetContributionDefaultsAsync(string? period = null)
     {
         var defaults = await _contributionRepo.GetByStatusesAsync(
             RemittanceStatus.Default, RemittanceStatus.Shortfall);
+
+        if (!string.IsNullOrEmpty(period))
+            defaults = defaults.Where(r => r.RemittancePeriod == period).ToList();
 
         var employers = await _memberClient.GetAllEmployersAsync();
         var employerDict = employers.ToDictionary(e => e.EmployerId, e => e.CompanyName);
