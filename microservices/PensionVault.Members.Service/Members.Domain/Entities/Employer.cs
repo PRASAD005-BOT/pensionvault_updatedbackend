@@ -3,6 +3,7 @@
 public class Employer
 {
     public Guid EmployerId { get; set; } = Guid.NewGuid();
+    public string EmployerCode { get; set; } = string.Empty;
     public string CompanyName { get; set; } = string.Empty;
     public string RegistrationNumber { get; set; } = string.Empty;
     public string? Industry { get; set; }

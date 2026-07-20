@@ -171,8 +171,20 @@ public class AuthService : IAuthService
         if (!isValidPassword)
             throw new UnauthorizedAccessException("Invalid email or password.");
 
+        if (!string.IsNullOrEmpty(request.Role) && !string.Equals(user.Role.ToString(), request.Role, StringComparison.OrdinalIgnoreCase))
+            throw new UnauthorizedAccessException($"This account is registered as '{user.Role}'. Please select the correct role to sign in.");
+
         if (user.Status != UserStatus.Active)
             throw new UnauthorizedAccessException("Account is not active.");
+
+        if (user.Role == UserRole.Employer && user.OrganisationId.HasValue)
+        {
+            var loginEmployer = await _employerRepo.FindByIdAsync(user.OrganisationId.Value);
+            if (loginEmployer?.Status == EmployerStatus.Pending)
+                throw new UnauthorizedAccessException("Your company registration is pending admin approval.");
+            if (loginEmployer?.Status == EmployerStatus.Deregistered)
+                throw new UnauthorizedAccessException("Your company registration was rejected or deregistered. Please contact support.");
+        }
 
         return await GenerateTokensAsync(user);
     }
@@ -199,12 +211,15 @@ public class AuthService : IAuthService
 
         if (role == UserRole.Employer && user.OrganisationId == null)
         {
+            var employerCode = EmployerService.GenerateEmployerCode();
             var newEmployer = new Employer
             {
-                CompanyName = request.Name + " Corporation",
-                RegistrationNumber = "REG-" + Guid.NewGuid().ToString("N")[..8].ToUpper(),
+                EmployerCode = employerCode,
+                CompanyName = string.IsNullOrWhiteSpace(request.CompanyName) ? request.Name + "'s Company" : request.CompanyName,
+                RegistrationNumber = "PENDING-" + employerCode,
                 ContactDetails = request.Email,
-                Status = EmployerStatus.Active
+                // New self-registered companies await admin approval before they can sign in — see EmployersController Approve/Reject.
+                Status = EmployerStatus.Pending
             };
             await _employerRepo.AddAsync(newEmployer);
             await _unitOfWork.SaveChangesAsync();

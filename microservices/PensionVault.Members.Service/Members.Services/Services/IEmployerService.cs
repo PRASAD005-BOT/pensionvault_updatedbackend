@@ -11,6 +11,8 @@ public interface IEmployerService
     Task<EmployerResponse> GetByUserIdAsync(Guid userId);
     Task<EmployerResponse> CreateAsync(CreateEmployerRequest request);
     Task<EmployerResponse> UpdateAsync(Guid id, UpdateEmployerRequest request);
+    Task<EmployerResponse> ApproveAsync(Guid id);
+    Task<EmployerResponse> RejectAsync(Guid id);
 }
 
 

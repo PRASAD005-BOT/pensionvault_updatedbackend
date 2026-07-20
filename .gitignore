@@ -7,3 +7,8 @@ appsettings.Development.json
 *.log
 node_modules/
 logs/
+[Bb]in/
+[Oo]bj/
+
+[Bb]in/
+[Oo]bj/

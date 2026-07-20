@@ -12,4 +12,5 @@ public enum AssetClass { GovernmentSecurities, CorporateBonds, Equity, FixedDepo
 public enum CorpusStatus { Draft, Finalised }
 public enum SchemeType { EPF, Gratuity, Superannuation, NPS, PPF }
 public enum SchemeStatus { Active, Closed }
+public enum ShortfallRequestStatus { Raised, Resolved, Rejected }
 

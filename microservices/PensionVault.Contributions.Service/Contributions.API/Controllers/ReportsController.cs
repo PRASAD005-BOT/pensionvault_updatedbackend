@@ -24,8 +24,8 @@ public class ReportsController : ControllerBase
 
     /// <summary>Get employers who are in default or shortfall status</summary>
     [HttpGet("contribution-defaults")]
-    public async Task<IActionResult> ContributionDefaults()
-        => Ok(await _reportService.GetContributionDefaultsAsync());
+    public async Task<IActionResult> ContributionDefaults([FromQuery] string? period)
+        => Ok(await _reportService.GetContributionDefaultsAsync(period));
 
     /// <summary>Statutory returns — contribution summary by period</summary>
     [HttpGet("statutory-returns")]

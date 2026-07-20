@@ -25,3 +25,14 @@ public record DisbursementResponse(
 );
 
 
+public record PartialWithdrawalRequest(
+    Guid MemberId,
+    decimal WithdrawalAmount,
+    string Remarks
+);
+
+public record PartialWithdrawalDisbursementRequest(
+    decimal DisbursedAmount,
+    decimal TaxDeducted,
+    string BankAccountRef
+);

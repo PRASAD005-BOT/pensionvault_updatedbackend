@@ -1,4 +1,5 @@
-﻿using Members.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using Members.Domain.Entities;
 
 namespace Members.Services.DTOs;
 
@@ -8,7 +9,7 @@ public record CreateMemberRequest(
     string Name,
     DateTime DateOfBirth,
     string? Gender,
-    string? NationalIdRef,
+    [MaxLength(12)] string? NationalIdRef,
     Guid EmployerId,
     DateTime JoiningDate,
     DateTime? DateOfRetirement,
@@ -20,7 +21,7 @@ public record UpdateMemberRequest(
     string Name,
     DateTime DateOfBirth,
     string? Gender,
-    string? NationalIdRef,
+    [MaxLength(12)] string? NationalIdRef,
     DateTime? DateOfRetirement,
     string? NomineeDetails,
     MemberStatus Status,
@@ -30,7 +31,7 @@ public record UpdateMemberRequest(
 );
 
 public record SelfEnrollMemberRequest(
-    string NationalIdRef,
+    [MaxLength(12)] string NationalIdRef,
     DateTime DateOfBirth,
     string? Gender,
     Guid EmployerId,

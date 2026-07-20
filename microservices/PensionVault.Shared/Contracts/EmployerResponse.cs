@@ -2,6 +2,7 @@
 
 public record EmployerResponse(
     Guid EmployerId,
+    string EmployerCode,
     string CompanyName,
     string RegistrationNumber,
     string? Industry,

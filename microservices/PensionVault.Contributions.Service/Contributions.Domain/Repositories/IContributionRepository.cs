@@ -11,6 +11,7 @@ public interface IContributionRepository
     Task<int> CountPostedContributionsAsync(Guid remittanceId);
     Task<decimal> SumReconciledAmountAsync(Guid remittanceId);
     Task<List<MemberContribution>> GetByMemberAsync(Guid memberId);
+    Task<MemberContribution?> FindContributionByIdAsync(Guid contributionId);
     Task AddRemittanceAsync(ContributionRemittance remittance);
     Task AddContributionAsync(MemberContribution contribution);
 }

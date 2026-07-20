@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using PensionVault.Shared.Auth;
@@ -31,6 +32,7 @@ builder.Services.AddScoped<IFundAccountRepository, FundAccountRepository>();
 builder.Services.AddScoped<IContributionRepository, ContributionRepository>();
 builder.Services.AddScoped<ILedgerRepository, LedgerRepository>();
 builder.Services.AddScoped<IInvestmentRepository, InvestmentRepository>();
+builder.Services.AddScoped<IShortfallRequestRepository, ShortfallRequestRepository>();
 
 builder.Services.AddScoped<IContributionService, ContributionService>();
 builder.Services.AddScoped<ILedgerService, LedgerService>();
@@ -43,15 +45,15 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<MemberServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:MembersUrl"] ?? "http://localhost:5001/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<NotificationServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:MembersUrl"] ?? "http://localhost:5001/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<AuditServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:MembersUrl"] ?? "http://localhost:5001/");
-});
+}).AddStandardResilienceHandler();
 
 // JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);

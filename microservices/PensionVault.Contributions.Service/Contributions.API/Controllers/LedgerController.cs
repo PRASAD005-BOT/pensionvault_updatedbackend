@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Contributions.Services.DTOs;
 using Contributions.Domain.Entities;
 using Contributions.Domain.Repositories;
 using Contributions.Services;
+using Contributions.Services.HttpClients;
 using PensionVault.Shared.Contracts;
 
 namespace Contributions.API.Controllers;
@@ -37,8 +39,13 @@ public class LedgerController : ControllerBase
         => Ok(await _ledgerService.GetAllLedgerEntriesAsync());
 
     [HttpGet("account/{accountId:guid}")]
-    public async Task<IActionResult> GetLedger(Guid accountId)
-        => Ok(await _ledgerService.GetAccountLedgerAsync(accountId));
+    [Authorize(Roles = "Member,FundAdmin,Admin,Compliance")]
+    public async Task<IActionResult> GetLedger(Guid accountId, [FromServices] MemberServiceClient memberClient)
+    {
+        if (User.IsInRole("Member") && !await OwnsAccountAsync(accountId, memberClient))
+            return Forbid();
+        return Ok(await _ledgerService.GetAccountLedgerAsync(accountId));
+    }
 
     [HttpPost("interest-credit")]
     [Authorize(Roles = "FundAdmin,Admin")]
@@ -46,8 +53,23 @@ public class LedgerController : ControllerBase
         => Ok(await _ledgerService.CreditInterestAsync(request));
 
     [HttpGet("interest-records/{accountId:guid}")]
-    public async Task<IActionResult> GetInterestRecords(Guid accountId)
-        => Ok(await _ledgerService.GetInterestRecordsAsync(accountId));
+    [Authorize(Roles = "Member,FundAdmin,Admin,Compliance")]
+    public async Task<IActionResult> GetInterestRecords(Guid accountId, [FromServices] MemberServiceClient memberClient)
+    {
+        if (User.IsInRole("Member") && !await OwnsAccountAsync(accountId, memberClient))
+            return Forbid();
+        return Ok(await _ledgerService.GetInterestRecordsAsync(accountId));
+    }
+
+    private async Task<bool> OwnsAccountAsync(Guid accountId, MemberServiceClient memberClient)
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdStr, out var userId)) return false;
+        var member = await memberClient.GetMemberByUserIdAsync(userId);
+        if (member == null) return false;
+        var account = await _accountRepo.FindByIdAsync(accountId);
+        return account != null && account.MemberId == member.MemberId;
+    }
 
     [HttpPost]
     public async Task<IActionResult> AddEntry([FromBody] CreateLedgerEntryRequest request)

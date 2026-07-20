@@ -49,11 +49,16 @@ public class EmployerService : IEmployerService
 
     public async Task<EmployerResponse> CreateAsync(CreateEmployerRequest request)
     {
+        if (string.IsNullOrWhiteSpace(request.EmployerCode))
+            throw new ArgumentException("Employer ID is required.");
+        if (await _employerRepo.ExistsByEmployerCodeAsync(request.EmployerCode))
+            throw new InvalidOperationException("Employer ID already exists — choose a different one.");
         if (await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
 
         var employer = new Employer
         {
+            EmployerCode = request.EmployerCode.Trim(),
             CompanyName = request.CompanyName,
             RegistrationNumber = request.RegistrationNumber,
             Industry = request.Industry,
@@ -70,17 +75,46 @@ public class EmployerService : IEmployerService
     {
         var employer = await _employerRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException("Employer not found.");
+
+        if (!string.IsNullOrWhiteSpace(request.RegistrationNumber)
+            && !string.Equals(employer.RegistrationNumber, request.RegistrationNumber, StringComparison.OrdinalIgnoreCase)
+            && await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
+            throw new InvalidOperationException("Registration number already exists.");
+
         employer.CompanyName = request.CompanyName;
+        if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
+            employer.RegistrationNumber = request.RegistrationNumber;
         employer.Industry = request.Industry;
         employer.RemittanceFrequency = request.RemittanceFrequency;
         employer.ContactDetails = request.ContactDetails;
-        employer.Status = request.Status;
+        if (request.Status.HasValue)
+            employer.Status = request.Status.Value;
         await _unitOfWork.SaveChangesAsync();
         return ToResponse(employer);
     }
 
+    public async Task<EmployerResponse> ApproveAsync(Guid id)
+    {
+        var employer = await _employerRepo.FindByIdAsync(id)
+            ?? throw new KeyNotFoundException("Employer not found.");
+        employer.Status = EmployerStatus.Active;
+        await _unitOfWork.SaveChangesAsync();
+        return ToResponse(employer);
+    }
+
+    public async Task<EmployerResponse> RejectAsync(Guid id)
+    {
+        var employer = await _employerRepo.FindByIdAsync(id)
+            ?? throw new KeyNotFoundException("Employer not found.");
+        employer.Status = EmployerStatus.Deregistered;
+        await _unitOfWork.SaveChangesAsync();
+        return ToResponse(employer);
+    }
+
+    internal static string GenerateEmployerCode() => "EMP-" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();
+
     private static EmployerResponse ToResponse(Employer e) => new(
-        e.EmployerId, e.CompanyName, e.RegistrationNumber, e.Industry,
+        e.EmployerId, e.EmployerCode, e.CompanyName, e.RegistrationNumber, e.Industry,
         e.EnrolledMemberCount, e.RemittanceFrequency.ToString(), e.ContactDetails, e.Status.ToString());
 }
 

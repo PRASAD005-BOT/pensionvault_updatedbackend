@@ -64,4 +64,46 @@ public record DefaulterSummaryResponse(
     string LastRemittancePeriod
 );
 
+public record MemberShortfallResponse(
+    Guid RemittanceId,
+    string RemittancePeriod,
+    string RemittanceStatus,
+    string Message
+);
+
+public record CreateShortfallRequest(
+    Guid ContributionId,
+    string Reason
+);
+
+public record ResolveShortfallRequest(
+    decimal? NewEmployeeAmount,
+    decimal? NewEmployerAmount,
+    decimal? NewPensionAmount,
+    string ResolutionNote
+);
+
+public record RejectShortfallRequest(
+    string RejectionNote
+);
+
+public record ShortfallRequestResponse(
+    Guid ShortfallRequestId,
+    Guid ContributionId,
+    Guid MemberId,
+    string MemberName,
+    string Period,
+    decimal EmployeeAmount,
+    decimal EmployerAmount,
+    decimal PensionAmount,
+    decimal TotalAmount,
+    Guid EmployerId,
+    string EmployerName,
+    string Reason,
+    string Status,
+    DateTime RaisedDate,
+    string? ResolutionNote,
+    DateTime? ResolvedDate
+);
+
 

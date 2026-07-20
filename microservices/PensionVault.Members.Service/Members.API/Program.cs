@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using PensionVault.Shared.Auth;
@@ -40,23 +41,23 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IFundAccountRepository, HttpFundAccountRepository>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:ContributionsUrl"] ?? "http://localhost:5004/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<IContributionRepository, HttpContributionRepository>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:ContributionsUrl"] ?? "http://localhost:5004/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<ILedgerRepository, HttpLedgerRepository>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:ContributionsUrl"] ?? "http://localhost:5004/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<ContributionsServiceClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:ContributionsUrl"] ?? "http://localhost:5004/");
-});
+}).AddStandardResilienceHandler();
 builder.Services.AddHttpClient<IClaimRepository, HttpClaimRepository>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Services:ClaimsUrl"] ?? "http://localhost:5002/");
-});
+}).AddStandardResilienceHandler();
 
 // Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
