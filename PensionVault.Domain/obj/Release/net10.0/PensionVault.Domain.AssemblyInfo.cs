@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PensionVault.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9186465675362a850a1c4699b0775fe92f0b5268")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+268bbcb48955da049dc1e5651353038e28004dab")]
 [assembly: System.Reflection.AssemblyProductAttribute("PensionVault.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PensionVault.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
