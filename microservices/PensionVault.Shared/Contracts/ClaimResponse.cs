@@ -24,9 +24,7 @@ public record DisbursementResponse(
     string Status
 );
 
-<<<<<<< HEAD:microservices/PensionVault.Shared/Contracts/ClaimResponse.cs
 
-=======
 public record PartialWithdrawalRequest(
     Guid MemberId,
     decimal WithdrawalAmount,
@@ -38,4 +36,3 @@ public record PartialWithdrawalDisbursementRequest(
     decimal TaxDeducted,
     string BankAccountRef
 );
->>>>>>> 62da4b668caf28d68984d044e8849bcee250dad4:PensionVault.Application/DTOs/Claims/ClaimDtos.cs
