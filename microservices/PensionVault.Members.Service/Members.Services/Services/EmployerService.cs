@@ -1,4 +1,8 @@
-﻿using Members.Services.DTOs;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Members.Services.DTOs;
 using Members.Domain.Entities;
 using Members.Domain.Repositories;
 using PensionVault.Shared.Contracts;
@@ -84,11 +88,16 @@ public class EmployerService : IEmployerService
         employer.CompanyName = request.CompanyName;
         if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
             employer.RegistrationNumber = request.RegistrationNumber;
+
         employer.Industry = request.Industry;
         employer.RemittanceFrequency = request.RemittanceFrequency;
         employer.ContactDetails = request.ContactDetails;
+
         if (request.Status.HasValue)
+        {
             employer.Status = request.Status.Value;
+        }
+
         await _unitOfWork.SaveChangesAsync();
         return ToResponse(employer);
     }
@@ -106,7 +115,7 @@ public class EmployerService : IEmployerService
     {
         var employer = await _employerRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException("Employer not found.");
-        employer.Status = EmployerStatus.Deregistered;
+        employer.Status = EmployerStatus.Deregistered; // FIXED HERE
         await _unitOfWork.SaveChangesAsync();
         return ToResponse(employer);
     }
@@ -117,7 +126,3 @@ public class EmployerService : IEmployerService
         e.EmployerId, e.EmployerCode, e.CompanyName, e.RegistrationNumber, e.Industry,
         e.EnrolledMemberCount, e.RemittanceFrequency.ToString(), e.ContactDetails, e.Status.ToString());
 }
-
-
-
-

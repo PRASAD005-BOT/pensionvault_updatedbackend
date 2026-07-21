@@ -1,6 +1,9 @@
+using System;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Members.Services.DTOs;
 using Members.Services;
 using Members.Services.ProxyServices;
@@ -41,7 +44,7 @@ public class EmployersController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,FundAdmin")]
     public async Task<IActionResult> Create([FromBody] CreateEmployerRequest request)
     {
         var result = await _employerService.CreateAsync(request);
@@ -49,7 +52,7 @@ public class EmployersController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    [Authorize(Roles = "Admin,Employer")]
+    [Authorize(Roles = "Admin,Employer,FundAdmin")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEmployerRequest request)
     {
         if (User.IsInRole("Employer"))
@@ -58,18 +61,18 @@ public class EmployersController : ControllerBase
             if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId) || orgId != id)
                 return Forbid();
 
-            // Employers cannot change their own approval/compliance status.
             request = request with { Status = null };
         }
+
         return Ok(await _employerService.UpdateAsync(id, request));
     }
 
     [HttpPut("{id:guid}/approve")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,FundAdmin")]
     public async Task<IActionResult> Approve(Guid id) => Ok(await _employerService.ApproveAsync(id));
 
     [HttpPut("{id:guid}/reject")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,FundAdmin")]
     public async Task<IActionResult> Reject(Guid id) => Ok(await _employerService.RejectAsync(id));
 
     [HttpGet("{id:guid}/remittances")]
@@ -77,4 +80,3 @@ public class EmployersController : ControllerBase
     public async Task<IActionResult> GetRemittances(Guid id)
         => Ok(await _contributionsClient.GetEmployerRemittancesAsync(id));
 }
-

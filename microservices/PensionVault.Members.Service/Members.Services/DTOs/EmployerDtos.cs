@@ -1,4 +1,5 @@
-﻿using Members.Domain.Entities;
+﻿using System.Text.Json.Serialization;
+using Members.Domain.Entities;
 
 namespace Members.Services.DTOs;
 
@@ -17,7 +18,7 @@ public record UpdateEmployerRequest(
     string? Industry,
     RemittanceFrequency RemittanceFrequency,
     string? ContactDetails,
-    EmployerStatus? Status
+
+    [property: JsonConverter(typeof(JsonStringEnumConverter))]
+    EmployerStatus? Status = null
 );
-
-

@@ -1,6 +1,9 @@
-﻿using System.Text;
+﻿using System;
+using System.IO;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using PensionVault.Shared.Auth;
@@ -74,9 +77,9 @@ builder.Services.AddAuthorization();
 // Controllers
 builder.Services.AddScoped<AuditLogFilter>();
 builder.Services.AddControllers(opts =>
-    {
-        opts.Filters.AddService<AuditLogFilter>();
-    })
+{
+    opts.Filters.AddService<AuditLogFilter>();
+})
     .AddJsonOptions(opts => {
         opts.JsonSerializerOptions.DefaultIgnoreCondition =
             System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
@@ -126,6 +129,26 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAll");
+
+/* ================== FIXED STATIC FILES SERVING ROUTE START ================== */
+app.UseStaticFiles(); // Serves default static files out of wwwroot if they exist
+
+// Map physical directory access rules explicitly to expose saved images
+var webRootPath = app.Environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+var profilesPath = Path.Combine(webRootPath, "uploads", "profiles");
+
+if (!Directory.Exists(profilesPath))
+{
+    Directory.CreateDirectory(profilesPath);
+}
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(profilesPath),
+    RequestPath = "/uploads/profiles"
+});
+/* =================== FIXED STATIC FILES SERVING ROUTE END =================== */
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -139,7 +162,3 @@ using (var scope = app.Services.CreateScope())
 
 Log.Information("PensionVault Members Service starting on port 5001");
 app.Run();
-
-
-
-

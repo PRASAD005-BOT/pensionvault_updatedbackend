@@ -1,4 +1,7 @@
-﻿namespace Members.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+
+namespace Members.Domain.Entities;
 
 public class Employer
 {
@@ -15,4 +18,3 @@ public class Employer
     // Navigation
     public ICollection<Member> Members { get; set; } = new List<Member>();
 }
-
