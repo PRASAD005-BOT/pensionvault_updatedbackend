@@ -67,8 +67,7 @@ public class ContributionService : IContributionService
         };
         await _contributionRepo.AddRemittanceAsync(remittance);
 
-        var notifications = new List<CreateNotificationRequest>();
-
+        // Save member contributions as Pending — ledger posting happens on Reconciliation
         foreach (var item in request.MemberContributions)
         {
             var contribution = new MemberContribution
@@ -81,15 +80,45 @@ public class ContributionService : IContributionService
                 PensionAmount = item.PensionAmount,
                 TotalAmount = item.EmployeeAmount + item.EmployerAmount,
                 PostedDate = DateTime.UtcNow,
-                Status = ContributionStatus.Posted
+                Status = ContributionStatus.Pending
             };
             await _contributionRepo.AddContributionAsync(contribution);
+        }
 
-            var account = await _accountRepo.FindActiveByMemberAsync(item.MemberId);
+        var notifications = new List<CreateNotificationRequest>();
+        var admins = await GetAdminUsersAsync();
+        notifications.AddRange(admins.Select(adminUser => new CreateNotificationRequest(
+            adminUser.UserId,
+            $"New remittance of ₹{total:N2} submitted for period {request.RemittancePeriod}. Awaiting reconciliation.",
+            "Compliance")));
+
+        await _unitOfWork.SaveChangesAsync();
+        await _notificationClient.SendBulkNotificationsAsync(notifications);
+
+        return await GetRemittanceAsync(remittance.RemittanceId);
+    }
+
+    public async Task<RemittanceResponse> ReconcileAsync(Guid remittanceId)
+    {
+        var remittance = await _contributionRepo.FindRemittanceByIdAsync(remittanceId)
+            ?? throw new KeyNotFoundException("Remittance not found.");
+
+        if (remittance.Status == RemittanceStatus.Reconciled)
+            throw new InvalidOperationException("Remittance has already been reconciled.");
+
+        var notifications = new List<CreateNotificationRequest>();
+
+        // Post member contributions and update account balances upon Fund Admin reconciliation
+        foreach (var contribution in remittance.MemberContributions)
+        {
+            contribution.Status = ContributionStatus.Posted;
+            contribution.PostedDate = DateTime.UtcNow;
+
+            var account = await _accountRepo.FindActiveByMemberAsync(contribution.MemberId);
             if (account != null)
             {
-                account.EmployeeContributionBalance += item.EmployeeAmount;
-                account.EmployerContributionBalance += item.EmployerAmount;
+                account.EmployeeContributionBalance += contribution.EmployeeAmount;
+                account.EmployerContributionBalance += contribution.EmployerAmount;
                 account.TotalBalance += contribution.TotalAmount;
 
                 // EPF contribution credit ledger entry
@@ -103,15 +132,15 @@ public class ContributionService : IContributionService
                     Status = LedgerEntryStatus.Posted
                 });
 
-                // EPS pension credit
-                if (item.PensionAmount > 0)
+                // EPS pension credit ledger entry
+                if (contribution.PensionAmount > 0)
                 {
-                    account.PensionBalance += item.PensionAmount;
+                    account.PensionBalance += contribution.PensionAmount;
                     await _ledgerRepo.AddEntryAsync(new LedgerEntry
                     {
                         AccountId = account.AccountId,
                         EntryType = EntryType.PensionCredit,
-                        Amount = item.PensionAmount,
+                        Amount = contribution.PensionAmount,
                         BalanceAfter = account.PensionBalance,
                         ReferenceId = remittance.RemittanceId.ToString(),
                         Status = LedgerEntryStatus.Posted
@@ -119,29 +148,45 @@ public class ContributionService : IContributionService
                 }
             }
 
-            var member = await _memberClient.GetMemberByIdAsync(item.MemberId);
+            var member = await _memberClient.GetMemberByIdAsync(contribution.MemberId);
             if (member != null)
             {
                 notifications.Add(new CreateNotificationRequest(
                     member.UserId,
-                    $"A contribution of ₹{item.EmployeeAmount + item.EmployerAmount:N2} (Pension: ₹{item.PensionAmount:N2}) has been posted to your account for period {request.RemittancePeriod}.",
+                    $"A contribution of ₹{contribution.TotalAmount:N2} (Pension: ₹{contribution.PensionAmount:N2}) has been posted to your account for period {remittance.RemittancePeriod}.",
                     "Contribution"));
             }
         }
 
-        // We can look up representatives or defaults. Let's just lookup representatives if we can or proceed
-        // If employer lookup is unsuccessful, it will proceed silently or log.
-        // Let's send the notifications to Member and admins
+        var postedCount = remittance.MemberContributions.Count(c => c.Status == ContributionStatus.Posted);
+        remittance.Status = postedCount == remittance.CoverageCount
+            ? RemittanceStatus.Reconciled
+            : RemittanceStatus.Shortfall;
+
         var admins = await GetAdminUsersAsync();
         notifications.AddRange(admins.Select(adminUser => new CreateNotificationRequest(
             adminUser.UserId,
-            $"New remittance of ₹{total:N2} submitted for period {request.RemittancePeriod}. Awaiting reconciliation.",
+            $"Remittance for period {remittance.RemittancePeriod} has been reconciled. Status: {remittance.Status}.",
             "Compliance")));
 
         await _unitOfWork.SaveChangesAsync();
         await _notificationClient.SendBulkNotificationsAsync(notifications);
 
-        return await GetRemittanceAsync(remittance.RemittanceId);
+        return await GetRemittanceAsync(remittanceId);
+    }
+
+    public async Task<IEnumerable<MemberContributionResponse>> GetMemberContributionsAsync(Guid memberId)
+    {
+        var member = await _memberClient.GetMemberByIdAsync(memberId);
+        var contributions = await _contributionRepo.GetByMemberAsync(memberId);
+
+        // Only return contributions that have been reconciled and posted
+        return contributions
+            .Where(c => c.Status == ContributionStatus.Posted)
+            .Select(c => new MemberContributionResponse(
+                c.ContributionId, c.MemberId, member?.Name ?? "",
+                c.Period, c.EmployeeAmount, c.EmployerAmount, c.PensionAmount,
+                c.TotalAmount, c.PostedDate, c.Status));
     }
 
     public async Task<RemittanceResponse> GetRemittanceAsync(Guid remittanceId)
@@ -165,30 +210,6 @@ public class ContributionService : IContributionService
             r.TotalPensionAmount, r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status));
     }
 
-    public async Task<RemittanceResponse> ReconcileAsync(Guid remittanceId)
-    {
-        var remittance = await _contributionRepo.FindRemittanceByIdAsync(remittanceId)
-            ?? throw new KeyNotFoundException("Remittance not found.");
-
-        var postedCount = await _contributionRepo.CountPostedContributionsAsync(remittanceId);
-        remittance.Status = postedCount == remittance.CoverageCount
-            ? RemittanceStatus.Reconciled
-            : RemittanceStatus.Shortfall;
-
-        var notifications = new List<CreateNotificationRequest>();
-
-        var admins = await GetAdminUsersAsync();
-        notifications.AddRange(admins.Select(adminUser => new CreateNotificationRequest(
-            adminUser.UserId,
-            $"Remittance for period {remittance.RemittancePeriod} has been reconciled. Status: {remittance.Status}.",
-            "Compliance")));
-
-        await _unitOfWork.SaveChangesAsync();
-        await _notificationClient.SendBulkNotificationsAsync(notifications);
-
-        return await GetRemittanceAsync(remittanceId);
-    }
-
     public async Task<IEnumerable<RemittanceResponse>> GetAllRemittancesAsync()
     {
         var remittances = await _contributionRepo.GetAllRemittancesAsync();
@@ -198,16 +219,6 @@ public class ContributionService : IContributionService
             r.RemittanceId, r.EmployerId, employerDict.TryGetValue(r.EmployerId, out var name) ? name : "",
             r.RemittancePeriod, r.TotalEmployeeShare, r.TotalEmployerShare,
             r.TotalPensionAmount, r.TotalAmount, r.RemittanceDate, r.CoverageCount, r.Status));
-    }
-
-    public async Task<IEnumerable<MemberContributionResponse>> GetMemberContributionsAsync(Guid memberId)
-    {
-        var member = await _memberClient.GetMemberByIdAsync(memberId);
-        var contributions = await _contributionRepo.GetByMemberAsync(memberId);
-        return contributions.Select(c => new MemberContributionResponse(
-            c.ContributionId, c.MemberId, member?.Name ?? "",
-            c.Period, c.EmployeeAmount, c.EmployerAmount, c.PensionAmount,
-            c.TotalAmount, c.PostedDate, c.Status));
     }
 
     public async Task<ReconciliationReportResponse> GetReconciliationReportAsync(Guid remittanceId)
@@ -279,7 +290,7 @@ public class ContributionService : IContributionService
         if (flagged.Count == 0) return Enumerable.Empty<MemberShortfallResponse>();
 
         var myContributions = await _contributionRepo.GetByMemberAsync(memberId);
-        var postedPeriods = myContributions.Select(c => c.Period).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var postedPeriods = myContributions.Where(c => c.Status == ContributionStatus.Posted).Select(c => c.Period).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         return flagged
             .Where(r => !postedPeriods.Contains(r.RemittancePeriod))
@@ -293,7 +304,6 @@ public class ContributionService : IContributionService
 
     private async Task<List<UserSummaryResponse>> GetAdminUsersAsync()
     {
-        // Simple fallback if call fails - fetch via HTTP client to Members service
         try
         {
             var admins = await _memberClient.GetUsersByRoleAsync("Admin");
@@ -318,8 +328,24 @@ public class ContributionService : IContributionService
             ?? throw new KeyNotFoundException("Contribution not found.");
         if (contribution.MemberId != memberId)
             throw new UnauthorizedAccessException("This contribution does not belong to you.");
+        if (contribution.Status != ContributionStatus.Posted)
+            throw new InvalidOperationException("Shortfalls can only be raised on posted contribution transactions.");
         if (string.IsNullOrWhiteSpace(request.Reason))
             throw new ArgumentException("Please explain why you're raising this shortfall.");
+
+        // Check existing shortfall requests for this contribution
+        var existingRequests = await _shortfallRepo.GetByMemberAsync(memberId);
+        var requestsForContribution = existingRequests.Where(s => s.ContributionId == request.ContributionId).ToList();
+
+        if (requestsForContribution.Any(s => s.Status == ShortfallRequestStatus.Raised))
+        {
+            throw new InvalidOperationException("A shortfall request for this contribution is currently pending review.");
+        }
+
+        if (requestsForContribution.Any(s => s.Status == ShortfallRequestStatus.Rejected))
+        {
+            throw new InvalidOperationException("A shortfall request for this contribution was rejected by an authority and cannot be raised again.");
+        }
 
         var member = await _memberClient.GetMemberByIdAsync(memberId);
 
@@ -494,8 +520,3 @@ public class ContributionService : IContributionService
             s.Reason, s.Status.ToString(), s.RaisedDate, s.ResolutionNote, s.ResolvedDate);
     }
 }
-
-
-
-
-
