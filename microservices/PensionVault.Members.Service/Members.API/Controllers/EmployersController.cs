@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using Members.Services.DTOs;
 using Members.Services;
 using Members.Services.ProxyServices;
@@ -26,9 +27,26 @@ public class EmployersController : ControllerBase
         _contributionsClient = contributionsClient;
     }
 
+    /// <summary>
+    /// Get all employers. Filters out inactive ones by default unless activeOnly=false.
+    /// </summary>
     [HttpGet]
     [Authorize(Roles = "Member,FundAdmin,Admin,Compliance,Employer")]
-    public async Task<IActionResult> GetAll() => Ok(await _employerService.GetAllAsync());
+    public async Task<IActionResult> GetAll([FromQuery] bool activeOnly = true)
+    {
+        var employers = await _employerService.GetAllAsync();
+
+        if (activeOnly)
+        {
+            // Filter out deactivated/inactive employers based on Status string
+            employers = employers.Where(e =>
+                string.Equals(e.Status, "Active", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(e.Status, "0", StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+
+        return Ok(employers);
+    }
 
     [HttpGet("{id:guid}")]
     [Authorize(Roles = "Member,Employer,FundAdmin,Admin,Compliance")]
