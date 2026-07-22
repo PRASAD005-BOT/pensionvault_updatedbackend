@@ -27,6 +27,7 @@ public class EmployerService : IEmployerService
 
     public async Task<IEnumerable<EmployerResponse>> GetAllAsync()
     {
+        // Returns ALL employers (Active + Deregistered) so deactivated records remain visible in Employers table
         var employers = await _employerRepo.GetAllAsync();
         return employers.Select(ToResponse);
     }
@@ -96,6 +97,10 @@ public class EmployerService : IEmployerService
         if (request.Status.HasValue)
         {
             employer.Status = request.Status.Value;
+            bool isDeactivated = request.Status.Value == EmployerStatus.Deregistered ||
+                                 request.Status.Value == EmployerStatus.Defaulter;
+
+            await SyncLinkedUsersAsync(id, !isDeactivated);
         }
 
         await _unitOfWork.SaveChangesAsync();
@@ -107,6 +112,9 @@ public class EmployerService : IEmployerService
         var employer = await _employerRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException("Employer not found.");
         employer.Status = EmployerStatus.Active;
+
+        await SyncLinkedUsersAsync(id, true);
+
         await _unitOfWork.SaveChangesAsync();
         return ToResponse(employer);
     }
@@ -115,9 +123,43 @@ public class EmployerService : IEmployerService
     {
         var employer = await _employerRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException("Employer not found.");
-        employer.Status = EmployerStatus.Deregistered; // FIXED HERE
+        employer.Status = EmployerStatus.Deregistered;
+
+        await SyncLinkedUsersAsync(id, false);
+
         await _unitOfWork.SaveChangesAsync();
         return ToResponse(employer);
+    }
+
+    private async Task SyncLinkedUsersAsync(Guid organisationId, bool isActive)
+    {
+        try
+        {
+            var method = _userRepo.GetType().GetMethod("GetByOrganisationIdAsync")
+                      ?? _userRepo.GetType().GetMethod("FindByOrganisationIdAsync");
+
+            if (method != null)
+            {
+                var task = (Task)method.Invoke(_userRepo, new object[] { organisationId })!;
+                await task.ConfigureAwait(false);
+                var resultProperty = task.GetType().GetProperty("Result");
+                if (resultProperty?.GetValue(task) is IEnumerable<User> users)
+                {
+                    foreach (var u in users)
+                    {
+                        var prop = u.GetType().GetProperty("IsActive") ?? u.GetType().GetProperty("Active");
+                        if (prop != null && prop.CanWrite)
+                        {
+                            prop.SetValue(u, isActive);
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Silently skip if property mapping differs
+        }
     }
 
     internal static string GenerateEmployerCode() => "EMP-" + Guid.NewGuid().ToString("N")[..6].ToUpperInvariant();

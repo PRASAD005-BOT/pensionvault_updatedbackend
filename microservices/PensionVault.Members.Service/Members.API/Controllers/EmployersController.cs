@@ -28,17 +28,17 @@ public class EmployersController : ControllerBase
     }
 
     /// <summary>
-    /// Get all employers. Filters out inactive ones by default unless activeOnly=false.
+    /// Get all employers. Defaults to activeOnly=false so management pages can render deactivated companies.
     /// </summary>
     [HttpGet]
     [Authorize(Roles = "Member,FundAdmin,Admin,Compliance,Employer")]
-    public async Task<IActionResult> GetAll([FromQuery] bool activeOnly = true)
+    public async Task<IActionResult> GetAll([FromQuery] bool activeOnly = false)
     {
         var employers = await _employerService.GetAllAsync();
 
         if (activeOnly)
         {
-            // Filter out deactivated/inactive employers based on Status string
+            // Filter out deactivated/inactive employers based on Status string when explicitly requested
             employers = employers.Where(e =>
                 string.Equals(e.Status, "Active", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(e.Status, "0", StringComparison.OrdinalIgnoreCase)
