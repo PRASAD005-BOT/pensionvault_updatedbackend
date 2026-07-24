@@ -8,8 +8,7 @@ public record CreateSchemeRequest(
     decimal EmployeeContributionRate,
     decimal EmployerContributionRate,
     decimal InterestRatePA,
-    string? VestingSchedule,
-    string? Description
+    string? VestingSchedule
 );
 
 public record UpdateSchemeRequest(
@@ -18,8 +17,7 @@ public record UpdateSchemeRequest(
     decimal EmployerContributionRate,
     decimal InterestRatePA,
     string? VestingSchedule,
-    SchemeStatus Status,
-    string? Description
+    SchemeStatus Status
 );
 
 

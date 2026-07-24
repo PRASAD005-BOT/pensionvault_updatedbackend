@@ -18,7 +18,7 @@ public class ClaimService : IClaimService
 
     private static readonly HashSet<string> AllowedPartialReasons = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Medical", "Housing", "Education", "Marriage", "Others"
+        "Medical", "Housing", "Education", "Marriage"
     };
 
     public ClaimService(
@@ -198,7 +198,6 @@ public class ClaimService : IClaimService
             else if (r.Contains("housing") || r.Contains("house")) normalizedReason = "Housing";
             else if (r.Contains("education") || r.Contains("study") || r.Contains("college") || r.Contains("school")) normalizedReason = "Education";
             else if (r.Contains("marriage") || r.Contains("wedding")) normalizedReason = "Marriage";
-            else if (r.Contains("other")) normalizedReason = "Others";
         }
 
         if (normalizedReason == null)

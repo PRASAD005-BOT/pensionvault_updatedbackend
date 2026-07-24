@@ -114,10 +114,6 @@ namespace Members.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<decimal>("EmployeeContributionRate")
                         .HasPrecision(5, 2)
                         .HasColumnType("decimal(5,2)");

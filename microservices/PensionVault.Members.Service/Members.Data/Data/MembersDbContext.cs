@@ -50,7 +50,6 @@ public class MembersDbContext : DbContext
             e.Property(x => x.SchemeName).HasMaxLength(150).IsRequired();
             e.Property(x => x.SchemeType).HasConversion<string>().HasMaxLength(30);
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
-            e.Property(x => x.Description).HasMaxLength(500);
             e.Property(x => x.EmployeeContributionRate).HasPrecision(5, 2);
             e.Property(x => x.EmployerContributionRate).HasPrecision(5, 2);
             e.Property(x => x.InterestRatePA).HasPrecision(5, 2);
