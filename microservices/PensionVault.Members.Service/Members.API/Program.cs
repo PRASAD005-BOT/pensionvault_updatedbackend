@@ -158,7 +158,6 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<MembersDbContext>();
     await db.Database.MigrateAsync();
     await MembersDataSeeder.SeedAsync(db, builder.Configuration);
-    await MembersDataSeeder.ResyncEmployerPasswordsAsync(db);
 }
 
 Log.Information("PensionVault Members Service starting on port 5001");

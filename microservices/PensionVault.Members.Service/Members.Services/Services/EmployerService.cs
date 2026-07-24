@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Members.Services.DTOs;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Members.Domain.Entities;
 using Members.Domain.Repositories;
 using PensionVault.Shared.Contracts;
@@ -63,9 +61,6 @@ public class EmployerService : IEmployerService
         if (await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
 
-        // Validate contact phone (if present)
-        ValidateContactPhoneInContactDetails(request.ContactDetails);
-
         var employer = new Employer
         {
             EmployerCode = request.EmployerCode.Trim(),
@@ -90,9 +85,6 @@ public class EmployerService : IEmployerService
             && !string.Equals(employer.RegistrationNumber, request.RegistrationNumber, StringComparison.OrdinalIgnoreCase)
             && await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
-
-        // Validate contact phone (if present)
-        ValidateContactPhoneInContactDetails(request.ContactDetails);
 
         employer.CompanyName = request.CompanyName;
         if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
@@ -175,32 +167,4 @@ public class EmployerService : IEmployerService
     private static EmployerResponse ToResponse(Employer e) => new(
         e.EmployerId, e.EmployerCode, e.CompanyName, e.RegistrationNumber, e.Industry,
         e.EnrolledMemberCount, e.RemittanceFrequency.ToString(), e.ContactDetails, e.Status.ToString());
-
-    private static void ValidateContactPhoneInContactDetails(string? contactDetails)
-    {
-        if (string.IsNullOrWhiteSpace(contactDetails)) return;
-
-        // If contactDetails is JSON and contains a 'phone' property, validate it
-        try
-        {
-            using var doc = JsonDocument.Parse(contactDetails);
-            if (doc.RootElement.ValueKind == JsonValueKind.Object && doc.RootElement.TryGetProperty("phone", out var phoneElem))
-            {
-                var phone = phoneElem.GetString() ?? string.Empty;
-                var digits = Regex.Replace(phone, "\\D", "");
-                if (digits.Length > 0 && digits.Length != 10)
-                    throw new ArgumentException("Contact phone must be a 10-digit number.");
-                return;
-            }
-        }
-        catch (JsonException)
-        {
-            // Not JSON - fall through to plain text check
-        }
-
-        // If plain text contains digits, require exactly 10 digits (otherwise skip)
-        var plainDigits = Regex.Replace(contactDetails, "\\D", "");
-        if (plainDigits.Length > 0 && plainDigits.Length != 10)
-            throw new ArgumentException("Contact phone must be a 10-digit number.");
-    }
 }
