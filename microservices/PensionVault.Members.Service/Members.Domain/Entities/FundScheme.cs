@@ -9,6 +9,7 @@ public class FundScheme
     public decimal EmployerContributionRate { get; set; }
     public decimal InterestRatePA { get; set; }
     public string? VestingSchedule { get; set; } // JSON
+    public string? Description { get; set; }
     public SchemeStatus Status { get; set; } = SchemeStatus.Active;
 }
 

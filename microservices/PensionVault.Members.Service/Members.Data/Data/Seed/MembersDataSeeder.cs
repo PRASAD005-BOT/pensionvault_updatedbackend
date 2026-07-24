@@ -190,6 +190,52 @@ public static class MembersDataSeeder
 
         await context.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// One-time / idempotent migration of employer credentials: forces each registered
+    /// employer user's password to be their EmployerCode, invalidating any previously
+    /// stored portal-code hashes. Employers with a blank EmployerCode (e.g. the seeded
+    /// demo account) are left untouched. After the first run this is a no-op.
+    /// </summary>
+    public static async Task ResyncEmployerPasswordsAsync(MembersDbContext context)
+    {
+        var employerUsers = await context.Users
+            .Where(u => u.Role == UserRole.Employer && u.OrganisationId != null)
+            .ToListAsync();
+        if (employerUsers.Count == 0) return;
+
+        var orgIds = employerUsers.Select(u => u.OrganisationId!.Value).Distinct().ToList();
+        var codeByEmployer = await context.Employers
+            .Where(e => orgIds.Contains(e.EmployerId))
+            .ToDictionaryAsync(e => e.EmployerId, e => e.EmployerCode);
+
+        var changed = false;
+        foreach (var user in employerUsers)
+        {
+            if (!codeByEmployer.TryGetValue(user.OrganisationId!.Value, out var code) ||
+                string.IsNullOrWhiteSpace(code))
+                continue;
+
+            bool alreadyCode;
+            try
+            {
+                alreadyCode = !string.IsNullOrEmpty(user.PasswordHash) &&
+                              BCrypt.Net.BCrypt.Verify(code, user.PasswordHash);
+            }
+            catch
+            {
+                alreadyCode = false;
+            }
+
+            if (!alreadyCode)
+            {
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(code);
+                changed = true;
+            }
+        }
+
+        if (changed) await context.SaveChangesAsync();
+    }
 }
 
 
