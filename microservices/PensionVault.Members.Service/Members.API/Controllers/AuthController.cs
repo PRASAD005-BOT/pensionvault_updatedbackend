@@ -18,7 +18,9 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _authService.LoginAsync(request);
-        return Ok(result);
+        return result.Success
+            ? Ok(result.Value)
+            : StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
     }
 
     /// <summary>Register a new user account</summary>
@@ -26,7 +28,9 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _authService.RegisterAsync(request);
-        return CreatedAtAction(nameof(Login), result);
+        return result.Success
+            ? CreatedAtAction(nameof(Login), result.Value)
+            : StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
     }
 
     /// <summary>Refresh an expired JWT using a refresh token</summary>
@@ -34,7 +38,9 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
     {
         var result = await _authService.RefreshTokenAsync(request.RefreshToken);
-        return Ok(result);
+        return result.Success
+            ? Ok(result.Value)
+            : StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
     }
 
     /// <summary>Look up an employer organization by registration code/number</summary>

@@ -1,4 +1,4 @@
-﻿using Members.Domain.Repositories;
+using Members.Domain.Repositories;
 using Members.Services.DTOs;
 using PensionVault.Shared.Contracts;
 
@@ -8,7 +8,7 @@ public interface IMemberService
 {
     Task<IEnumerable<MemberResponse>> GetAllAsync(Guid? employerId = null);
     Task<MemberResponse> GetByIdAsync(Guid id);
-    Task<MemberResponse> GetByUserIdAsync(Guid userId);
+    Task<MemberResponse?> GetByUserIdAsync(Guid userId);
     Task<MemberResponse> CreateAsync(CreateMemberRequest request);
     Task<MemberResponse> UpdateAsync(Guid id, UpdateMemberRequest request);
     Task<IEnumerable<object>> GetFundAccountsAsync(Guid memberId);
@@ -18,8 +18,3 @@ public interface IMemberService
     Task<MemberResponse> SelfEnrollAsync(Guid userId, SelfEnrollMemberRequest request);
     Task<MemberResponse> ApproveAsync(Guid id, ApproveMemberRequest request);
 }
-
-
-
-
-

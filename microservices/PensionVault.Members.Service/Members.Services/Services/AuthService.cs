@@ -8,6 +8,7 @@ using Members.Services.DTOs;
 using Members.Domain.Entities;
 using Members.Domain.Repositories;
 using PensionVault.Shared.Contracts;
+using PensionVault.Shared.Results;
 
 namespace Members.Services;
 
@@ -36,7 +37,7 @@ public class AuthService : IAuthService
         _config = config;
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginRequest request)
+    public async Task<ServiceResult<AuthResponse>> LoginAsync(LoginRequest request)
     {
         var user = await _userRepo.FindByEmailAsync(request.Email);
 
@@ -110,7 +111,7 @@ public class AuthService : IAuthService
         }
 
         if (user == null)
-            throw new UnauthorizedAccessException("Invalid email or password.");
+            return ServiceResult<AuthResponse>.Fail("Invalid email or password.", 401);
 
         bool isValidPassword = false;
         try
@@ -169,33 +170,33 @@ public class AuthService : IAuthService
         }
 
         if (!isValidPassword)
-            throw new UnauthorizedAccessException("Invalid email or password.");
+            return ServiceResult<AuthResponse>.Fail("Invalid email or password.", 401);
 
         if (!string.IsNullOrEmpty(request.Role) && !string.Equals(user.Role.ToString(), request.Role, StringComparison.OrdinalIgnoreCase))
-            throw new UnauthorizedAccessException($"This account is registered as '{user.Role}'. Please select the correct role to sign in.");
+            return ServiceResult<AuthResponse>.Fail($"This account is registered as '{user.Role}'. Please select the correct role to sign in.", 401);
 
         if (user.Status != UserStatus.Active)
-            throw new UnauthorizedAccessException("Account is not active.");
+            return ServiceResult<AuthResponse>.Fail("Account is not active.", 401);
 
         if (user.Role == UserRole.Employer && user.OrganisationId.HasValue)
         {
             var loginEmployer = await _employerRepo.FindByIdAsync(user.OrganisationId.Value);
             if (loginEmployer?.Status == EmployerStatus.Pending)
-                throw new UnauthorizedAccessException("Your company registration is pending admin approval.");
+                return ServiceResult<AuthResponse>.Fail("Your company registration is pending admin approval.", 401);
             if (loginEmployer?.Status == EmployerStatus.Deregistered)
-                throw new UnauthorizedAccessException("Your company registration was rejected or deregistered. Please contact support.");
+                return ServiceResult<AuthResponse>.Fail("Your company registration was rejected or deregistered. Please contact support.", 401);
         }
 
-        return await GenerateTokensAsync(user);
+        return ServiceResult<AuthResponse>.Ok(await GenerateTokensAsync(user));
     }
 
-    public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
+    public async Task<ServiceResult<AuthResponse>> RegisterAsync(RegisterRequest request)
     {
         if (await _userRepo.ExistsByEmailAsync(request.Email))
-            throw new InvalidOperationException("Email already registered.");
+            return ServiceResult<AuthResponse>.Fail("Email already registered.", 409);
 
         if (!Enum.TryParse<UserRole>(request.Role, true, out var role))
-            throw new ArgumentException("Invalid role specified.");
+            return ServiceResult<AuthResponse>.Fail("Invalid role specified.", 400);
 
         var user = new User
         {
@@ -244,14 +245,15 @@ public class AuthService : IAuthService
                 await _unitOfWork.SaveChangesAsync();
         }
 
-        return await GenerateTokensAsync(user);
+        return ServiceResult<AuthResponse>.Ok(await GenerateTokensAsync(user));
     }
 
-    public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
+    public async Task<ServiceResult<AuthResponse>> RefreshTokenAsync(string refreshToken)
     {
-        var user = await _userRepo.FindByRefreshTokenAsync(refreshToken)
-            ?? throw new UnauthorizedAccessException("Invalid or expired refresh token.");
-        return await GenerateTokensAsync(user);
+        var user = await _userRepo.FindByRefreshTokenAsync(refreshToken);
+        if (user is null)
+            return ServiceResult<AuthResponse>.Fail("Invalid or expired refresh token.", 401);
+        return ServiceResult<AuthResponse>.Ok(await GenerateTokensAsync(user));
     }
 
     private async Task<AuthResponse> GenerateTokensAsync(User user)

@@ -26,10 +26,10 @@ public class MembersController : ControllerBase
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
-            try {
-                var member = await _memberService.GetByUserIdAsync(userId);
-                return Ok(new List<MemberResponse> { member });
-            } catch { return Ok(new List<MemberResponse>()); }
+            var member = await _memberService.GetByUserIdAsync(userId);
+            return member is null
+                ? Ok(new List<MemberResponse>())
+                : Ok(new List<MemberResponse> { member });
         }
 
         Guid? employerId = null;
@@ -66,14 +66,8 @@ public class MembersController : ControllerBase
         if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
         // Only Member role users have a Member profile record; others (Admin, FundAdmin etc.) do not.
         if (!User.IsInRole("Member")) return NotFound();
-        try
-        {
-            return Ok(await _memberService.GetByUserIdAsync(userId));
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var profile = await _memberService.GetByUserIdAsync(userId);
+        return profile is null ? NotFound() : Ok(profile);
     }
 
     /// <summary>Enrol a new member</summary>
@@ -101,7 +95,7 @@ public class MembersController : ControllerBase
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
             var member = await _memberService.GetByUserIdAsync(userId);
-            if (member.MemberId != id) return Forbid();
+            if (member is null || member.MemberId != id) return Forbid();
             request = request with { 
                 Status = Enum.Parse<MemberStatus>(member.Status),
                 EmployerId = member.EmployerId,
@@ -170,7 +164,10 @@ public class MembersController : ControllerBase
 
     [HttpGet("by-user/{userId:guid}")]
     public async Task<IActionResult> GetByUserId(Guid userId)
-        => Ok(await _memberService.GetByUserIdAsync(userId));
+    {
+        var member = await _memberService.GetByUserIdAsync(userId);
+        return member is null ? NotFound() : Ok(member);
+    }
 }
 
 

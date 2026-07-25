@@ -56,11 +56,12 @@ public class MemberService : IMemberService
         return ToResponse(member);
     }
 
-    public async Task<MemberResponse> GetByUserIdAsync(Guid userId)
+    // Returns null when the user has no member profile (an expected case for
+    // non-member roles). Callers decide the HTTP outcome (typically 404).
+    public async Task<MemberResponse?> GetByUserIdAsync(Guid userId)
     {
-        var member = await _memberRepo.FindByUserIdAsync(userId)
-            ?? throw new KeyNotFoundException("Member profile not found for the current user.");
-        return ToResponse(member);
+        var member = await _memberRepo.FindByUserIdAsync(userId);
+        return member is null ? null : ToResponse(member);
     }
 
     public async Task<MemberResponse> CreateAsync(CreateMemberRequest request)

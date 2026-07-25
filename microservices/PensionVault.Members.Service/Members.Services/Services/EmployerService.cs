@@ -32,24 +32,23 @@ public class EmployerService : IEmployerService
         return employers.Select(ToResponse);
     }
 
-    public async Task<EmployerResponse> GetByIdAsync(Guid id)
+    // Expected miss (no such employer) -> null; controller maps to 404.
+    public async Task<EmployerResponse?> GetByIdAsync(Guid id)
     {
-        var e = await _employerRepo.FindByIdAsync(id)
-            ?? throw new KeyNotFoundException("Employer not found.");
-        return ToResponse(e);
+        var e = await _employerRepo.FindByIdAsync(id);
+        return e is null ? null : ToResponse(e);
     }
 
-    public async Task<EmployerResponse> GetByUserIdAsync(Guid userId)
+    // Returns null when the user has no linked organisation/employer profile
+    // (an expected case for non-employer roles). Controller maps to 404.
+    public async Task<EmployerResponse?> GetByUserIdAsync(Guid userId)
     {
-        var user = await _userRepo.FindByIdAsync(userId)
-            ?? throw new KeyNotFoundException("User not found.");
+        var user = await _userRepo.FindByIdAsync(userId);
+        if (user?.OrganisationId is null)
+            return null;
 
-        if (user.OrganisationId == null)
-            throw new KeyNotFoundException("User is not associated with an organisation.");
-
-        var e = await _employerRepo.FindByIdAsync(user.OrganisationId.Value)
-            ?? throw new KeyNotFoundException("No employer profile found.");
-        return ToResponse(e);
+        var e = await _employerRepo.FindByIdAsync(user.OrganisationId.Value);
+        return e is null ? null : ToResponse(e);
     }
 
     public async Task<EmployerResponse> CreateAsync(CreateEmployerRequest request)
