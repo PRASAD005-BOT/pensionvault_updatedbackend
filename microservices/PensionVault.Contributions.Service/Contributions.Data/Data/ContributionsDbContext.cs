@@ -53,7 +53,7 @@ public class ContributionsDbContext : DbContext
         modelBuilder.Entity<ContributionRemittance>(e =>
         {
             e.HasKey(x => x.RemittanceId);
-            e.Property(x => x.RemittancePeriod).HasMaxLength(10).IsRequired();
+            e.Property(x => x.RemittancePeriod).HasMaxLength(20).IsRequired(); // Increased from 10 to 20
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.TotalEmployeeShare).HasPrecision(18, 2);
             e.Property(x => x.TotalEmployerShare).HasPrecision(18, 2);
@@ -65,7 +65,7 @@ public class ContributionsDbContext : DbContext
         modelBuilder.Entity<MemberContribution>(e =>
         {
             e.HasKey(x => x.ContributionId);
-            e.Property(x => x.Period).HasMaxLength(10).IsRequired();
+            e.Property(x => x.Period).HasMaxLength(20).IsRequired(); // Increased from 10 to 20
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.EmployeeAmount).HasPrecision(18, 2);
             e.Property(x => x.EmployerAmount).HasPrecision(18, 2);
@@ -142,6 +142,3 @@ public class ContributionsDbContext : DbContext
         });
     }
 }
-
-
-

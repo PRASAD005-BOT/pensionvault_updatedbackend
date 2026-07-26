@@ -63,6 +63,41 @@ public class UsersController : ControllerBase
         return Ok(new { ProfileImageUrl = fileUrl });
     }
 
+    /// <summary>Returns the current user's basic profile. Works for every role — including
+    /// InvestmentOfficer/IO and other roles without an extended member/employer profile —
+    /// falling back to session/token claims instead of returning 404 or null.</summary>
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyProfile([FromServices] IUserRepository userRepo)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (Guid.TryParse(userIdString, out var userId))
+        {
+            var user = await userRepo.FindByIdAsync(userId);
+            if (user != null)
+            {
+                return Ok(new {
+                    userId = user.UserId,
+                    name = user.Name,
+                    email = user.Email,
+                    role = user.Role.ToString(),
+                    status = user.Status.ToString(),
+                    profileImageUrl = user.ProfileImageUrl
+                });
+            }
+        }
+
+        // No matching user row — fall back to the JWT/session claims rather than 404.
+        return Ok(new {
+            userId = userIdString,
+            name = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? "",
+            email = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue("email") ?? "",
+            role = User.FindFirstValue(ClaimTypes.Role) ?? "",
+            status = (string?)null,
+            profileImageUrl = (string?)null
+        });
+    }
+
     [HttpPut("me")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserRequest request)
     {
