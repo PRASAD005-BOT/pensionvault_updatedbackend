@@ -71,52 +71,8 @@ public static class ContributionsDataSeeder
         };
         context.FundAccounts.AddRange(account1, account2);
 
-        context.InvestmentPortfolios.AddRange(
-            new InvestmentPortfolio
-            {
-                PortfolioId = Guid.NewGuid(),
-                SchemeId = epfScheme.SchemeId,
-                AssetClass = AssetClass.GovernmentSecurities,
-                AllocationPercent = 45.00m,
-                InvestedValue = 5000000m,
-                CurrentValue = 5250000m,
-                YieldEarned = 250000m,
-                LastUpdated = DateTime.UtcNow
-            },
-            new InvestmentPortfolio
-            {
-                PortfolioId = Guid.NewGuid(),
-                SchemeId = epfScheme.SchemeId,
-                AssetClass = AssetClass.CorporateBonds,
-                AllocationPercent = 30.00m,
-                InvestedValue = 3000000m,
-                CurrentValue = 3150000m,
-                YieldEarned = 150000m,
-                LastUpdated = DateTime.UtcNow
-            },
-            new InvestmentPortfolio
-            {
-                PortfolioId = Guid.NewGuid(),
-                SchemeId = epfScheme.SchemeId,
-                AssetClass = AssetClass.Equity,
-                AllocationPercent = 15.00m,
-                InvestedValue = 1500000m,
-                CurrentValue = 1650000m,
-                YieldEarned = 150000m,
-                LastUpdated = DateTime.UtcNow
-            },
-            new InvestmentPortfolio
-            {
-                PortfolioId = Guid.NewGuid(),
-                SchemeId = epfScheme.SchemeId,
-                AssetClass = AssetClass.FixedDeposit,
-                AllocationPercent = 10.00m,
-                InvestedValue = 1000000m,
-                CurrentValue = 1080000m,
-                YieldEarned = 80000m,
-                LastUpdated = DateTime.UtcNow
-            }
-        );
+        // Individual investments are intentionally NOT seeded — the Investment module
+        // starts fresh and is populated via the "Add Investment" flow.
 
         context.CorpusRecords.Add(new CorpusRecord
         {

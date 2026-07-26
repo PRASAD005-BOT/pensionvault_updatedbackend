@@ -42,44 +42,34 @@ public class InvestmentService : IInvestmentService
 
     public async Task<PortfolioResponse> CreatePortfolioAsync(CreatePortfolioRequest request)
     {
+        // FundScheme is duplicated per-service; make sure the local copy exists so the
+        // FK_InvestmentPortfolios_FundSchemes_SchemeId constraint holds (avoids a raw 500).
+        await EnsureSchemeExistsAsync(request.SchemeId);
+
+        // Each submission creates a distinct individual investment (no merging by asset class).
+        // Existing allocations plus this new item must not exceed 100%.
         var portfolios = await _investmentRepo.GetPortfoliosAsync(request.SchemeId);
-        var existing = portfolios.FirstOrDefault(p => p.AssetClass == request.AssetClass);
-
-        if (existing != null)
+        var existingAllocation = portfolios.Sum(p => p.AllocationPercent);
+        var projectedTotal = existingAllocation + request.AllocationPercent;
+        if (projectedTotal > 100m)
         {
-            existing.InvestedValue += request.InvestedValue;
-            existing.CurrentValue += request.CurrentValue;
-            existing.YieldEarned += request.YieldEarned;
-            existing.LastUpdated = DateTime.UtcNow;
-
-            await RecalculateAllocationsAsync(request.SchemeId);
-
-            await CreateInvestmentNotificationAsync($"Investment added to existing fund for asset class {existing.AssetClass}. Added: ₹{request.InvestedValue:N2}, new total current value: ₹{existing.CurrentValue:N2}.");
-            await _unitOfWork.SaveChangesAsync();
-
-            var updated = await _investmentRepo.FindPortfolioByIdAsync(existing.PortfolioId);
-            var scheme = await _memberClient.GetSchemeByIdAsync(updated!.SchemeId);
-            return new PortfolioResponse(
-                updated.PortfolioId, updated.SchemeId, scheme?.SchemeName ?? "",
-                updated.AssetClass, updated.AllocationPercent, updated.InvestedValue,
-                updated.CurrentValue, updated.YieldEarned, updated.LastUpdated);
+            throw new InvalidOperationException(
+                $"Total allocation cannot exceed 100%. Current total with this item is {projectedTotal:0.##}%.");
         }
 
         var portfolio = new InvestmentPortfolio
         {
             SchemeId = request.SchemeId,
             AssetClass = request.AssetClass,
+            AllocationPercent = request.AllocationPercent,
             InvestedValue = request.InvestedValue,
             CurrentValue = request.CurrentValue,
-            YieldEarned = request.YieldEarned,
+            YieldEarned = request.CurrentValue - request.InvestedValue,
             LastUpdated = DateTime.UtcNow
         };
         await _investmentRepo.AddPortfolioAsync(portfolio);
-        await _unitOfWork.SaveChangesAsync();
 
-        await RecalculateAllocationsAsync(request.SchemeId);
-
-        await CreateInvestmentNotificationAsync($"New portfolio created for asset class {portfolio.AssetClass}.");
+        await CreateInvestmentNotificationAsync($"New investment ({portfolio.AssetClass}) added. Invested: ₹{portfolio.InvestedValue:N2}, current value: ₹{portfolio.CurrentValue:N2}.");
         await _unitOfWork.SaveChangesAsync();
 
         var created = await _investmentRepo.FindPortfolioByIdAsync(portfolio.PortfolioId);
@@ -94,44 +84,21 @@ public class InvestmentService : IInvestmentService
     {
         var portfolio = await _investmentRepo.FindPortfolioByIdAsync(portfolioId)
             ?? throw new KeyNotFoundException("Portfolio not found.");
+        portfolio.AllocationPercent = request.AllocationPercent;
         portfolio.InvestedValue = request.InvestedValue;
         portfolio.CurrentValue = request.CurrentValue;
-        portfolio.YieldEarned = request.YieldEarned;
+        portfolio.YieldEarned = request.CurrentValue - request.InvestedValue;
         portfolio.LastUpdated = DateTime.UtcNow;
 
-        await RecalculateAllocationsAsync(portfolio.SchemeId);
-
-        await CreateInvestmentNotificationAsync($"Portfolio for asset class {portfolio.AssetClass} updated. Current value: ₹{portfolio.CurrentValue:N2}, Yield: ₹{portfolio.YieldEarned:N2}.");
+        await CreateInvestmentNotificationAsync($"Investment ({portfolio.AssetClass}) updated. Allocation: {portfolio.AllocationPercent:N2}%, current value: ₹{portfolio.CurrentValue:N2}.");
         await _unitOfWork.SaveChangesAsync();
-        
+
         var updated = await _investmentRepo.FindPortfolioByIdAsync(portfolioId);
         var scheme = await _memberClient.GetSchemeByIdAsync(updated!.SchemeId);
         return new PortfolioResponse(
             updated.PortfolioId, updated.SchemeId, scheme?.SchemeName ?? "",
             updated.AssetClass, updated.AllocationPercent, updated.InvestedValue,
             updated.CurrentValue, updated.YieldEarned, updated.LastUpdated);
-    }
-
-    private async Task RecalculateAllocationsAsync(Guid schemeId)
-    {
-        var portfolios = await _investmentRepo.GetPortfoliosAsync(schemeId);
-        decimal totalCurrentValue = portfolios.Sum(p => p.CurrentValue);
-
-        if (totalCurrentValue > 0)
-        {
-            foreach (var p in portfolios)
-            {
-                p.AllocationPercent = Math.Round((p.CurrentValue / totalCurrentValue) * 100, 2);
-            }
-        }
-        else if (portfolios.Any())
-        {
-            decimal equalShare = Math.Round(100.00m / portfolios.Count, 2);
-            foreach (var p in portfolios)
-            {
-                p.AllocationPercent = equalShare;
-            }
-        }
     }
 
     public async Task<IEnumerable<CorpusResponse>> GetCorpusRecordsAsync(Guid? schemeId = null)
@@ -153,6 +120,9 @@ public class InvestmentService : IInvestmentService
 
     public async Task<CorpusResponse> CreateCorpusRecordAsync(CreateCorpusRequest request)
     {
+        // Same per-service FundScheme duplication applies to CorpusRecords' FK.
+        await EnsureSchemeExistsAsync(request.SchemeId);
+
         var lastCorpus = await _investmentRepo.GetLastFinalisedCorpusAsync(request.SchemeId);
         var openingCorpus = lastCorpus?.ClosingCorpus ?? 0;
 
@@ -215,6 +185,29 @@ public class InvestmentService : IInvestmentService
             corpus.ClosingCorpus - corpus.TotalContributions + corpus.TotalWithdrawals - corpus.InvestmentIncome + corpus.ManagementExpenses,
             corpus.TotalContributions, corpus.TotalWithdrawals,
             corpus.InvestmentIncome, corpus.ManagementExpenses, corpus.ClosingCorpus, corpus.Status);
+    }
+
+    // Ensures the scheme exists in THIS service's FundSchemes table (it is duplicated across
+    // services). If missing locally but known to the Members service, it is synced in; if the
+    // scheme does not exist anywhere, a 400 is returned instead of a FK-violation 500.
+    private async Task EnsureSchemeExistsAsync(Guid schemeId)
+    {
+        if (await _investmentRepo.SchemeExistsAsync(schemeId)) return;
+
+        var schemeInfo = await _memberClient.GetSchemeByIdAsync(schemeId)
+            ?? throw new ArgumentException("The selected fund scheme does not exist. Please choose a valid scheme.");
+
+        await _investmentRepo.AddSchemeAsync(new FundScheme
+        {
+            SchemeId = schemeInfo.SchemeId,
+            SchemeName = schemeInfo.SchemeName,
+            SchemeType = Enum.TryParse<SchemeType>(schemeInfo.SchemeType, true, out var type) ? type : SchemeType.EPF,
+            EmployeeContributionRate = schemeInfo.EmployeeContributionRate,
+            EmployerContributionRate = schemeInfo.EmployerContributionRate,
+            InterestRatePA = schemeInfo.InterestRatePA,
+            VestingSchedule = schemeInfo.VestingSchedule,
+            Status = Enum.TryParse<SchemeStatus>(schemeInfo.Status, true, out var status) ? status : SchemeStatus.Active
+        });
     }
 
     private async Task CreateInvestmentNotificationAsync(string message)

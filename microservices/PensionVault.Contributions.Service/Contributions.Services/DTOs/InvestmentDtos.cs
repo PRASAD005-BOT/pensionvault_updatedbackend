@@ -19,7 +19,7 @@ public record CreatePortfolioRequest(
     [Range(0, double.MaxValue, ErrorMessage = "Current Value cannot be negative.")]
     decimal CurrentValue,
 
-    [Range(0, double.MaxValue, ErrorMessage = "Yield Earned cannot be negative.")]
+    // Auto-calculated as CurrentValue - InvestedValue; may be negative. Recomputed server-side.
     decimal YieldEarned
 );
 
@@ -33,7 +33,7 @@ public record UpdatePortfolioRequest(
     [Range(0, double.MaxValue, ErrorMessage = "Current Value cannot be negative.")]
     decimal CurrentValue,
 
-    [Range(0, double.MaxValue, ErrorMessage = "Yield Earned cannot be negative.")]
+    // Auto-calculated as CurrentValue - InvestedValue; may be negative. Recomputed server-side.
     decimal YieldEarned
 );
 
