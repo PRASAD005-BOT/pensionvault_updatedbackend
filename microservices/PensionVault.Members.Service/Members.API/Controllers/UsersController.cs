@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Members.Services;
@@ -35,7 +35,7 @@ public class UsersController : ControllerBase
             role = u.Role.ToString(),
             status = u.Status.ToString(),
             organisationId = u.OrganisationId ?? u.Member?.EmployerId,
-            employeeId = u.EmployeeId ?? u.Member?.MembershipNumber
+            employeeId = u.EmployerCode ?? u.Member?.MembershipNumber
         }));
     }
 
@@ -52,14 +52,20 @@ public class UsersController : ControllerBase
             "uploads", "profiles");
         Directory.CreateDirectory(uploadsFolder);
 
+        // Delete any existing files for this user
+        foreach (var oldFile in Directory.GetFiles(uploadsFolder, $"{userId}.*"))
+        {
+            try { System.IO.File.Delete(oldFile); } catch { }
+        }
+
         var ext = Path.GetExtension(file.FileName);
-        var fileName = $"{userId}_{Guid.NewGuid()}{ext}";
+        var fileName = $"{userId}{ext}";
         var filePath = Path.Combine(uploadsFolder, fileName);
 
         using (var stream = new FileStream(filePath, FileMode.Create))
             await file.CopyToAsync(stream);
 
-        var fileUrl = await _userService.UploadProfileImageAsync(userId, fileName, Stream.Null, ext);
+        var fileUrl = $"/uploads/profiles/{fileName}";
         return Ok(new { ProfileImageUrl = fileUrl });
     }
 
@@ -82,7 +88,7 @@ public class UsersController : ControllerBase
                     email = user.Email,
                     role = user.Role.ToString(),
                     status = user.Status.ToString(),
-                    profileImageUrl = user.ProfileImageUrl
+                    profileImageUrl = _userService.GetProfileImageUrl(user.UserId)
                 });
             }
         }
@@ -173,8 +179,11 @@ public class UsersController : ControllerBase
             var member = await memberRepo.FindByUserIdAsync(userId);
             if (member == null) return BadRequest("Member profile not found.");
 
-            if (!string.Equals(request.VerificationCode, member.MembershipNumber, StringComparison.OrdinalIgnoreCase))
-                return BadRequest("Invalid Membership Number. Verification failed.");
+            var verified = string.Equals(request.VerificationCode, member.MembershipNumber, StringComparison.OrdinalIgnoreCase) ||
+                           string.Equals(request.VerificationCode, member.MemberId.ToString(), StringComparison.OrdinalIgnoreCase) ||
+                           string.Equals(request.VerificationCode, member.UserId.ToString(), StringComparison.OrdinalIgnoreCase);
+
+            if (!verified) return BadRequest("Invalid Member ID. Verification failed.");
         }
         else if (user.Role == UserRole.Employer)
         {
@@ -182,28 +191,9 @@ public class UsersController : ControllerBase
             var employer = await employerRepo.FindByIdAsync(user.OrganisationId.Value);
             if (employer == null) return BadRequest("Employer profile not found.");
 
-            string portalCode = "";
-            if (!string.IsNullOrEmpty(employer.ContactDetails))
-            {
-                try
-                {
-                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(employer.ContactDetails);
-                    if (jsonDoc.RootElement.TryGetProperty("portalJoinCode", out var codeProp))
-                    {
-                        portalCode = codeProp.GetString() ?? "";
-                    }
-                }
-                catch { }
-            }
-            var guidStr = employer.EmployerId.ToString();
-            int sum = 0;
-            foreach (var c in guidStr) sum += (int)c;
-            string fallbackCode = (100000 + (sum % 900000)).ToString();
-
-            bool verified = (!string.IsNullOrEmpty(portalCode) && string.Equals(request.VerificationCode, portalCode, StringComparison.OrdinalIgnoreCase)) ||
-                             string.Equals(request.VerificationCode, fallbackCode, StringComparison.OrdinalIgnoreCase);
-
-            if (!verified) return BadRequest("Invalid Portal Join Code. Verification failed.");
+            if (string.IsNullOrWhiteSpace(employer.EmployerCode) ||
+                !string.Equals(request.VerificationCode, employer.EmployerCode, StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Invalid Employer ID. Verification failed.");
         }
         else
         {

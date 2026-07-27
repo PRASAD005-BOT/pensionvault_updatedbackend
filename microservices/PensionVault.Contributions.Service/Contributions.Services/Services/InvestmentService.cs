@@ -1,4 +1,4 @@
-﻿using Contributions.Services.DTOs;
+using Contributions.Services.DTOs;
 using Contributions.Domain.Entities;
 using Contributions.Domain.Repositories;
 using Contributions.Services.HttpClients;
@@ -205,7 +205,8 @@ public class InvestmentService : IInvestmentService
             EmployeeContributionRate = schemeInfo.EmployeeContributionRate,
             EmployerContributionRate = schemeInfo.EmployerContributionRate,
             InterestRatePA = schemeInfo.InterestRatePA,
-            VestingSchedule = schemeInfo.VestingSchedule,
+            VestingYears = schemeInfo.VestingYears,
+            VestingPercent = schemeInfo.VestingPercent,
             Status = Enum.TryParse<SchemeStatus>(schemeInfo.Status, true, out var status) ? status : SchemeStatus.Active
         });
     }

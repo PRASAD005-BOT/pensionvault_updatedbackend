@@ -1,6 +1,7 @@
-﻿using Members.Services.DTOs;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using Members.Services.DTOs;
 using Members.Domain.Entities;
-using Members.Domain.Repositories;
 using Members.Domain.Repositories;
 using PensionVault.Shared.Contracts;
 
@@ -18,6 +19,7 @@ public class MemberService : IMemberService
     private readonly ILedgerRepository _ledgerRepo;
     private readonly IClaimRepository _claimRepo;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IWebHostEnvironment _env;
 
     public MemberService(
         IMemberRepository memberRepo,
@@ -29,7 +31,8 @@ public class MemberService : IMemberService
         IContributionRepository contributionRepo,
         ILedgerRepository ledgerRepo,
         IClaimRepository claimRepo,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IWebHostEnvironment env)
     {
         _memberRepo = memberRepo;
         _employerRepo = employerRepo;
@@ -41,6 +44,7 @@ public class MemberService : IMemberService
         _ledgerRepo = ledgerRepo;
         _claimRepo = claimRepo;
         _unitOfWork = unitOfWork;
+        _env = env;
     }
 
     public async Task<IEnumerable<MemberResponse>> GetAllAsync(Guid? employerId = null)
@@ -83,6 +87,8 @@ public class MemberService : IMemberService
                 Email = request.Email,
                 Role = UserRole.Member,
                 PasswordHash = "",
+                OrganisationId = request.EmployerId,
+                EmployerCode = request.MembershipNumber,
                 Status = UserStatus.Active,
                 CreatedAt = DateTime.UtcNow
             };
@@ -92,6 +98,8 @@ public class MemberService : IMemberService
         {
             targetUserId = existingUser.UserId;
             existingUser.Name = request.Name;
+            existingUser.OrganisationId = request.EmployerId;
+            existingUser.EmployerCode = request.MembershipNumber;
         }
 
         var member = new Member
@@ -105,7 +113,10 @@ public class MemberService : IMemberService
             EmployerId = request.EmployerId,
             JoiningDate = request.JoiningDate,
             DateOfRetirement = request.DateOfRetirement ?? request.DateOfBirth.AddYears(60),
-            NomineeDetails = request.NomineeDetails,
+            NomineeName = request.NomineeName,
+            NomineeRelation = request.NomineeRelation,
+            NomineeBankAccount = request.NomineeBankAccount,
+            NomineePercent = request.NomineePercent ?? 100,
             Status = MemberStatus.Active
         };
         await _memberRepo.AddAsync(member);
@@ -165,7 +176,10 @@ public class MemberService : IMemberService
         member.Gender = request.Gender;
         member.NationalIdRef = request.NationalIdRef;
         member.DateOfRetirement = request.DateOfRetirement;
-        member.NomineeDetails = request.NomineeDetails;
+        member.NomineeName = request.NomineeName;
+        member.NomineeRelation = request.NomineeRelation;
+        member.NomineeBankAccount = request.NomineeBankAccount;
+        member.NomineePercent = request.NomineePercent ?? 100;
         member.Status = request.Status;
 
         if (member.EmployerId != request.EmployerId)
@@ -179,10 +193,15 @@ public class MemberService : IMemberService
 
         member.JoiningDate = request.JoiningDate;
 
+        // Update linked user email & phone
         if (member.User != null)
         {
             member.User.Email = request.Email;
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+                member.User.Phone = request.Phone;
             member.User.Name = request.Name;
+            member.User.OrganisationId = request.EmployerId;
+            member.User.EmployerCode = member.MembershipNumber;
         }
 
         await _unitOfWork.SaveChangesAsync();
@@ -208,10 +227,16 @@ public class MemberService : IMemberService
             EmployerId = request.EmployerId,
             JoiningDate = DateTime.UtcNow,
             DateOfRetirement = request.DateOfBirth.AddYears(60),
-            NomineeDetails = request.NomineeDetails,
+            NomineeName = request.NomineeName,
+            NomineeRelation = request.NomineeRelation,
+            NomineeBankAccount = request.NomineeBankAccount,
+            NomineePercent = request.NomineePercent ?? 100,
             Status = MemberStatus.Active
         };
         await _memberRepo.AddAsync(member);
+
+        user.OrganisationId = request.EmployerId;
+        user.EmployerCode = member.MembershipNumber;
 
         var employer = await _employerRepo.FindByIdAsync(request.EmployerId);
         if (employer != null) employer.EnrolledMemberCount++;
@@ -258,6 +283,13 @@ public class MemberService : IMemberService
             throw new InvalidOperationException("Membership number already exists.");
 
         member.MembershipNumber = request.MembershipNumber;
+
+        var linkedUser = await _userRepo.FindByIdAsync(member.UserId);
+        if (linkedUser != null)
+        {
+            linkedUser.OrganisationId = member.EmployerId;
+            linkedUser.EmployerCode = member.MembershipNumber;
+        }
 
         if (member.EmployerId != request.EmployerId)
         {
@@ -345,12 +377,26 @@ public class MemberService : IMemberService
             });
     }
 
-    private static MemberResponse ToResponse(Member m) => new(
+    private string? GetProfileImageUrl(Guid userId)
+    {
+        var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var folder = Path.Combine(webRoot, "uploads", "profiles");
+        if (!Directory.Exists(folder)) return null;
+
+        var files = Directory.GetFiles(folder, $"{userId}.*");
+        if (files.Length > 0)
+        {
+            return $"/uploads/profiles/{Path.GetFileName(files[0])}";
+        }
+        return null;
+    }
+
+    private MemberResponse ToResponse(Member m) => new(
         m.MemberId, m.MembershipNumber, m.Name, m.DateOfBirth,
         m.Gender, m.NationalIdRef, m.EmployerId,
         m.Employer?.CompanyName ?? "", m.JoiningDate,
-        m.DateOfRetirement, m.NomineeDetails, m.Status.ToString(), m.User?.ProfileImageUrl,
-        m.User?.Email ?? "", m.UserId);
+        m.DateOfRetirement, m.NomineeName, m.NomineeRelation, m.NomineeBankAccount, m.NomineePercent, m.Status.ToString(), GetProfileImageUrl(m.UserId),
+        m.User?.Email ?? "", m.UserId, m.User?.Phone);
 
     private async Task<List<User>> GetAdminUsersAsync()
     {

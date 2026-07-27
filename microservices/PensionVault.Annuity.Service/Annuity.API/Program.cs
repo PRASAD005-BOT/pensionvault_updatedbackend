@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -7,7 +7,6 @@ using PensionVault.Shared.Middleware;
 using PensionVault.Shared.HttpClients;
 using Annuity.Data;
 using Annuity.Data.Repositories;
-using Annuity.Data.Seed;
 using Annuity.Domain.Repositories;
 using Annuity.Services;
 using Annuity.Services.HttpClients;
@@ -101,6 +100,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -119,7 +119,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AnnuityDbContext>();
     await db.Database.MigrateAsync();
-    await AnnuityDataSeeder.SeedAsync(db);
 }
 
 Log.Information("PensionVault Annuity Service starting on port 5003");

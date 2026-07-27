@@ -1,4 +1,4 @@
-﻿namespace Members.Domain.Entities;
+namespace Members.Domain.Entities;
 
 public class User
 {
@@ -9,8 +9,7 @@ public class User
     public string Phone { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
     public Guid? OrganisationId { get; set; }
-    public string? EmployeeId { get; set; }
-    public string? ProfileImageUrl { get; set; }
+    public string? EmployerCode { get; set; }
     public UserStatus Status { get; set; } = UserStatus.Active;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? RefreshToken { get; set; }

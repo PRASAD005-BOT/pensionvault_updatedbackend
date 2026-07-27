@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Members.Domain.Entities;
@@ -12,7 +12,9 @@ public class Employer
     public string? Industry { get; set; }
     public int EnrolledMemberCount { get; set; }
     public RemittanceFrequency RemittanceFrequency { get; set; } = RemittanceFrequency.Monthly;
-    public string? ContactDetails { get; set; } // JSON
+    public string? ContactEmail { get; set; }
+    public string? ContactPhone { get; set; }
+    public string? PortalJoinCode { get; set; }
     public EmployerStatus Status { get; set; } = EmployerStatus.Active;
 
     // Navigation

@@ -1,4 +1,4 @@
-﻿namespace Members.Domain.Entities;
+namespace Members.Domain.Entities;
 
 public class Member
 {
@@ -12,7 +12,10 @@ public class Member
     public Guid EmployerId { get; set; }
     public DateTime JoiningDate { get; set; }
     public DateTime? DateOfRetirement { get; set; }
-    public string? NomineeDetails { get; set; } // JSON
+    public string? NomineeName { get; set; }
+    public string? NomineeRelation { get; set; }
+    public string? NomineeBankAccount { get; set; }
+    public int NomineePercent { get; set; } = 100;
     public MemberStatus Status { get; set; } = MemberStatus.Active;
 
     // Navigation

@@ -1,4 +1,4 @@
-﻿using Members.Domain.Repositories;
+using Members.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Members.Domain.Entities;
 
@@ -53,6 +53,8 @@ public class MembersDbContext : DbContext
             e.Property(x => x.EmployeeContributionRate).HasPrecision(5, 2);
             e.Property(x => x.EmployerContributionRate).HasPrecision(5, 2);
             e.Property(x => x.InterestRatePA).HasPrecision(5, 2);
+            e.Property(x => x.VestingYears);
+            e.Property(x => x.VestingPercent).HasPrecision(5, 2);
         });
 
         // Employer
@@ -67,7 +69,9 @@ public class MembersDbContext : DbContext
             e.Property(x => x.Industry).HasMaxLength(100);
             e.Property(x => x.RemittanceFrequency).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
-            e.Property(x => x.ContactDetails).HasMaxLength(1000);
+            e.Property(x => x.ContactEmail).HasMaxLength(200);
+            e.Property(x => x.ContactPhone).HasMaxLength(20);
+            e.Property(x => x.PortalJoinCode).HasMaxLength(50);
         });
 
         // Member
@@ -80,6 +84,10 @@ public class MembersDbContext : DbContext
             e.Property(x => x.Gender).HasMaxLength(10);
             e.Property(x => x.NationalIdRef).HasMaxLength(100);
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            e.Property(x => x.NomineeName).HasMaxLength(150);
+            e.Property(x => x.NomineeRelation).HasMaxLength(50);
+            e.Property(x => x.NomineeBankAccount).HasMaxLength(100);
+            e.Property(x => x.NomineePercent);
             e.HasOne(x => x.User).WithOne(u => u.Member)
                 .HasForeignKey<Member>(x => x.UserId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(x => x.Employer).WithMany(emp => emp.Members)

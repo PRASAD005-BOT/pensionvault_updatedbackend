@@ -1,4 +1,4 @@
-﻿namespace PensionVault.Shared.Contracts;
+namespace PensionVault.Shared.Contracts;
 
 public record MemberResponse(
     Guid MemberId,
@@ -11,11 +11,15 @@ public record MemberResponse(
     string EmployerName,
     DateTime JoiningDate,
     DateTime? DateOfRetirement,
-    string? NomineeDetails,
+    string? NomineeName,
+    string? NomineeRelation,
+    string? NomineeBankAccount,
+    int NomineePercent,
     string Status, // Keep as string for simple transmission
     string? ProfileImageUrl,
     string Email,
-    Guid UserId
+    Guid UserId,
+    string? Phone
 );
 
 

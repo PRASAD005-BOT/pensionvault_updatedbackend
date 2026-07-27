@@ -1,4 +1,4 @@
-﻿using Members.Domain.Entities;
+using Members.Domain.Entities;
 
 namespace Members.Services.DTOs;
 
@@ -8,7 +8,9 @@ public record CreateSchemeRequest(
     decimal EmployeeContributionRate,
     decimal EmployerContributionRate,
     decimal InterestRatePA,
-    string? VestingSchedule
+    int VestingYears,
+    decimal VestingPercent,
+    string? Description
 );
 
 public record UpdateSchemeRequest(
@@ -16,8 +18,10 @@ public record UpdateSchemeRequest(
     decimal EmployeeContributionRate,
     decimal EmployerContributionRate,
     decimal InterestRatePA,
-    string? VestingSchedule,
-    SchemeStatus Status
+    int VestingYears,
+    decimal VestingPercent,
+    SchemeStatus Status,
+    string? Description
 );
 
 

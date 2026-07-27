@@ -1,4 +1,4 @@
-﻿using Members.Services.DTOs;
+using Members.Services.DTOs;
 using Members.Domain.Entities;
 using Members.Domain.Repositories;
 using PensionVault.Shared.Contracts;
@@ -38,7 +38,9 @@ public class SchemeService : ISchemeService
             EmployeeContributionRate = request.EmployeeContributionRate,
             EmployerContributionRate = request.EmployerContributionRate,
             InterestRatePA = request.InterestRatePA,
-            VestingSchedule = request.VestingSchedule,
+            VestingYears = request.VestingYears,
+            VestingPercent = request.VestingPercent,
+            Description = request.Description ?? string.Empty,
             Status = SchemeStatus.Active
         };
         await _schemeRepo.AddAsync(scheme);
@@ -54,7 +56,9 @@ public class SchemeService : ISchemeService
         scheme.EmployeeContributionRate = request.EmployeeContributionRate;
         scheme.EmployerContributionRate = request.EmployerContributionRate;
         scheme.InterestRatePA = request.InterestRatePA;
-        scheme.VestingSchedule = request.VestingSchedule;
+        scheme.VestingYears = request.VestingYears;
+        scheme.VestingPercent = request.VestingPercent;
+        scheme.Description = request.Description ?? string.Empty;
         scheme.Status = request.Status;
         await _unitOfWork.SaveChangesAsync();
         return ToResponse(scheme);
@@ -63,7 +67,7 @@ public class SchemeService : ISchemeService
     private static SchemeResponse ToResponse(FundScheme s) => new(
         s.SchemeId, s.SchemeName, s.SchemeType.ToString(),
         s.EmployeeContributionRate, s.EmployerContributionRate,
-        s.InterestRatePA, s.VestingSchedule, s.Status.ToString());
+        s.InterestRatePA, s.VestingYears, s.VestingPercent, s.Status.ToString(), s.Description);
 }
 
 

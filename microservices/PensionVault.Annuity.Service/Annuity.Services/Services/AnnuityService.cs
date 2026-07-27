@@ -1,4 +1,4 @@
-﻿using Annuity.Services.DTOs;
+using Annuity.Services.DTOs;
 using Annuity.Domain.Entities;
 using Annuity.Domain.Repositories;
 using Annuity.Services.HttpClients;
@@ -162,7 +162,10 @@ public class AnnuityService : IAnnuityService
             PurchaseValue = livePensionBalance,
             MonthlyPension = Math.Round(monthly, 2),
             AnnuityStartDate = DateTime.UtcNow,
-            NomineeDetails = member?.NomineeDetails ?? request.Note,
+            NomineeName = member?.NomineeName ?? request.Note,
+            NomineeRelation = member?.NomineeRelation ?? "Spouse",
+            NomineeBankAccount = member?.NomineeBankAccount ?? "—",
+            NomineePercent = member?.NomineePercent ?? 100,
             Status = AnnuityStatus.Active
         };
         await _annuityRepo.AddAsync(plan);
@@ -241,7 +244,10 @@ public class AnnuityService : IAnnuityService
             PurchaseValue = request.PurchaseValue,
             MonthlyPension = request.MonthlyPension,
             AnnuityStartDate = request.AnnuityStartDate,
-            NomineeDetails = request.NomineeDetails,
+            NomineeName = request.NomineeName,
+            NomineeRelation = request.NomineeRelation,
+            NomineeBankAccount = request.NomineeBankAccount,
+            NomineePercent = request.NomineePercent ?? 100,
             Status = AnnuityStatus.Active
         };
         await _annuityRepo.AddAsync(annuity);
@@ -257,7 +263,10 @@ public class AnnuityService : IAnnuityService
         annuity.PlanType = request.PlanType;
         annuity.PurchaseValue = request.PurchaseValue;
         annuity.MonthlyPension = request.MonthlyPension;
-        annuity.NomineeDetails = request.NomineeDetails;
+        annuity.NomineeName = request.NomineeName;
+        annuity.NomineeRelation = request.NomineeRelation;
+        annuity.NomineeBankAccount = request.NomineeBankAccount;
+        annuity.NomineePercent = request.NomineePercent ?? 100;
         if (request.Status.HasValue)
             annuity.Status = request.Status.Value;
 
@@ -275,7 +284,7 @@ public class AnnuityService : IAnnuityService
         var isDisbursed = await _annuityRepo.ExistsDisbursementForMonthAsync(a.AnnuityId, currentMonth, currentYear);
         return new AnnuityResponse(a.AnnuityId, a.MemberId, member?.Name ?? "",
             a.PlanType, a.PurchaseValue, a.MonthlyPension,
-            a.AnnuityStartDate, a.NomineeDetails, a.Status, isDisbursed);
+            a.AnnuityStartDate, a.NomineeName, a.NomineeRelation, a.NomineeBankAccount, a.NomineePercent, a.Status, isDisbursed);
     }
 
     public async Task<IEnumerable<AnnuityResponse>> GetAllAnnuitiesAsync()
@@ -292,7 +301,7 @@ public class AnnuityService : IAnnuityService
             list.Add(new AnnuityResponse(
                 a.AnnuityId, a.MemberId, member?.Name ?? "",
                 a.PlanType, a.PurchaseValue, a.MonthlyPension,
-                a.AnnuityStartDate, a.NomineeDetails, a.Status, isDisbursed));
+                a.AnnuityStartDate, a.NomineeName, a.NomineeRelation, a.NomineeBankAccount, a.NomineePercent, a.Status, isDisbursed));
         }
         return list;
     }
@@ -365,7 +374,8 @@ public class AnnuityService : IAnnuityService
             throw new InvalidOperationException("Annuity cannot be settled in its current state.");
 
         annuity.Status = AnnuityStatus.Settled;
-        annuity.NomineeDetails = $"{request.NomineeName} (Settled to {request.BankAccountRef})";
+        annuity.NomineeName = request.NomineeName;
+        annuity.NomineeBankAccount = request.BankAccountRef;
 
         // Deduct from pension balance in Contributions Service
         var account = await _contributionClient.GetActiveByMemberAsync(annuity.MemberId);

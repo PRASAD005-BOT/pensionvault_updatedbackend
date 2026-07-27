@@ -1,4 +1,4 @@
-﻿namespace PensionVault.Shared.Contracts;
+namespace PensionVault.Shared.Contracts;
 
 public record EmployerResponse(
     Guid EmployerId,
@@ -8,7 +8,9 @@ public record EmployerResponse(
     string? Industry,
     int EnrolledMemberCount,
     string RemittanceFrequency,
-    string? ContactDetails,
+    string? ContactEmail,
+    string? ContactPhone,
+    string? PortalJoinCode,
     string Status
 );
 

@@ -1,7 +1,9 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Members.Services.DTOs;
@@ -20,6 +22,7 @@ public class AuthService : IAuthService
     private readonly IMemberRepository _memberRepo;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IConfiguration _config;
+    private readonly IWebHostEnvironment _env;
 
     public AuthService(
         IUserRepository userRepo,
@@ -27,7 +30,8 @@ public class AuthService : IAuthService
         INotificationRepository notificationRepo,
         IMemberRepository memberRepo,
         IUnitOfWork unitOfWork,
-        IConfiguration config)
+        IConfiguration config,
+        IWebHostEnvironment env)
     {
         _userRepo = userRepo;
         _employerRepo = employerRepo;
@@ -35,6 +39,7 @@ public class AuthService : IAuthService
         _memberRepo = memberRepo;
         _unitOfWork = unitOfWork;
         _config = config;
+        _env = env;
     }
 
     public async Task<ServiceResult<AuthResponse>> LoginAsync(LoginRequest request)
@@ -44,52 +49,12 @@ public class AuthService : IAuthService
         if (user == null)
         {
             var allEmployers = await _employerRepo.GetAllAsync();
-            Employer? matchingEmployer = null;
-            foreach (var emp in allEmployers)
-            {
-                if (string.IsNullOrEmpty(emp.ContactDetails)) continue;
-
-                try
-                {
-                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(emp.ContactDetails);
-                    if (jsonDoc.RootElement.TryGetProperty("contactEmail", out var emailProp))
-                    {
-                        var emailVal = emailProp.GetString();
-                        if (string.Equals(emailVal, request.Email, StringComparison.OrdinalIgnoreCase))
-                        {
-                            matchingEmployer = emp;
-                            break;
-                        }
-                    }
-                }
-                catch { }
-
-                if (emp.ContactDetails.Contains(request.Email, StringComparison.OrdinalIgnoreCase))
-                {
-                    matchingEmployer = emp;
-                    break;
-                }
-            }
+            var matchingEmployer = allEmployers.FirstOrDefault(emp =>
+                string.Equals(emp.ContactEmail, request.Email, StringComparison.OrdinalIgnoreCase));
 
             if (matchingEmployer != null)
             {
-                string portalCode = "";
-                if (!string.IsNullOrEmpty(matchingEmployer.ContactDetails))
-                {
-                    try
-                    {
-                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(matchingEmployer.ContactDetails);
-                        if (jsonDoc.RootElement.TryGetProperty("portalJoinCode", out var codeProp))
-                        {
-                            portalCode = codeProp.GetString() ?? "";
-                        }
-                    }
-                    catch { }
-                }
-                string fallbackCode = GetFallbackCode(matchingEmployer.EmployerId);
-
-                bool isPassValid = (!string.IsNullOrEmpty(portalCode) && string.Equals(request.Password, portalCode, StringComparison.OrdinalIgnoreCase)) ||
-                                   string.Equals(request.Password, fallbackCode, StringComparison.OrdinalIgnoreCase);
+                bool isPassValid = !string.IsNullOrWhiteSpace(matchingEmployer.EmployerCode) && string.Equals(request.Password, matchingEmployer.EmployerCode, StringComparison.OrdinalIgnoreCase);
 
                 if (isPassValid)
                 {
@@ -144,23 +109,7 @@ public class AuthService : IAuthService
             var employer = await _employerRepo.FindByIdAsync(user.OrganisationId.Value);
             if (employer != null)
             {
-                string portalCode = "";
-                if (!string.IsNullOrEmpty(employer.ContactDetails))
-                {
-                    try
-                    {
-                        using var jsonDoc = System.Text.Json.JsonDocument.Parse(employer.ContactDetails);
-                        if (jsonDoc.RootElement.TryGetProperty("portalJoinCode", out var codeProp))
-                        {
-                            portalCode = codeProp.GetString() ?? "";
-                        }
-                    }
-                    catch { }
-                }
-                string fallbackCode = GetFallbackCode(employer.EmployerId);
-
-                if ((!string.IsNullOrEmpty(portalCode) && string.Equals(request.Password, portalCode, StringComparison.OrdinalIgnoreCase)) ||
-                    string.Equals(request.Password, fallbackCode, StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrWhiteSpace(employer.EmployerCode) && string.Equals(request.Password, employer.EmployerCode, StringComparison.OrdinalIgnoreCase))
                 {
                     isValidPassword = true;
                     user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
@@ -206,26 +155,12 @@ public class AuthService : IAuthService
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = role,
             OrganisationId = request.OrganisationId,
-            EmployeeId = request.EmployeeId,
+            EmployerCode = request.EmployeeId,
             Status = UserStatus.Active
         };
 
-        if (role == UserRole.Employer && user.OrganisationId == null)
-        {
-            var employerCode = EmployerService.GenerateEmployerCode();
-            var newEmployer = new Employer
-            {
-                EmployerCode = employerCode,
-                CompanyName = string.IsNullOrWhiteSpace(request.CompanyName) ? request.Name + "'s Company" : request.CompanyName,
-                RegistrationNumber = "PENDING-" + employerCode,
-                ContactDetails = request.Email,
-                // New self-registered companies await admin approval before they can sign in — see EmployersController Approve/Reject.
-                Status = EmployerStatus.Pending
-            };
-            await _employerRepo.AddAsync(newEmployer);
-            await _unitOfWork.SaveChangesAsync();
-            user.OrganisationId = newEmployer.EmployerId;
-        }
+        if (role == UserRole.Employer)
+            return ServiceResult<AuthResponse>.Fail("Employer self-registration is disabled. Please contact the administrator.", 400);
 
         await _userRepo.AddAsync(user);
         await _unitOfWork.SaveChangesAsync();
@@ -288,18 +223,21 @@ public class AuthService : IAuthService
         await _unitOfWork.SaveChangesAsync();
 
         return new AuthResponse(user.UserId, user.Name, user.Email,
-            user.Role.ToString(), tokenStr, newRefreshToken, expiry, user.EmployeeId, user.ProfileImageUrl);
+            user.Role.ToString(), tokenStr, newRefreshToken, expiry, user.EmployerCode, GetProfileImageUrl(user.UserId));
     }
 
-    private string GetFallbackCode(Guid guid)
+    private string? GetProfileImageUrl(Guid userId)
     {
-        var guidStr = guid.ToString();
-        int sum = 0;
-        foreach (var c in guidStr)
+        var webRoot = _env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var folder = Path.Combine(webRoot, "uploads", "profiles");
+        if (!Directory.Exists(folder)) return null;
+
+        var files = Directory.GetFiles(folder, $"{userId}.*");
+        if (files.Length > 0)
         {
-            sum += (int)c;
+            return $"/uploads/profiles/{Path.GetFileName(files[0])}";
         }
-        return (100000 + (sum % 900000)).ToString();
+        return null;
     }
 }
 

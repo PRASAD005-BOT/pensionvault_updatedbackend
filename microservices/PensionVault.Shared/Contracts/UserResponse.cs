@@ -1,4 +1,4 @@
-﻿namespace PensionVault.Shared.Contracts;
+namespace PensionVault.Shared.Contracts;
 
 public record UserResponse(
     Guid UserId,

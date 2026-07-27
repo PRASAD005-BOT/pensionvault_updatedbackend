@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,6 @@ using PensionVault.Shared.Auth;
 using PensionVault.Shared.Middleware;
 using Members.Data;
 using Members.Data.Repositories;
-using Members.Data.Seed;
 using Members.Domain.Repositories;
 using Members.Services.ProxyRepositories;
 using Members.Services;
@@ -119,6 +118,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -157,7 +157,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MembersDbContext>();
     await db.Database.MigrateAsync();
-    await MembersDataSeeder.SeedAsync(db, builder.Configuration);
 }
 
 Log.Information("PensionVault Members Service starting on port 5001");

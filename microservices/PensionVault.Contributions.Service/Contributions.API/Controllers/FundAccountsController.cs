@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Contributions.Domain.Entities;
@@ -76,7 +76,8 @@ public class FundAccountsController : ControllerBase
                     EmployeeContributionRate = schemeDetails.EmployeeContributionRate,
                     EmployerContributionRate = schemeDetails.EmployerContributionRate,
                     InterestRatePA = schemeDetails.InterestRatePA,
-                    VestingSchedule = schemeDetails.VestingSchedule,
+                    VestingYears = schemeDetails.VestingYears,
+                    VestingPercent = schemeDetails.VestingPercent,
                     Status = Enum.TryParse<SchemeStatus>(schemeDetails.Status, true, out var ss) ? ss : SchemeStatus.Active
                 };
                 await _dbContext.FundSchemes.AddAsync(localScheme);

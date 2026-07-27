@@ -1,4 +1,4 @@
-﻿namespace Contributions.Domain.Entities;
+namespace Contributions.Domain.Entities;
 
 public class FundScheme
 {
@@ -8,7 +8,8 @@ public class FundScheme
     public decimal EmployeeContributionRate { get; set; }
     public decimal EmployerContributionRate { get; set; }
     public decimal InterestRatePA { get; set; }
-    public string? VestingSchedule { get; set; } // JSON
+    public int VestingYears { get; set; }
+    public decimal VestingPercent { get; set; }
     public SchemeStatus Status { get; set; } = SchemeStatus.Active;
 }
 

@@ -4,6 +4,7 @@ using Members.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Members.Data.Migrations
 {
     [DbContext(typeof(MembersDbContext))]
-    partial class MembersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260727155824_SplitJsonColumns")]
+    partial class SplitJsonColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,10 +124,6 @@ namespace Members.Data.Migrations
                     b.Property<Guid>("SchemeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("EmployeeContributionRate")
                         .HasPrecision(5, 2)
@@ -284,7 +283,7 @@ namespace Members.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("EmployerCode")
+                    b.Property<string>("EmployeeId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")

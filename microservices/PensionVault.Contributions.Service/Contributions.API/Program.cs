@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -7,7 +7,6 @@ using PensionVault.Shared.Middleware;
 using PensionVault.Shared.HttpClients;
 using Contributions.Data;
 using Contributions.Data.Repositories;
-using Contributions.Data.Seed;
 using Contributions.Domain.Repositories;
 using Contributions.Services;
 using Contributions.Services.HttpClients;
@@ -106,6 +105,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -124,7 +124,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ContributionsDbContext>();
     await db.Database.MigrateAsync();
-    await ContributionsDataSeeder.SeedAsync(db);
 }
 
 Log.Information("PensionVault Contributions Service starting on port 5004");

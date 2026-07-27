@@ -1,4 +1,4 @@
-﻿namespace PensionVault.Shared.Contracts;
+namespace PensionVault.Shared.Contracts;
 
 public record SchemeResponse(
     Guid SchemeId,
@@ -7,8 +7,10 @@ public record SchemeResponse(
     decimal EmployeeContributionRate,
     decimal EmployerContributionRate,
     decimal InterestRatePA,
-    string? VestingSchedule,
-    string Status
+    int VestingYears,
+    decimal VestingPercent,
+    string Status,
+    string Description
 );
 
 

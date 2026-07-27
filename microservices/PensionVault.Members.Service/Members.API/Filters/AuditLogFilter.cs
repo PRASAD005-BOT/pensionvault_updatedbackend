@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Members.Data;
 using Members.Domain.Entities;
@@ -47,7 +47,21 @@ public class AuditLogFilter : IAsyncActionFilter
 
                 string? recordId = null;
                 if (context.RouteData.Values.TryGetValue("id", out var idVal))
+                {
                     recordId = idVal?.ToString();
+                }
+
+                if (recordId == null && resultContext.Result is Microsoft.AspNetCore.Mvc.ObjectResult objResult && objResult.Value != null)
+                {
+                    var val = objResult.Value;
+                    var type = val.GetType();
+                    var prop = type.GetProperties()
+                        .FirstOrDefault(p => p.Name.EndsWith("Id", StringComparison.OrdinalIgnoreCase));
+                    if (prop != null)
+                    {
+                        recordId = prop.GetValue(val)?.ToString();
+                    }
+                }
 
                 var auditLog = new AuditLog
                 {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +6,7 @@ using Members.Services.DTOs;
 using Members.Domain.Entities;
 using Members.Domain.Repositories;
 using PensionVault.Shared.Contracts;
+using System.Text.RegularExpressions;
 
 namespace Members.Services;
 
@@ -60,6 +61,8 @@ public class EmployerService : IEmployerService
         if (await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
 
+        // Validate contact phone (if present)
+        ValidateContactPhone(request.ContactPhone);
         var employer = new Employer
         {
             EmployerCode = request.EmployerCode.Trim(),
@@ -67,7 +70,9 @@ public class EmployerService : IEmployerService
             RegistrationNumber = request.RegistrationNumber,
             Industry = request.Industry,
             RemittanceFrequency = request.RemittanceFrequency,
-            ContactDetails = request.ContactDetails,
+            ContactEmail = request.ContactEmail,
+            ContactPhone = request.ContactPhone,
+            PortalJoinCode = request.PortalJoinCode,
             Status = EmployerStatus.Active
         };
         await _employerRepo.AddAsync(employer);
@@ -85,13 +90,17 @@ public class EmployerService : IEmployerService
             && await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
 
+        // Validate contact phone (if present)
+        ValidateContactPhone(request.ContactPhone);
         employer.CompanyName = request.CompanyName;
         if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
             employer.RegistrationNumber = request.RegistrationNumber;
 
         employer.Industry = request.Industry;
         employer.RemittanceFrequency = request.RemittanceFrequency;
-        employer.ContactDetails = request.ContactDetails;
+        employer.ContactEmail = request.ContactEmail;
+        employer.ContactPhone = request.ContactPhone;
+        employer.PortalJoinCode = request.PortalJoinCode;
 
         if (request.Status.HasValue)
         {
@@ -165,5 +174,13 @@ public class EmployerService : IEmployerService
 
     private static EmployerResponse ToResponse(Employer e) => new(
         e.EmployerId, e.EmployerCode, e.CompanyName, e.RegistrationNumber, e.Industry,
-        e.EnrolledMemberCount, e.RemittanceFrequency.ToString(), e.ContactDetails, e.Status.ToString());
+        e.EnrolledMemberCount, e.RemittanceFrequency.ToString(), e.ContactEmail, e.ContactPhone, e.PortalJoinCode, e.Status.ToString());
+
+    private static void ValidateContactPhone(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone)) return;
+        var digits = Regex.Replace(phone, "\\D", "");
+        if (digits.Length > 0 && digits.Length != 10)
+            throw new ArgumentException("Contact phone must be a 10-digit number.");
+    }
 }

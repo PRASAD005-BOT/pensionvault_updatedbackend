@@ -1,4 +1,4 @@
-﻿using Contributions.Domain.Repositories;
+using Contributions.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Contributions.Domain.Entities;
 
@@ -32,6 +32,8 @@ public class ContributionsDbContext : DbContext
             e.Property(x => x.EmployeeContributionRate).HasPrecision(5, 2);
             e.Property(x => x.EmployerContributionRate).HasPrecision(5, 2);
             e.Property(x => x.InterestRatePA).HasPrecision(5, 2);
+            e.Property(x => x.VestingYears);
+            e.Property(x => x.VestingPercent).HasPrecision(5, 2);
         });
 
         // FundAccount

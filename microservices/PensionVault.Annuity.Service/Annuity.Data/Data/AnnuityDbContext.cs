@@ -1,4 +1,4 @@
-﻿using Annuity.Domain.Repositories;
+using Annuity.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Annuity.Domain.Entities;
 
@@ -24,6 +24,10 @@ public class AnnuityDbContext : DbContext
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
             e.Property(x => x.PurchaseValue).HasPrecision(18, 2);
             e.Property(x => x.MonthlyPension).HasPrecision(18, 2);
+            e.Property(x => x.NomineeName).HasMaxLength(150);
+            e.Property(x => x.NomineeRelation).HasMaxLength(50);
+            e.Property(x => x.NomineeBankAccount).HasMaxLength(100);
+            e.Property(x => x.NomineePercent);
         });
 
         // MonthlyPensionDisbursement

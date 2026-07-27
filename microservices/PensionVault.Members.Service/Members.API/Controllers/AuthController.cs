@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Members.Services.DTOs;
 using Members.Services;
 using Members.Domain.Repositories;
@@ -52,16 +52,8 @@ public class AuthController : ControllerBase
 
         var all = await employerRepo.GetAllAsync();
         var emp = all.FirstOrDefault(e => {
-            if (!string.IsNullOrEmpty(e.ContactDetails)) {
-                try {
-                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(e.ContactDetails);
-                    if (jsonDoc.RootElement.TryGetProperty("portalJoinCode", out var codeProp)) {
-                        var codeVal = codeProp.GetString();
-                        if (string.Equals(codeVal, regNum, System.StringComparison.OrdinalIgnoreCase))
-                            return true;
-                    }
-                } catch { }
-            }
+            if (string.Equals(e.PortalJoinCode, regNum, System.StringComparison.OrdinalIgnoreCase))
+                return true;
             var fallback = GetFallbackCode(e.EmployerId);
             return string.Equals(fallback, regNum, System.StringComparison.OrdinalIgnoreCase);
         });

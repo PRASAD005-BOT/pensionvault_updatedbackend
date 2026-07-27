@@ -1,4 +1,4 @@
-﻿using Annuity.Domain.Entities;
+using Annuity.Domain.Entities;
 
 namespace Annuity.Services.DTOs;
 
@@ -8,14 +8,20 @@ public record CreateAnnuityRequest(
     decimal PurchaseValue,
     decimal MonthlyPension,
     DateTime AnnuityStartDate,
-    string? NomineeDetails
+    string? NomineeName,
+    string? NomineeRelation,
+    string? NomineeBankAccount,
+    int? NomineePercent
 );
 
 public record UpdateAnnuityRequest(
     AnnuityPlanType PlanType,
     decimal PurchaseValue,
     decimal MonthlyPension,
-    string? NomineeDetails,
+    string? NomineeName,
+    string? NomineeRelation,
+    string? NomineeBankAccount,
+    int? NomineePercent,
     AnnuityStatus? Status
 );
 
@@ -27,7 +33,10 @@ public record AnnuityResponse(
     decimal PurchaseValue,
     decimal MonthlyPension,
     DateTime AnnuityStartDate,
-    string? NomineeDetails,
+    string? NomineeName,
+    string? NomineeRelation,
+    string? NomineeBankAccount,
+    int NomineePercent,
     AnnuityStatus Status,
     bool IsDisbursedThisMonth = false
 );

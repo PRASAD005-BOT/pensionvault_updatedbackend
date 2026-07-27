@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -7,7 +7,6 @@ using PensionVault.Shared.Middleware;
 using PensionVault.Shared.HttpClients;
 using Claims.Data;
 using Claims.Data.Repositories;
-using Claims.Data.Seed;
 using Claims.Domain.Repositories;
 using Claims.Services;
 using Claims.Services.HttpClients;
@@ -100,6 +99,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -118,7 +118,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ClaimsDbContext>();
     await db.Database.MigrateAsync();
-    await ClaimsDataSeeder.SeedAsync(db);
 }
 
 Log.Information("PensionVault Claims Service starting on port 5002");
