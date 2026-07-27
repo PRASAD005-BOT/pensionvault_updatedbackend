@@ -12,6 +12,15 @@ public class BenefitClaim
     public Guid? ProcessedById { get; set; }
     public ClaimStatus Status { get; set; } = ClaimStatus.Submitted;
 
+    // Reason for the withdrawal (Medical, Housing, Education, Marriage, Others, …)
+    public string? Reason { get; set; }
+    // Mandatory member-supplied explanation for the claim
+    public string? Description { get; set; }
+    // Timestamp of the last status change (review/approve/reject); disbursement date lives on the disbursement
+    public DateTime? ProcessedDate { get; set; }
+    // Reason captured when a claim is rejected
+    public string? RejectionReason { get; set; }
+
     // Navigation
     public ICollection<ClaimDisbursement> Disbursements { get; set; } = new List<ClaimDisbursement>();
 }

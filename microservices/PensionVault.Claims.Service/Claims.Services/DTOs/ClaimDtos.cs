@@ -5,7 +5,9 @@ namespace Claims.Services.DTOs;
 public record CreateClaimRequest(
     Guid MemberId,
     ClaimType ClaimType,
-    decimal EligibleAmount
+    decimal EligibleAmount,
+    string? Reason = null,
+    string? Description = null
 );
 
 public record ClaimActionRequest(string? Remarks);
@@ -19,7 +21,8 @@ public record DisburseClaimRequest(
 public record CreatePartialWithdrawalRequest(
     Guid MemberId,
     decimal RequestedAmount,
-    string Reason
+    string Reason,
+    string? Description = null
 );
 
 public record DisbursePartialWithdrawalRequest(

@@ -10,7 +10,13 @@ public record ClaimResponse(
     decimal VestedAmount,
     decimal TaxDeductible,
     string? ProcessedByName,
-    string Status
+    string Status,
+    string? Reason = null,
+    string? Description = null,
+    DateTime? ProcessedDate = null,
+    string? RejectionReason = null,
+    DateTime? DisbursedDate = null,
+    string? TransactionReference = null
 );
 
 public record DisbursementResponse(
