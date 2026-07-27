@@ -8,8 +8,7 @@ public record SchemeResponse(
     decimal EmployerContributionRate,
     decimal InterestRatePA,
     string? VestingSchedule,
-    string Status,
-    string? Description
+    string Status
 );
 
 

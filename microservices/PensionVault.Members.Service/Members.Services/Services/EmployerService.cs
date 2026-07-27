@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Members.Services.DTOs;
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Members.Domain.Entities;
 using Members.Domain.Repositories;
 using PensionVault.Shared.Contracts;
@@ -34,24 +32,23 @@ public class EmployerService : IEmployerService
         return employers.Select(ToResponse);
     }
 
-    public async Task<EmployerResponse> GetByIdAsync(Guid id)
+    // Expected miss (no such employer) -> null; controller maps to 404.
+    public async Task<EmployerResponse?> GetByIdAsync(Guid id)
     {
-        var e = await _employerRepo.FindByIdAsync(id)
-            ?? throw new KeyNotFoundException("Employer not found.");
-        return ToResponse(e);
+        var e = await _employerRepo.FindByIdAsync(id);
+        return e is null ? null : ToResponse(e);
     }
 
-    public async Task<EmployerResponse> GetByUserIdAsync(Guid userId)
+    // Returns null when the user has no linked organisation/employer profile
+    // (an expected case for non-employer roles). Controller maps to 404.
+    public async Task<EmployerResponse?> GetByUserIdAsync(Guid userId)
     {
-        var user = await _userRepo.FindByIdAsync(userId)
-            ?? throw new KeyNotFoundException("User not found.");
+        var user = await _userRepo.FindByIdAsync(userId);
+        if (user?.OrganisationId is null)
+            return null;
 
-        if (user.OrganisationId == null)
-            throw new KeyNotFoundException("User is not associated with an organisation.");
-
-        var e = await _employerRepo.FindByIdAsync(user.OrganisationId.Value)
-            ?? throw new KeyNotFoundException("No employer profile found.");
-        return ToResponse(e);
+        var e = await _employerRepo.FindByIdAsync(user.OrganisationId.Value);
+        return e is null ? null : ToResponse(e);
     }
 
     public async Task<EmployerResponse> CreateAsync(CreateEmployerRequest request)
@@ -62,9 +59,6 @@ public class EmployerService : IEmployerService
             throw new InvalidOperationException("Employer ID already exists — choose a different one.");
         if (await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
-
-        // Validate contact phone (if present)
-        ValidateContactPhoneInContactDetails(request.ContactDetails);
 
         var employer = new Employer
         {
@@ -90,9 +84,6 @@ public class EmployerService : IEmployerService
             && !string.Equals(employer.RegistrationNumber, request.RegistrationNumber, StringComparison.OrdinalIgnoreCase)
             && await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
             throw new InvalidOperationException("Registration number already exists.");
-
-        // Validate contact phone (if present)
-        ValidateContactPhoneInContactDetails(request.ContactDetails);
 
         employer.CompanyName = request.CompanyName;
         if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
@@ -175,32 +166,4 @@ public class EmployerService : IEmployerService
     private static EmployerResponse ToResponse(Employer e) => new(
         e.EmployerId, e.EmployerCode, e.CompanyName, e.RegistrationNumber, e.Industry,
         e.EnrolledMemberCount, e.RemittanceFrequency.ToString(), e.ContactDetails, e.Status.ToString());
-
-    private static void ValidateContactPhoneInContactDetails(string? contactDetails)
-    {
-        if (string.IsNullOrWhiteSpace(contactDetails)) return;
-
-        // If contactDetails is JSON and contains a 'phone' property, validate it
-        try
-        {
-            using var doc = JsonDocument.Parse(contactDetails);
-            if (doc.RootElement.ValueKind == JsonValueKind.Object && doc.RootElement.TryGetProperty("phone", out var phoneElem))
-            {
-                var phone = phoneElem.GetString() ?? string.Empty;
-                var digits = Regex.Replace(phone, "\\D", "");
-                if (digits.Length > 0 && digits.Length != 10)
-                    throw new ArgumentException("Contact phone must be a 10-digit number.");
-                return;
-            }
-        }
-        catch (JsonException)
-        {
-            // Not JSON - fall through to plain text check
-        }
-
-        // If plain text contains digits, require exactly 10 digits (otherwise skip)
-        var plainDigits = Regex.Replace(contactDetails, "\\D", "");
-        if (plainDigits.Length > 0 && plainDigits.Length != 10)
-            throw new ArgumentException("Contact phone must be a 10-digit number.");
-    }
 }

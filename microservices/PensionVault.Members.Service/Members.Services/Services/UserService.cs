@@ -28,15 +28,8 @@ public class UserService : IUserService
     {
         var user = await _userRepo.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException("User not found.");
-
-        if (!string.IsNullOrWhiteSpace(name))
-            user.Name = name.Trim();
-
-        // Phone is a non-nullable column; only overwrite it when a value is supplied
-        // so callers that omit the phone (e.g. the profile name edit) don't null it out.
-        if (phone != null)
-            user.Phone = phone;
-
+        user.Name = name;
+        user.Phone = phone;
         await _unitOfWork.SaveChangesAsync();
     }
 }

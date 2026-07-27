@@ -39,7 +39,6 @@ public class SchemeService : ISchemeService
             EmployerContributionRate = request.EmployerContributionRate,
             InterestRatePA = request.InterestRatePA,
             VestingSchedule = request.VestingSchedule,
-            Description = request.Description,
             Status = SchemeStatus.Active
         };
         await _schemeRepo.AddAsync(scheme);
@@ -56,7 +55,6 @@ public class SchemeService : ISchemeService
         scheme.EmployerContributionRate = request.EmployerContributionRate;
         scheme.InterestRatePA = request.InterestRatePA;
         scheme.VestingSchedule = request.VestingSchedule;
-        scheme.Description = request.Description;
         scheme.Status = request.Status;
         await _unitOfWork.SaveChangesAsync();
         return ToResponse(scheme);
@@ -65,7 +63,7 @@ public class SchemeService : ISchemeService
     private static SchemeResponse ToResponse(FundScheme s) => new(
         s.SchemeId, s.SchemeName, s.SchemeType.ToString(),
         s.EmployeeContributionRate, s.EmployerContributionRate,
-        s.InterestRatePA, s.VestingSchedule, s.Status.ToString(), s.Description);
+        s.InterestRatePA, s.VestingSchedule, s.Status.ToString());
 }
 
 

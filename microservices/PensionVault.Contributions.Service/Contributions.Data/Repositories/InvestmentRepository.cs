@@ -40,6 +40,12 @@ public class InvestmentRepository : IInvestmentRepository
         await _context.InvestmentPortfolios.AddAsync(portfolio);
     }
 
+    public Task<bool> SchemeExistsAsync(Guid schemeId)
+        => _context.FundSchemes.AnyAsync(s => s.SchemeId == schemeId);
+
+    public async Task AddSchemeAsync(FundScheme scheme)
+        => await _context.FundSchemes.AddAsync(scheme);
+
     public Task<CorpusRecord?> FindCorpusByIdAsync(Guid corpusId)
         => _context.CorpusRecords
             .Include(c => c.Scheme)

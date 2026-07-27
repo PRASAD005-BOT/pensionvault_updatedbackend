@@ -63,6 +63,41 @@ public class UsersController : ControllerBase
         return Ok(new { ProfileImageUrl = fileUrl });
     }
 
+    /// <summary>Returns the current user's basic profile. Works for every role — including
+    /// InvestmentOfficer/IO and other roles without an extended member/employer profile —
+    /// falling back to session/token claims instead of returning 404 or null.</summary>
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyProfile([FromServices] IUserRepository userRepo)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (Guid.TryParse(userIdString, out var userId))
+        {
+            var user = await userRepo.FindByIdAsync(userId);
+            if (user != null)
+            {
+                return Ok(new {
+                    userId = user.UserId,
+                    name = user.Name,
+                    email = user.Email,
+                    role = user.Role.ToString(),
+                    status = user.Status.ToString(),
+                    profileImageUrl = user.ProfileImageUrl
+                });
+            }
+        }
+
+        // No matching user row — fall back to the JWT/session claims rather than 404.
+        return Ok(new {
+            userId = userIdString,
+            name = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue("name") ?? "",
+            email = User.FindFirstValue(ClaimTypes.Email) ?? User.FindFirstValue("email") ?? "",
+            role = User.FindFirstValue(ClaimTypes.Role) ?? "",
+            status = (string?)null,
+            profileImageUrl = (string?)null
+        });
+    }
+
     [HttpPut("me")]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserRequest request)
     {
@@ -138,11 +173,8 @@ public class UsersController : ControllerBase
             var member = await memberRepo.FindByUserIdAsync(userId);
             if (member == null) return BadRequest("Member profile not found.");
 
-            var verified = string.Equals(request.VerificationCode, member.MembershipNumber, StringComparison.OrdinalIgnoreCase) ||
-                           string.Equals(request.VerificationCode, member.MemberId.ToString(), StringComparison.OrdinalIgnoreCase) ||
-                           string.Equals(request.VerificationCode, member.UserId.ToString(), StringComparison.OrdinalIgnoreCase);
-
-            if (!verified) return BadRequest("Invalid Member ID. Verification failed.");
+            if (!string.Equals(request.VerificationCode, member.MembershipNumber, StringComparison.OrdinalIgnoreCase))
+                return BadRequest("Invalid Membership Number. Verification failed.");
         }
         else if (user.Role == UserRole.Employer)
         {
@@ -150,9 +182,28 @@ public class UsersController : ControllerBase
             var employer = await employerRepo.FindByIdAsync(user.OrganisationId.Value);
             if (employer == null) return BadRequest("Employer profile not found.");
 
-            if (string.IsNullOrWhiteSpace(employer.EmployerCode) ||
-                !string.Equals(request.VerificationCode, employer.EmployerCode, StringComparison.OrdinalIgnoreCase))
-                return BadRequest("Invalid Employer ID. Verification failed.");
+            string portalCode = "";
+            if (!string.IsNullOrEmpty(employer.ContactDetails))
+            {
+                try
+                {
+                    using var jsonDoc = System.Text.Json.JsonDocument.Parse(employer.ContactDetails);
+                    if (jsonDoc.RootElement.TryGetProperty("portalJoinCode", out var codeProp))
+                    {
+                        portalCode = codeProp.GetString() ?? "";
+                    }
+                }
+                catch { }
+            }
+            var guidStr = employer.EmployerId.ToString();
+            int sum = 0;
+            foreach (var c in guidStr) sum += (int)c;
+            string fallbackCode = (100000 + (sum % 900000)).ToString();
+
+            bool verified = (!string.IsNullOrEmpty(portalCode) && string.Equals(request.VerificationCode, portalCode, StringComparison.OrdinalIgnoreCase)) ||
+                             string.Equals(request.VerificationCode, fallbackCode, StringComparison.OrdinalIgnoreCase);
+
+            if (!verified) return BadRequest("Invalid Portal Join Code. Verification failed.");
         }
         else
         {

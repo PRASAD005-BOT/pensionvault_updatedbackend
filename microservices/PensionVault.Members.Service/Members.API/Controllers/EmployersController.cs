@@ -50,7 +50,11 @@ public class EmployersController : ControllerBase
 
     [HttpGet("{id:guid}")]
     [Authorize(Roles = "Member,Employer,FundAdmin,Admin,Compliance")]
-    public async Task<IActionResult> GetById(Guid id) => Ok(await _employerService.GetByIdAsync(id));
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var employer = await _employerService.GetByIdAsync(id);
+        return employer is null ? NotFound() : Ok(employer);
+    }
 
     [HttpGet("me")]
     [Authorize(Roles = "Employer,FundAdmin,Admin")]
@@ -58,7 +62,8 @@ public class EmployersController : ControllerBase
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdString, out var userId)) return Unauthorized();
-        return Ok(await _employerService.GetByUserIdAsync(userId));
+        var employer = await _employerService.GetByUserIdAsync(userId);
+        return employer is null ? NotFound() : Ok(employer);
     }
 
     [HttpPost]
