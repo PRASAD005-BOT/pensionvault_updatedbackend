@@ -24,6 +24,9 @@ public class ClaimsDbContext : DbContext
             e.Property(x => x.EligibleAmount).HasPrecision(18, 2);
             e.Property(x => x.VestedAmount).HasPrecision(18, 2);
             e.Property(x => x.TaxDeductible).HasPrecision(18, 2);
+            e.Property(x => x.Reason).HasMaxLength(50);
+            e.Property(x => x.Description).HasMaxLength(2000);
+            e.Property(x => x.RejectionReason).HasMaxLength(1000);
         });
 
         // ClaimDisbursement

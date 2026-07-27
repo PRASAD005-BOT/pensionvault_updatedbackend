@@ -86,10 +86,10 @@ public class ClaimsController : ControllerBase
 
     [HttpPut("{id:guid}/reject")]
     [Authorize(Roles = "FundAdmin,Admin")]
-    public async Task<IActionResult> Reject(Guid id)
+    public async Task<IActionResult> Reject(Guid id, [FromBody] ClaimActionRequest? request = null)
     {
         var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-        return Ok(await _claimService.RejectClaimAsync(id, userId));
+        return Ok(await _claimService.RejectClaimAsync(id, userId, request?.Remarks));
     }
 
     [HttpPost("{id:guid}/disburse")]

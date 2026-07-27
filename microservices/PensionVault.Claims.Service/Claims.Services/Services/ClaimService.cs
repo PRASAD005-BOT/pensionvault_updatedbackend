@@ -18,8 +18,10 @@ public class ClaimService : IClaimService
 
     private static readonly HashSet<string> AllowedPartialReasons = new(StringComparer.OrdinalIgnoreCase)
     {
-        "Medical", "Housing", "Education", "Marriage"
+        "Medical", "Housing", "Education", "Marriage", "Others"
     };
+
+    private const int MinDescriptionLength = 15;
 
     public ClaimService(
         IClaimRepository claimRepo,
@@ -48,6 +50,8 @@ public class ClaimService : IClaimService
         if (request.ClaimType == ClaimType.PartialWithdrawal)
             throw new ArgumentException("Please use the dedicated partial-withdrawal route for early fund requests.");
 
+        var description = ValidateDescription(request.Description);
+
         var member = await _memberClient.GetMemberByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
@@ -66,6 +70,8 @@ public class ClaimService : IClaimService
             EligibleAmount = request.EligibleAmount,
             VestedAmount = vestedAmount,
             TaxDeductible = Math.Round(request.EligibleAmount * 0.10m, 2),
+            Reason = string.IsNullOrWhiteSpace(request.Reason) ? null : request.Reason.Trim(),
+            Description = description,
             Status = ClaimStatus.Submitted
         };
         await _claimRepo.AddAsync(claim);
@@ -94,11 +100,7 @@ public class ClaimService : IClaimService
         {
             var member = await _memberClient.GetMemberByIdAsync(c.MemberId);
             var processedBy = c.ProcessedById.HasValue ? await _memberClient.GetMemberByUserIdAsync(c.ProcessedById.Value) : null;
-            list.Add(new ClaimResponse(
-                c.ClaimId, c.MemberId, member?.Name ?? "",
-                c.ClaimType.ToString(), c.ClaimDate, c.EligibleAmount,
-                c.VestedAmount, c.TaxDeductible,
-                processedBy?.Name, c.Status.ToString()));
+            list.Add(MapToResponse(c, member?.Name, processedBy?.Name));
         }
         return list;
     }
@@ -109,11 +111,32 @@ public class ClaimService : IClaimService
             ?? throw new KeyNotFoundException("Claim not found.");
         var member = await _memberClient.GetMemberByIdAsync(claim.MemberId);
         var processedBy = claim.ProcessedById.HasValue ? await _memberClient.GetMemberByUserIdAsync(claim.ProcessedById.Value) : null;
+        return MapToResponse(claim, member?.Name, processedBy?.Name);
+    }
+
+    private static ClaimResponse MapToResponse(BenefitClaim c, string? memberName, string? processedByName)
+    {
+        var disbursement = c.Disbursements
+            .OrderByDescending(d => d.DisbursedDate)
+            .FirstOrDefault(d => d.Status == DisbursementStatus.Processed);
+
         return new ClaimResponse(
-            claim.ClaimId, claim.MemberId, member?.Name ?? "",
-            claim.ClaimType.ToString(), claim.ClaimDate, claim.EligibleAmount,
-            claim.VestedAmount, claim.TaxDeductible,
-            processedBy?.Name, claim.Status.ToString());
+            c.ClaimId, c.MemberId, memberName ?? "",
+            c.ClaimType.ToString(), c.ClaimDate, c.EligibleAmount,
+            c.VestedAmount, c.TaxDeductible,
+            processedByName, c.Status.ToString(),
+            c.Reason, c.Description, c.ProcessedDate, c.RejectionReason,
+            disbursement?.DisbursedDate, disbursement?.DisbursementId.ToString());
+    }
+
+    private static string ValidateDescription(string? description)
+    {
+        var trimmed = (description ?? string.Empty).Trim();
+        if (trimmed.Length == 0)
+            throw new ArgumentException("Description is required.");
+        if (trimmed.Length < MinDescriptionLength)
+            throw new ArgumentException($"Description must be at least {MinDescriptionLength} characters long.");
+        return trimmed;
     }
 
     public Task<ClaimResponse> ReviewClaimAsync(Guid claimId, Guid processedById)
@@ -122,8 +145,8 @@ public class ClaimService : IClaimService
     public Task<ClaimResponse> ApproveClaimAsync(Guid claimId, Guid processedById)
         => UpdateStatusAsync(claimId, ClaimStatus.Approved, processedById);
 
-    public Task<ClaimResponse> RejectClaimAsync(Guid claimId, Guid processedById)
-        => UpdateStatusAsync(claimId, ClaimStatus.Rejected, processedById);
+    public Task<ClaimResponse> RejectClaimAsync(Guid claimId, Guid processedById, string? rejectionReason = null)
+        => UpdateStatusAsync(claimId, ClaimStatus.Rejected, processedById, rejectionReason);
 
     public async Task<DisbursementResponse> DisburseClaimAsync(Guid claimId, DisburseClaimRequest request)
     {
@@ -190,6 +213,8 @@ public class ClaimService : IClaimService
         if (request.RequestedAmount <= 0)
             throw new ArgumentException("The requested withdrawal amount must be strictly greater than zero.");
 
+        var description = ValidateDescription(request.Description);
+
         string? normalizedReason = null;
         if (!string.IsNullOrWhiteSpace(request.Reason))
         {
@@ -198,6 +223,7 @@ public class ClaimService : IClaimService
             else if (r.Contains("housing") || r.Contains("house")) normalizedReason = "Housing";
             else if (r.Contains("education") || r.Contains("study") || r.Contains("college") || r.Contains("school")) normalizedReason = "Education";
             else if (r.Contains("marriage") || r.Contains("wedding")) normalizedReason = "Marriage";
+            else normalizedReason = "Others";
         }
 
         if (normalizedReason == null)
@@ -221,6 +247,8 @@ public class ClaimService : IClaimService
             EligibleAmount = request.RequestedAmount,
             VestedAmount = request.RequestedAmount,
             TaxDeductible = 0,
+            Reason = normalizedReason,
+            Description = description,
             Status = ClaimStatus.Submitted
         };
         await _claimRepo.AddAsync(claim);
@@ -250,7 +278,7 @@ public class ClaimService : IClaimService
         return await DisburseClaimAsync(claimId, disburseRequest);
     }
 
-    private async Task<ClaimResponse> UpdateStatusAsync(Guid claimId, ClaimStatus targetStatus, Guid processedById)
+    private async Task<ClaimResponse> UpdateStatusAsync(Guid claimId, ClaimStatus targetStatus, Guid processedById, string? rejectionReason = null)
     {
         var claim = await _claimRepo.FindByIdAsync(claimId)
             ?? throw new KeyNotFoundException("Claim not found.");
@@ -263,6 +291,9 @@ public class ClaimService : IClaimService
 
         claim.Status = targetStatus;
         claim.ProcessedById = processedById;
+        claim.ProcessedDate = DateTime.UtcNow;
+        if (targetStatus == ClaimStatus.Rejected)
+            claim.RejectionReason = string.IsNullOrWhiteSpace(rejectionReason) ? null : rejectionReason.Trim();
         await _unitOfWork.SaveChangesAsync();
 
         // Trigger HTTP audit log to Members Service
