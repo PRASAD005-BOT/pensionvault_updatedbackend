@@ -1,6 +1,7 @@
 ﻿using Contributions.Services.DTOs;
 using Contributions.Domain.Entities;
 using Contributions.Domain.Repositories;
+using Contributions.Services.HttpClients;
 
 namespace Contributions.Services;
 
@@ -8,32 +9,61 @@ public class LedgerService : ILedgerService
 {
     private readonly ILedgerRepository _ledgerRepo;
     private readonly IFundAccountRepository _accountRepo;
+    private readonly MemberServiceClient _memberClient;
     private readonly IUnitOfWork _unitOfWork;
 
     public LedgerService(
         ILedgerRepository ledgerRepo,
         IFundAccountRepository accountRepo,
+        MemberServiceClient memberClient,
         IUnitOfWork unitOfWork)
     {
         _ledgerRepo = ledgerRepo;
         _accountRepo = accountRepo;
+        _memberClient = memberClient;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<LedgerEntryResponse>> GetAccountLedgerAsync(Guid accountId)
     {
         var entries = await _ledgerRepo.GetByAccountAsync(accountId);
-        return entries.Select(e => new LedgerEntryResponse(
-            e.EntryId, e.AccountId, e.EntryType, e.Amount,
-            e.BalanceAfter, e.EntryDate, e.ReferenceId, e.Status));
+        return await BuildResponsesAsync(entries);
     }
 
     public async Task<IEnumerable<LedgerEntryResponse>> GetAllLedgerEntriesAsync()
     {
         var entries = await _ledgerRepo.GetAllAsync();
-        return entries.Select(e => new LedgerEntryResponse(
-            e.EntryId, e.AccountId, e.EntryType, e.Amount,
-            e.BalanceAfter, e.EntryDate, e.ReferenceId, e.Status));
+        return await BuildResponsesAsync(entries);
+    }
+
+    // Resolves the member name behind each ledger entry (account -> member),
+    // caching account and member lookups so each is fetched at most once.
+    private async Task<List<LedgerEntryResponse>> BuildResponsesAsync(List<LedgerEntry> entries)
+    {
+        var accountToMember = new Dictionary<Guid, Guid>();
+        var memberNames = new Dictionary<Guid, string>();
+
+        foreach (var accountId in entries.Select(e => e.AccountId).Distinct())
+        {
+            var account = await _accountRepo.FindByIdAsync(accountId);
+            if (account == null) continue;
+            accountToMember[accountId] = account.MemberId;
+
+            if (!memberNames.ContainsKey(account.MemberId))
+            {
+                var member = await _memberClient.GetMemberByIdAsync(account.MemberId);
+                memberNames[account.MemberId] = member?.Name ?? "";
+            }
+        }
+
+        return entries.Select(e =>
+        {
+            Guid? memberId = accountToMember.TryGetValue(e.AccountId, out var mId) ? mId : null;
+            var name = memberId.HasValue && memberNames.TryGetValue(memberId.Value, out var n) ? n : "";
+            return new LedgerEntryResponse(
+                e.EntryId, e.AccountId, e.EntryType, e.Amount,
+                e.BalanceAfter, e.EntryDate, e.ReferenceId, e.Status, memberId, name);
+        }).ToList();
     }
 
     public async Task<InterestCreditResponse> CreditInterestAsync(CreditInterestRequest request)

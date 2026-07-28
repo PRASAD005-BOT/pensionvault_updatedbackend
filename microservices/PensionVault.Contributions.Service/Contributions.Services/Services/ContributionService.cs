@@ -106,71 +106,126 @@ public class ContributionService : IContributionService
         if (remittance.Status == RemittanceStatus.Reconciled)
             throw new InvalidOperationException("Remittance has already been reconciled.");
 
-        var notifications = new List<CreateNotificationRequest>();
+        // -------------------------------------------------------------------
+        // Phase 1: Post contributions, update balances and ledger.
+        // No external (HTTP) calls here — a remote failure must never roll back
+        // the financial posting. A contribution is only marked Posted once its
+        // ledger entry has actually been written against an active account.
+        // -------------------------------------------------------------------
+        var postedContributions = new List<MemberContribution>();
+        FundScheme? defaultScheme = null;
+        var accountCache = new Dictionary<Guid, FundAccount>();
 
-        // Post member contributions and update account balances upon Fund Admin reconciliation
         foreach (var contribution in remittance.MemberContributions)
         {
-            contribution.Status = ContributionStatus.Posted;
-            contribution.PostedDate = DateTime.UtcNow;
-
-            var account = await _accountRepo.FindActiveByMemberAsync(contribution.MemberId);
-            if (account != null)
+            if (!accountCache.TryGetValue(contribution.MemberId, out var account))
             {
-                account.EmployeeContributionBalance += contribution.EmployeeAmount;
-                account.EmployerContributionBalance += contribution.EmployerAmount;
-                account.TotalBalance += contribution.TotalAmount;
+                account = await _accountRepo.FindActiveByMemberAsync(contribution.MemberId);
+                if (account == null)
+                {
+                    // Self-heal: the member has no active fund account (e.g. enrolled
+                    // before any scheme existed). Provision one now against an active
+                    // scheme so the contribution can actually post to the ledger
+                    // instead of being silently skipped.
+                    defaultScheme ??= await _accountRepo.GetActiveSchemeAsync()
+                        ?? throw new InvalidOperationException(
+                            "Cannot reconcile: no active fund scheme is configured. Create a scheme first.");
+                    account = new FundAccount
+                    {
+                        MemberId = contribution.MemberId,
+                        SchemeId = defaultScheme.SchemeId,
+                        AccountOpenDate = DateTime.UtcNow,
+                        VestingPercent = defaultScheme.VestingPercent,
+                        Status = FundAccountStatus.Active
+                    };
+                    await _accountRepo.AddAsync(account);
+                }
+                accountCache[contribution.MemberId] = account;
+            }
 
-                // EPF contribution credit ledger entry
+            account.EmployeeContributionBalance += contribution.EmployeeAmount;
+            account.EmployerContributionBalance += contribution.EmployerAmount;
+            account.TotalBalance += contribution.TotalAmount;
+
+            // EPF contribution credit ledger entry
+            await _ledgerRepo.AddEntryAsync(new LedgerEntry
+            {
+                AccountId = account.AccountId,
+                EntryType = EntryType.ContributionCredit,
+                Amount = contribution.TotalAmount,
+                BalanceAfter = account.TotalBalance,
+                ReferenceId = remittance.RemittanceId.ToString(),
+                Status = LedgerEntryStatus.Posted
+            });
+
+            // EPS pension credit ledger entry
+            if (contribution.PensionAmount > 0)
+            {
+                account.PensionBalance += contribution.PensionAmount;
                 await _ledgerRepo.AddEntryAsync(new LedgerEntry
                 {
                     AccountId = account.AccountId,
-                    EntryType = EntryType.ContributionCredit,
-                    Amount = contribution.TotalAmount,
-                    BalanceAfter = account.TotalBalance,
+                    EntryType = EntryType.PensionCredit,
+                    Amount = contribution.PensionAmount,
+                    BalanceAfter = account.PensionBalance,
                     ReferenceId = remittance.RemittanceId.ToString(),
                     Status = LedgerEntryStatus.Posted
                 });
-
-                // EPS pension credit ledger entry
-                if (contribution.PensionAmount > 0)
-                {
-                    account.PensionBalance += contribution.PensionAmount;
-                    await _ledgerRepo.AddEntryAsync(new LedgerEntry
-                    {
-                        AccountId = account.AccountId,
-                        EntryType = EntryType.PensionCredit,
-                        Amount = contribution.PensionAmount,
-                        BalanceAfter = account.PensionBalance,
-                        ReferenceId = remittance.RemittanceId.ToString(),
-                        Status = LedgerEntryStatus.Posted
-                    });
-                }
             }
 
-            var member = await _memberClient.GetMemberByIdAsync(contribution.MemberId);
-            if (member != null)
-            {
-                notifications.Add(new CreateNotificationRequest(
-                    member.UserId,
-                    $"A contribution of ₹{contribution.TotalAmount:N2} (Pension: ₹{contribution.PensionAmount:N2}) has been posted to your account for period {remittance.RemittancePeriod}.",
-                    "Contribution"));
-            }
+            contribution.Status = ContributionStatus.Posted;
+            contribution.PostedDate = DateTime.UtcNow;
+            postedContributions.Add(contribution);
         }
 
-        var postedCount = remittance.MemberContributions.Count(c => c.Status == ContributionStatus.Posted);
-        remittance.Status = postedCount == remittance.CoverageCount
+        // A remittance is fully Reconciled only when every submitted member
+        // contribution was posted and the number of members matches the declared
+        // coverage. When CoverageCount is unset (0), fall back to the number of
+        // contributions actually submitted so a valid remittance isn't wrongly
+        // flagged as a Shortfall.
+        var totalSubmitted = remittance.MemberContributions.Count;
+        var postedCount = postedContributions.Count;
+        var expectedCount = remittance.CoverageCount > 0 ? remittance.CoverageCount : totalSubmitted;
+        remittance.Status = totalSubmitted > 0 && postedCount == totalSubmitted && postedCount == expectedCount
             ? RemittanceStatus.Reconciled
             : RemittanceStatus.Shortfall;
 
-        var admins = await GetAdminUsersAsync();
-        notifications.AddRange(admins.Select(adminUser => new CreateNotificationRequest(
-            adminUser.UserId,
-            $"Remittance for period {remittance.RemittancePeriod} has been reconciled. Status: {remittance.Status}.",
-            "Compliance")));
-
+        // Commit the financial posting before any external I/O.
         await _unitOfWork.SaveChangesAsync();
-        await _notificationClient.SendBulkNotificationsAsync(notifications);
+
+        // -------------------------------------------------------------------
+        // Phase 2: Notifications (best-effort). The money is already committed,
+        // so a failure here must not surface as a failed reconciliation.
+        // -------------------------------------------------------------------
+        try
+        {
+            var notifications = new List<CreateNotificationRequest>();
+
+            foreach (var contribution in postedContributions)
+            {
+                var member = await _memberClient.GetMemberByIdAsync(contribution.MemberId);
+                if (member != null)
+                {
+                    notifications.Add(new CreateNotificationRequest(
+                        member.UserId,
+                        $"A contribution of ₹{contribution.TotalAmount:N2} (Pension: ₹{contribution.PensionAmount:N2}) has been posted to your account for period {remittance.RemittancePeriod}.",
+                        "Contribution"));
+                }
+            }
+
+            var admins = await GetAdminUsersAsync();
+            notifications.AddRange(admins.Select(adminUser => new CreateNotificationRequest(
+                adminUser.UserId,
+                $"Remittance for period {remittance.RemittancePeriod} has been reconciled. Status: {remittance.Status}.",
+                "Compliance")));
+
+            if (notifications.Count > 0)
+                await _notificationClient.SendBulkNotificationsAsync(notifications);
+        }
+        catch
+        {
+            // Notifications are non-critical; the reconciliation has already been committed.
+        }
 
         return await GetRemittanceAsync(remittanceId);
     }

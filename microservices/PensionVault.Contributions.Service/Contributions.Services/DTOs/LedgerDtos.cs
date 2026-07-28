@@ -10,7 +10,9 @@ public record LedgerEntryResponse(
     decimal BalanceAfter,
     DateTime EntryDate,
     string? ReferenceId,
-    LedgerEntryStatus Status
+    LedgerEntryStatus Status,
+    Guid? MemberId = null,
+    string MemberName = ""
 );
 
 public record CreditInterestRequest(

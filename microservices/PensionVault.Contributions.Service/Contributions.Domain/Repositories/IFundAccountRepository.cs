@@ -9,6 +9,7 @@ public interface IFundAccountRepository
     Task<List<FundAccount>> GetByMemberAsync(Guid memberId);
     Task<bool> ExistsByMemberAsync(Guid memberId);
     Task AddAsync(FundAccount account);
+    Task<FundScheme?> GetActiveSchemeAsync();
 }
 
 

@@ -29,6 +29,9 @@ public class FundAccountRepository : IFundAccountRepository
     public Task<bool> ExistsByMemberAsync(Guid memberId)
         => _context.FundAccounts.AnyAsync(a => a.MemberId == memberId);
 
+    public Task<FundScheme?> GetActiveSchemeAsync()
+        => _context.FundSchemes.FirstOrDefaultAsync(s => s.Status == SchemeStatus.Active);
+
     public async Task AddAsync(FundAccount account)
     {
         // Detach the FundScheme if it is already tracked to avoid EF Core unique constraint violations
