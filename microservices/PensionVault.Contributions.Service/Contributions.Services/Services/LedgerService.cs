@@ -68,6 +68,9 @@ public class LedgerService : ILedgerService
 
     public async Task<InterestCreditResponse> CreditInterestAsync(CreditInterestRequest request)
     {
+        if (request.AccountId == Guid.Empty)
+            throw new ArgumentException("Please enter a valid Account ID.");
+
         if (request.InterestRate <= 0)
             throw new ArgumentException("Interest rate must be greater than zero.");
 

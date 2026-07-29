@@ -70,6 +70,13 @@ public class MemberService : IMemberService
 
     public async Task<MemberResponse> CreateAsync(CreateMemberRequest request)
     {
+        var today = DateTime.UtcNow.Date;
+        if (request.DateOfBirth.Date > today)
+            throw new ArgumentException("Date of birth cannot exceed the current date.");
+
+        if (request.JoiningDate.Date > today)
+            throw new ArgumentException("Joining date cannot exceed the current date and year.");
+
         if (await _memberRepo.ExistsByMembershipNumberAsync(request.MembershipNumber))
             throw new InvalidOperationException("Membership number already exists.");
 
@@ -168,6 +175,13 @@ public class MemberService : IMemberService
 
     public async Task<MemberResponse> UpdateAsync(Guid id, UpdateMemberRequest request)
     {
+        var today = DateTime.UtcNow.Date;
+        if (request.DateOfBirth.Date > today)
+            throw new ArgumentException("Date of birth cannot exceed the current date.");
+
+        if (request.JoiningDate.Date > today)
+            throw new ArgumentException("Joining date cannot exceed the current date and year.");
+
         var member = await _memberRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException($"Member {id} not found.");
 
@@ -210,6 +224,10 @@ public class MemberService : IMemberService
 
     public async Task<MemberResponse> SelfEnrollAsync(Guid userId, SelfEnrollMemberRequest request)
     {
+        var today = DateTime.UtcNow.Date;
+        if (request.DateOfBirth.Date > today)
+            throw new ArgumentException("Date of birth cannot exceed the current date.");
+
         if (await _memberRepo.ExistsByUserIdAsync(userId))
             throw new InvalidOperationException("You have already submitted an enrollment profile.");
 
@@ -322,11 +340,18 @@ public class MemberService : IMemberService
             var scheme = await _schemeRepo.FindByIdAsync(a.SchemeId);
             resultList.Add(new
             {
-                a.AccountId, a.MemberId, a.SchemeId,
+                a.AccountId,
+                a.MemberId,
+                a.SchemeId,
                 SchemeName = scheme?.SchemeName ?? "Employee Provident Fund",
-                a.AccountOpenDate, a.EmployeeContributionBalance,
-                a.EmployerContributionBalance, a.PensionBalance, a.InterestAccrued,
-                a.TotalBalance, a.VestingPercent, Status = a.Status.ToString(),
+                a.AccountOpenDate,
+                a.EmployeeContributionBalance,
+                a.EmployerContributionBalance,
+                a.PensionBalance,
+                a.InterestAccrued,
+                a.TotalBalance,
+                a.VestingPercent,
+                Status = a.Status.ToString(),
                 EmployeeContribution = a.EmployeeContributionBalance,
                 EmployerContribution = a.EmployerContributionBalance,
                 InterestEarned = a.InterestAccrued
@@ -340,8 +365,12 @@ public class MemberService : IMemberService
         var contributions = await _contributionRepo.GetByMemberAsync(memberId);
         return contributions.Select(c => (object)new
         {
-            c.ContributionId, c.Period, c.EmployeeAmount,
-            c.EmployerAmount, c.TotalAmount, c.PostedDate,
+            c.ContributionId,
+            c.Period,
+            c.EmployeeAmount,
+            c.EmployerAmount,
+            c.TotalAmount,
+            c.PostedDate,
             Status = c.Status.ToString()
         });
     }
@@ -357,8 +386,13 @@ public class MemberService : IMemberService
             var entries = await _ledgerRepo.GetByAccountAsync(accountId);
             allEntries.AddRange(entries.Select(e => (object)new
             {
-                e.EntryId, e.AccountId, EntryType = e.EntryType.ToString(),
-                e.Amount, e.BalanceAfter, e.EntryDate, e.ReferenceId,
+                e.EntryId,
+                e.AccountId,
+                EntryType = e.EntryType.ToString(),
+                e.Amount,
+                e.BalanceAfter,
+                e.EntryDate,
+                e.ReferenceId,
                 Status = e.Status.ToString()
             }));
         }
@@ -372,8 +406,11 @@ public class MemberService : IMemberService
             .Where(c => c.MemberId == memberId)
             .Select(c => (object)new
             {
-                c.ClaimId, ClaimType = c.ClaimType.ToString(),
-                c.ClaimDate, c.EligibleAmount, Status = c.Status.ToString()
+                c.ClaimId,
+                ClaimType = c.ClaimType.ToString(),
+                c.ClaimDate,
+                c.EligibleAmount,
+                Status = c.Status.ToString()
             });
     }
 
@@ -403,7 +440,7 @@ public class MemberService : IMemberService
         var admins = await _userRepo.GetByRoleAsync(UserRole.Admin);
         var fundAdmins = await _userRepo.GetByRoleAsync(UserRole.FundAdmin);
         var compliance = await _userRepo.GetByRoleAsync(UserRole.Compliance);
-        
+
         var all = new List<User>();
         all.AddRange(admins);
         all.AddRange(fundAdmins);
@@ -411,8 +448,3 @@ public class MemberService : IMemberService
         return all.GroupBy(u => u.UserId).Select(g => g.First()).ToList();
     }
 }
-
-
-
-
-

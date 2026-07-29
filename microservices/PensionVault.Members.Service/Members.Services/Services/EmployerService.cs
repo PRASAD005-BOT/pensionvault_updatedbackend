@@ -28,20 +28,16 @@ public class EmployerService : IEmployerService
 
     public async Task<IEnumerable<EmployerResponse>> GetAllAsync()
     {
-        // Returns ALL employers (Active + Deregistered) so deactivated records remain visible in Employers table
         var employers = await _employerRepo.GetAllAsync();
         return employers.Select(ToResponse);
     }
 
-    // Expected miss (no such employer) -> null; controller maps to 404.
     public async Task<EmployerResponse?> GetByIdAsync(Guid id)
     {
         var e = await _employerRepo.FindByIdAsync(id);
         return e is null ? null : ToResponse(e);
     }
 
-    // Returns null when the user has no linked organisation/employer profile
-    // (an expected case for non-employer roles). Controller maps to 404.
     public async Task<EmployerResponse?> GetByUserIdAsync(Guid userId)
     {
         var user = await _userRepo.FindByIdAsync(userId);
@@ -56,18 +52,27 @@ public class EmployerService : IEmployerService
     {
         if (string.IsNullOrWhiteSpace(request.EmployerCode))
             throw new ArgumentException("Employer ID is required.");
-        if (await _employerRepo.ExistsByEmployerCodeAsync(request.EmployerCode))
+
+        var formattedCode = request.EmployerCode.Trim().ToUpperInvariant();
+        var formattedRegNo = request.RegistrationNumber.Trim().ToUpperInvariant();
+
+        // Validate alphanumeric rules (Must contain both letters and numbers)
+        ValidateAlphanumericCode(formattedCode);
+        ValidateAlphanumericRegNo(formattedRegNo);
+
+        if (await _employerRepo.ExistsByEmployerCodeAsync(formattedCode))
             throw new InvalidOperationException("Employer ID already exists — choose a different one.");
-        if (await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
+        if (await _employerRepo.ExistsByRegistrationNumberAsync(formattedRegNo))
             throw new InvalidOperationException("Registration number already exists.");
 
         // Validate contact phone (if present)
         ValidateContactPhone(request.ContactPhone);
+
         var employer = new Employer
         {
-            EmployerCode = request.EmployerCode.Trim(),
+            EmployerCode = formattedCode,
             CompanyName = request.CompanyName,
-            RegistrationNumber = request.RegistrationNumber,
+            RegistrationNumber = formattedRegNo,
             Industry = request.Industry,
             RemittanceFrequency = request.RemittanceFrequency,
             ContactEmail = request.ContactEmail,
@@ -85,16 +90,23 @@ public class EmployerService : IEmployerService
         var employer = await _employerRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException("Employer not found.");
 
-        if (!string.IsNullOrWhiteSpace(request.RegistrationNumber)
-            && !string.Equals(employer.RegistrationNumber, request.RegistrationNumber, StringComparison.OrdinalIgnoreCase)
-            && await _employerRepo.ExistsByRegistrationNumberAsync(request.RegistrationNumber))
-            throw new InvalidOperationException("Registration number already exists.");
+        string? formattedRegNo = null;
+        if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
+        {
+            formattedRegNo = request.RegistrationNumber.Trim().ToUpperInvariant();
+            ValidateAlphanumericRegNo(formattedRegNo);
+
+            if (!string.Equals(employer.RegistrationNumber, formattedRegNo, StringComparison.OrdinalIgnoreCase)
+                && await _employerRepo.ExistsByRegistrationNumberAsync(formattedRegNo))
+                throw new InvalidOperationException("Registration number already exists.");
+        }
 
         // Validate contact phone (if present)
         ValidateContactPhone(request.ContactPhone);
+
         employer.CompanyName = request.CompanyName;
-        if (!string.IsNullOrWhiteSpace(request.RegistrationNumber))
-            employer.RegistrationNumber = request.RegistrationNumber;
+        if (!string.IsNullOrWhiteSpace(formattedRegNo))
+            employer.RegistrationNumber = formattedRegNo;
 
         employer.Industry = request.Industry;
         employer.RemittanceFrequency = request.RemittanceFrequency;
@@ -175,6 +187,26 @@ public class EmployerService : IEmployerService
     private static EmployerResponse ToResponse(Employer e) => new(
         e.EmployerId, e.EmployerCode, e.CompanyName, e.RegistrationNumber, e.Industry,
         e.EnrolledMemberCount, e.RemittanceFrequency.ToString(), e.ContactEmail, e.ContactPhone, e.PortalJoinCode, e.Status.ToString());
+
+    private static void ValidateAlphanumericCode(string code)
+    {
+        bool hasLetter = Regex.IsMatch(code, "[A-Za-z]");
+        bool hasDigit = Regex.IsMatch(code, "[0-9]");
+        if (!hasLetter || !hasDigit)
+        {
+            throw new ArgumentException("Employer ID must contain both letters and numbers (e.g. EMP-1001).");
+        }
+    }
+
+    private static void ValidateAlphanumericRegNo(string regNo)
+    {
+        bool hasLetter = Regex.IsMatch(regNo, "[A-Za-z]");
+        bool hasDigit = Regex.IsMatch(regNo, "[0-9]");
+        if (!hasLetter || !hasDigit)
+        {
+            throw new ArgumentException("Registration No must contain both letters and numbers (e.g. U74999MH...).");
+        }
+    }
 
     private static void ValidateContactPhone(string? phone)
     {

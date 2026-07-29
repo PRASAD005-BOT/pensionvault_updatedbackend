@@ -8,9 +8,9 @@ namespace Annuity.Services;
 
 public class AnnuityService : IAnnuityService
 {
-    private const int MinServiceYears         = 10;
-    private const int FullPensionAgeYears     = 58;
-    private const int EarlyPensionAgeYears    = 50;
+    private const int MinServiceYears = 10;
+    private const int FullPensionAgeYears = 58;
+    private const int EarlyPensionAgeYears = 50;
 
     private readonly IAnnuityRepository _annuityRepo;
     private readonly IAnnuityRequestRepository _requestRepo;
@@ -373,16 +373,32 @@ public class AnnuityService : IAnnuityService
         if (annuity.Status != AnnuityStatus.Active && annuity.Status != AnnuityStatus.Suspended)
             throw new InvalidOperationException("Annuity cannot be settled in its current state.");
 
-        annuity.Status = AnnuityStatus.Settled;
-        annuity.NomineeName = request.NomineeName;
-        annuity.NomineeBankAccount = request.BankAccountRef;
+        // Settlement ALWAYS clears the exact remaining purchase value of the plan
+        decimal exactSettlementAmount = annuity.PurchaseValue;
 
-        // Deduct from pension balance in Contributions Service
+        if (exactSettlementAmount <= 0)
+            throw new InvalidOperationException("Annuity purchase balance is already zero.");
+
         var account = await _contributionClient.GetActiveByMemberAsync(annuity.MemberId);
         if (account != null)
         {
-            await _contributionClient.AddLedgerEntryAsync(account.AccountId, "AnnuityDebit", request.SettlementAmount, $"SETTLEMENT-{annuityId}");
+            // Verify available pension balance
+            if (account.PensionBalance < exactSettlementAmount)
+            {
+                throw new InvalidOperationException(
+                    $"Insufficient Pension Balance. Exact settlement amount required: ₹{exactSettlementAmount:N2}, available: ₹{account.PensionBalance:N2}.");
+            }
+
+            await _contributionClient.AddLedgerEntryAsync(
+                account.AccountId,
+                "AnnuityDebit",
+                exactSettlementAmount,
+                $"SETTLEMENT-{annuityId}");
         }
+
+        annuity.Status = AnnuityStatus.Settled;
+        annuity.NomineeName = request.NomineeName;
+        annuity.NomineeBankAccount = request.BankAccountRef;
 
         await _unitOfWork.SaveChangesAsync();
         return await GetAnnuityAsync(annuityId);
@@ -434,8 +450,3 @@ public class AnnuityService : IAnnuityService
             r.ReviewNote);
     }
 }
-
-
-
-
-
