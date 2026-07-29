@@ -99,7 +99,7 @@ public class EmployersController : ControllerBase
     public async Task<IActionResult> Reject(Guid id) => Ok(await _employerService.RejectAsync(id));
 
     [HttpGet("{id:guid}/remittances")]
-    [Authorize(Roles = "Employer,FundAdmin,Admin")]
+    [Authorize(Roles = "Employer,FundAdmin,Admin,Compliance,ComplianceOfficer")]
     public async Task<IActionResult> GetRemittances(Guid id)
         => Ok(await _contributionsClient.GetEmployerRemittancesAsync(id));
 }
