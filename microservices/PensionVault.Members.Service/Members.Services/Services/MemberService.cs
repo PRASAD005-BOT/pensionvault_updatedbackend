@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
 using Members.Services.DTOs;
 using Members.Domain.Entities;
@@ -9,6 +10,8 @@ namespace Members.Services;
 
 public class MemberService : IMemberService
 {
+    private static readonly Regex NameRegex = new Regex(@"^[a-zA-Z\s]+$", RegexOptions.Compiled);
+
     private readonly IMemberRepository _memberRepo;
     private readonly IEmployerRepository _employerRepo;
     private readonly IFundAccountRepository _accountRepo;
@@ -60,8 +63,6 @@ public class MemberService : IMemberService
         return ToResponse(member);
     }
 
-    // Returns null when the user has no member profile (an expected case for
-    // non-member roles). Callers decide the HTTP outcome (typically 404).
     public async Task<MemberResponse?> GetByUserIdAsync(Guid userId)
     {
         var member = await _memberRepo.FindByUserIdAsync(userId);
@@ -70,12 +71,16 @@ public class MemberService : IMemberService
 
     public async Task<MemberResponse> CreateAsync(CreateMemberRequest request)
     {
-        var today = DateTime.UtcNow.Date;
+        var today = DateTime.Today;
+
         if (request.DateOfBirth.Date > today)
             throw new ArgumentException("Date of birth cannot exceed the current date.");
 
         if (request.JoiningDate.Date > today)
-            throw new ArgumentException("Joining date cannot exceed the current date and year.");
+            throw new ArgumentException("Joining date cannot exceed the current date.");
+
+        if (!string.IsNullOrWhiteSpace(request.NomineeName) && !NameRegex.IsMatch(request.NomineeName))
+            throw new ArgumentException("Nominee name can only contain alphabets and spaces.");
 
         if (await _memberRepo.ExistsByMembershipNumberAsync(request.MembershipNumber))
             throw new InvalidOperationException("Membership number already exists.");
@@ -175,12 +180,16 @@ public class MemberService : IMemberService
 
     public async Task<MemberResponse> UpdateAsync(Guid id, UpdateMemberRequest request)
     {
-        var today = DateTime.UtcNow.Date;
+        var today = DateTime.Today;
+
         if (request.DateOfBirth.Date > today)
             throw new ArgumentException("Date of birth cannot exceed the current date.");
 
         if (request.JoiningDate.Date > today)
-            throw new ArgumentException("Joining date cannot exceed the current date and year.");
+            throw new ArgumentException("Joining date cannot exceed the current date.");
+
+        if (!string.IsNullOrWhiteSpace(request.NomineeName) && !NameRegex.IsMatch(request.NomineeName))
+            throw new ArgumentException("Nominee name can only contain alphabets and spaces.");
 
         var member = await _memberRepo.FindByIdAsync(id)
             ?? throw new KeyNotFoundException($"Member {id} not found.");
@@ -207,7 +216,6 @@ public class MemberService : IMemberService
 
         member.JoiningDate = request.JoiningDate;
 
-        // Update linked user email & phone
         if (member.User != null)
         {
             member.User.Email = request.Email;
@@ -224,9 +232,13 @@ public class MemberService : IMemberService
 
     public async Task<MemberResponse> SelfEnrollAsync(Guid userId, SelfEnrollMemberRequest request)
     {
-        var today = DateTime.UtcNow.Date;
+        var today = DateTime.Today;
+
         if (request.DateOfBirth.Date > today)
             throw new ArgumentException("Date of birth cannot exceed the current date.");
+
+        if (!string.IsNullOrWhiteSpace(request.NomineeName) && !NameRegex.IsMatch(request.NomineeName))
+            throw new ArgumentException("Nominee name can only contain alphabets and spaces.");
 
         if (await _memberRepo.ExistsByUserIdAsync(userId))
             throw new InvalidOperationException("You have already submitted an enrollment profile.");

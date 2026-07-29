@@ -10,6 +10,7 @@ public interface IContributionService
     Task<IEnumerable<RemittanceResponse>> GetEmployerRemittancesAsync(Guid employerId);
     Task<RemittanceResponse> ReconcileAsync(Guid remittanceId);
     Task<IEnumerable<MemberContributionResponse>> GetMemberContributionsAsync(Guid memberId);
+    Task<IEnumerable<string>> GetMemberCoveredMonthsAsync(Guid memberId);
     Task<IEnumerable<RemittanceResponse>> GetAllRemittancesAsync();
     Task<ReconciliationReportResponse> GetReconciliationReportAsync(Guid remittanceId);
     Task<IEnumerable<RemittanceResponse>> GetDefaultersAsync();

@@ -23,6 +23,10 @@ public class ClaimService : IClaimService
 
     private const int MinDescriptionLength = 15;
 
+    // Window used to detect accidental duplicate submissions (e.g. a double-click
+    // that fires two identical requests before the first response returns).
+    private static readonly TimeSpan DuplicateWindow = TimeSpan.FromSeconds(10);
+
     public ClaimService(
         IClaimRepository claimRepo,
         MembersServiceClient memberClient,
@@ -59,6 +63,11 @@ public class ClaimService : IClaimService
 
         if (account == null || request.EligibleAmount > account.TotalBalance)
             throw new InvalidOperationException("Submission rejected: Requested claim amount exceeds available ledger balance.");
+
+        // Guard against accidental duplicate submissions (double-click): reject an
+        // identical claim (same member, type and amount) created within the window.
+        if (await _claimRepo.HasRecentDuplicateAsync(request.MemberId, request.ClaimType, request.EligibleAmount, DateTime.UtcNow - DuplicateWindow))
+            throw new InvalidOperationException("A matching claim was just submitted moments ago. Please wait before submitting again to avoid duplicates.");
 
         var vestedAmount = Math.Round(account.TotalBalance * (account.VestingPercent / 100), 2);
 
@@ -238,6 +247,11 @@ public class ClaimService : IClaimService
 
         if (account == null || request.RequestedAmount > account.TotalBalance)
             throw new InvalidOperationException("Submission rejected: Requested partial withdrawal amount exceeds available ledger balance.");
+
+        // Guard against accidental duplicate submissions (double-click): reject an
+        // identical partial-withdrawal (same member and amount) created within the window.
+        if (await _claimRepo.HasRecentDuplicateAsync(request.MemberId, ClaimType.PartialWithdrawal, request.RequestedAmount, DateTime.UtcNow - DuplicateWindow))
+            throw new InvalidOperationException("A matching claim was just submitted moments ago. Please wait before submitting again to avoid duplicates.");
 
         var claim = new BenefitClaim
         {

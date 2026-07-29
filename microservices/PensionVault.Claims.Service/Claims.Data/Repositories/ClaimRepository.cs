@@ -21,6 +21,13 @@ public class ClaimRepository : IClaimRepository
             .OrderByDescending(c => c.ClaimDate)
             .ToListAsync();
 
+    public Task<bool> HasRecentDuplicateAsync(Guid memberId, ClaimType claimType, decimal eligibleAmount, DateTime since)
+        => _context.BenefitClaims.AnyAsync(c =>
+            c.MemberId == memberId &&
+            c.ClaimType == claimType &&
+            c.EligibleAmount == eligibleAmount &&
+            c.ClaimDate >= since);
+
     public async Task AddAsync(BenefitClaim claim)
         => await _context.BenefitClaims.AddAsync(claim);
 

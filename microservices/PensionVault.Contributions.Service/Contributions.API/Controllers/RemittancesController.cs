@@ -82,6 +82,20 @@ public class RemittancesController : ControllerBase
         return Ok(await _contributionService.GetMemberContributionsAsync(memberId));
     }
 
+    [HttpGet("member/{memberId:guid}/covered-periods")]
+    [Authorize(Roles = "Employer,FundAdmin,Admin")]
+    public async Task<IActionResult> GetMemberCoveredPeriods(Guid memberId, [FromServices] MemberServiceClient memberClient)
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId)) return Forbid();
+            var member = await memberClient.GetMemberByIdAsync(memberId);
+            if (member == null || member.EmployerId != orgId) return Forbid();
+        }
+        return Ok(await _contributionService.GetMemberCoveredMonthsAsync(memberId));
+    }
+
     [HttpGet("member/{memberId:guid}/shortfalls")]
     [Authorize(Roles = "Member,FundAdmin,Admin,Employer")]
     public async Task<IActionResult> GetMemberShortfalls(Guid memberId, [FromServices] MemberServiceClient memberClient)

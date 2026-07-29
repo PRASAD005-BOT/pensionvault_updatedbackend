@@ -1,4 +1,5 @@
-﻿using Contributions.Services.DTOs;
+﻿using System.Text.RegularExpressions;
+using Contributions.Services.DTOs;
 using Contributions.Domain.Entities;
 using Contributions.Domain.Repositories;
 using Contributions.Services.HttpClients;
@@ -50,6 +51,41 @@ public class ContributionService : IContributionService
                 if (item.EmployerAmount <= 0)
                     throw new ArgumentException("Member employer contribution amount must be greater than zero.");
             }
+        }
+
+        // ------------------------------------------------------------------
+        // Period validation (per member):
+        //  1. Pre-joining: no requested month may precede the member's joining month.
+        //  2. Overlap: no requested month may already be covered by an existing
+        //     remittance for that member (Monthly and Quarterly are expanded into
+        //     individual YYYY-MM months and intersected).
+        // ------------------------------------------------------------------
+        var requestedMonths = ExpandPeriodToMonths(request.RemittancePeriod);
+        if (requestedMonths.Count == 0)
+            throw new ArgumentException("Invalid remittance period. Expected a monthly (YYYY-MM) or quarterly (YYYY-MM~YYYY-MM) value.");
+
+        foreach (var item in request.MemberContributions ?? new List<MemberContributionItem>())
+        {
+            var member = await _memberClient.GetMemberByIdAsync(item.MemberId)
+                ?? throw new KeyNotFoundException("Member not found for one of the contributions.");
+            var memberLabel = string.IsNullOrWhiteSpace(member.Name) ? "this member" : member.Name;
+
+            var joiningMonth = member.JoiningDate.ToString("yyyy-MM");
+            var beforeJoining = requestedMonths
+                .Where(m => string.CompareOrdinal(m, joiningMonth) < 0)
+                .ToList();
+            if (beforeJoining.Count > 0)
+                throw new InvalidOperationException(
+                    $"Cannot submit a remittance for {memberLabel} before their joining month ({joiningMonth}). Conflicting month(s): {string.Join(", ", beforeJoining)}.");
+
+            var existingContributions = await _contributionRepo.GetByMemberAsync(item.MemberId);
+            var existingMonths = existingContributions
+                .SelectMany(c => ExpandPeriodToMonths(c.Period))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var overlap = requestedMonths.Where(existingMonths.Contains).ToList();
+            if (overlap.Count > 0)
+                throw new InvalidOperationException(
+                    $"A remittance already exists for {memberLabel} covering: {string.Join(", ", overlap)}. Overlapping periods are not allowed.");
         }
 
         var total = request.TotalEmployeeShare + request.TotalEmployerShare;
@@ -573,5 +609,63 @@ public class ContributionService : IContributionService
             contribution.PensionAmount, contribution.TotalAmount,
             s.EmployerId, employer?.CompanyName ?? "",
             s.Reason, s.Status.ToString(), s.RaisedDate, s.ResolutionNote, s.ResolvedDate);
+    }
+
+    /// <summary>
+    /// All individual YYYY-MM months already covered by any remittance for a member
+    /// (across every status). Used by the UI to block overlapping period submissions
+    /// before the request is even sent.
+    /// </summary>
+    public async Task<IEnumerable<string>> GetMemberCoveredMonthsAsync(Guid memberId)
+    {
+        var contributions = await _contributionRepo.GetByMemberAsync(memberId);
+        return contributions
+            .SelectMany(c => ExpandPeriodToMonths(c.Period))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(m => m, StringComparer.Ordinal)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Expands a stored period string into the individual YYYY-MM months it covers.
+    /// Handles the monthly form (<c>YYYY-MM</c>), the quarterly range produced by the
+    /// picker (<c>YYYY-MM~YYYY-MM</c>) and the legacy quarter form (<c>YYYY-Qn</c>).
+    /// Returns an empty list for an unrecognised value.
+    /// </summary>
+    private static List<string> ExpandPeriodToMonths(string? period)
+    {
+        var months = new List<string>();
+        if (string.IsNullOrWhiteSpace(period)) return months;
+        var p = period.Trim();
+
+        // Quarterly range: YYYY-MM~YYYY-MM (inclusive)
+        var range = Regex.Match(p, @"^(\d{4})-(\d{2})~(\d{4})-(\d{2})$");
+        if (range.Success)
+        {
+            var start = new DateTime(int.Parse(range.Groups[1].Value), int.Parse(range.Groups[2].Value), 1);
+            var end = new DateTime(int.Parse(range.Groups[3].Value), int.Parse(range.Groups[4].Value), 1);
+            for (var d = start; d <= end; d = d.AddMonths(1))
+                months.Add(d.ToString("yyyy-MM"));
+            return months;
+        }
+
+        // Legacy quarter marker: YYYY-Qn / YYYYQn
+        var quarter = Regex.Match(p, @"^(\d{4})[- ]?[Qq]([1-4])$");
+        if (quarter.Success)
+        {
+            var year = int.Parse(quarter.Groups[1].Value);
+            var startMonth = (int.Parse(quarter.Groups[2].Value) - 1) * 3 + 1;
+            var start = new DateTime(year, startMonth, 1);
+            for (var i = 0; i < 3; i++)
+                months.Add(start.AddMonths(i).ToString("yyyy-MM"));
+            return months;
+        }
+
+        // Monthly: YYYY-MM (tolerate a trailing day/time component)
+        var month = Regex.Match(p, @"^(\d{4})-(\d{2})");
+        if (month.Success)
+            months.Add($"{month.Groups[1].Value}-{month.Groups[2].Value}");
+
+        return months;
     }
 }
