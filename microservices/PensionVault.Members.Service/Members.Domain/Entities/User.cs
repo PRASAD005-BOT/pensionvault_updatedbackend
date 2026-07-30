@@ -6,7 +6,7 @@ public class User
     public string Name { get; set; } = string.Empty;
     public UserRole Role { get; set; }
     public string Email { get; set; } = string.Empty;
-    public string Phone { get; set; } = string.Empty;
+    public string? Phone { get; set; }
     public string PasswordHash { get; set; } = string.Empty;
     public Guid? OrganisationId { get; set; }
     public string? EmployerCode { get; set; }

@@ -36,9 +36,8 @@ public class UserService : IUserService
         var user = await _userRepo.FindByIdAsync(userId)
             ?? throw new KeyNotFoundException("User not found.");
         user.Name = name;
-        user.Phone = phone;
+        if (phone != null)
+            user.Phone = phone;
         await _unitOfWork.SaveChangesAsync();
     }
 }
-
-

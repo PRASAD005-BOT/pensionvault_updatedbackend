@@ -167,6 +167,20 @@ public class AuthService : IAuthService
 
         if (role == UserRole.Member)
         {
+            // Create a pending Member record for the registered user
+            var employerId = request.OrganisationId ?? Guid.Empty;
+            var member = new Member
+            {
+                UserId = user.UserId,
+                MembershipNumber = $"PENDING-{Guid.NewGuid().ToString()[..8].ToUpper()}",
+                Name = user.Name,
+                DateOfBirth = DateTime.UtcNow.AddYears(-25),
+                EmployerId = employerId,
+                JoiningDate = DateTime.UtcNow,
+                Status = MemberStatus.Active
+            };
+            await _memberRepo.AddAsync(member);
+
             var adminUsers = await _userRepo.GetByRoleAsync(UserRole.Admin);
             var notifications = adminUsers.Select(adminUser => new Notification
             {
