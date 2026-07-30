@@ -78,9 +78,13 @@ public class LedgerController : ControllerBase
         if (account == null) return NotFound("Account not found.");
 
         var entryType = Enum.Parse<EntryType>(request.EntryType, true);
-        var entryStatus = string.IsNullOrEmpty(request.Status) 
-            ? LedgerEntryStatus.Posted 
+        var entryStatus = string.IsNullOrEmpty(request.Status)
+            ? LedgerEntryStatus.Posted
             : Enum.Parse<LedgerEntryStatus>(request.Status, true);
+
+        // Every monetary movement must be strictly positive.
+        if (request.Amount <= 0)
+            throw new ArgumentException("Ledger entry amount must be greater than zero.");
 
         var entry = new LedgerEntry
         {
@@ -93,12 +97,21 @@ public class LedgerController : ControllerBase
             EntryDate = DateTime.UtcNow
         };
 
+        // Source-of-truth balance guards: a debit can never drive a balance negative.
+        // EPF claims draw ONLY from TotalBalance (EPF); EPS/PensionBalance is isolated
+        // and is only ever touched by annuity/pension debits.
         if (entryType == EntryType.ClaimDebit)
         {
+            if (request.Amount > account.TotalBalance)
+                throw new InvalidOperationException(
+                    $"Insufficient EPF balance for claim. Available: ₹{account.TotalBalance:N2}, requested: ₹{request.Amount:N2}.");
             account.TotalBalance -= request.Amount;
         }
         else if (entryType == EntryType.AnnuityDebit)
         {
+            if (request.Amount > account.PensionBalance)
+                throw new InvalidOperationException(
+                    $"Insufficient EPS/pension balance for annuity. Available: ₹{account.PensionBalance:N2}, requested: ₹{request.Amount:N2}.");
             account.PensionBalance -= request.Amount;
         }
 

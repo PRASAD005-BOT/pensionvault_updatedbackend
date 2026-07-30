@@ -59,10 +59,10 @@ public class ClaimService : IClaimService
         var member = await _memberClient.GetMemberByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
-        var account = await _contributionClient.GetActiveByMemberAsync(request.MemberId);
+        var account = await _contributionClient.GetActiveByMemberAsync(request.MemberId)
+            ?? throw new InvalidOperationException("Submission rejected: no active fund account found for this member.");
 
-        if (account == null || request.EligibleAmount > account.TotalBalance)
-            throw new InvalidOperationException("Submission rejected: Requested claim amount exceeds available ledger balance.");
+        await EnsureSufficientEpfAsync(request.MemberId, request.EligibleAmount, account);
 
         // Guard against accidental duplicate submissions (double-click): reject an
         // identical claim (same member, type and amount) created within the window.
@@ -138,6 +138,24 @@ public class ClaimService : IClaimService
             disbursement?.DisbursedDate, disbursement?.DisbursementId.ToString());
     }
 
+    // Rejects a claim whose amount would exceed the member's available EPF balance, where
+    // "available" = current EPF (TotalBalance) minus amounts already reserved by in-flight
+    // claims (Submitted/UnderReview/Approved). EPS/PensionBalance is never considered here —
+    // it is isolated for post-retirement pension only.
+    private async Task EnsureSufficientEpfAsync(Guid memberId, decimal requestedAmount, FundAccountResponse account)
+    {
+        var reserved = await _claimRepo.GetActiveClaimsTotalAsync(memberId);
+        var available = account.TotalBalance - reserved;
+        if (available < 0) available = 0;
+
+        if (requestedAmount > available)
+        {
+            var reservedNote = reserved > 0 ? $" (₹{reserved:N2} is reserved by pending claims)" : string.Empty;
+            throw new InvalidOperationException(
+                $"Insufficient EPF balance for claim. Available: ₹{available:N2}{reservedNote}.");
+        }
+    }
+
     private static string ValidateDescription(string? description)
     {
         var trimmed = (description ?? string.Empty).Trim();
@@ -174,13 +192,27 @@ public class ClaimService : IClaimService
         if (claim.Status != ClaimStatus.Approved)
             throw new InvalidOperationException("Claim must be approved before disbursement.");
 
+        var netAmount = request.DisbursedAmount - request.TaxDeducted;
+        if (netAmount <= 0)
+            throw new ArgumentException("Net disbursement amount (disbursed minus tax) must be greater than zero.");
+
+        // Re-validate against the live EPF balance at the moment funds actually leave the
+        // fund — this is the point of truth. Prevents a second approved claim from being
+        // disbursed once an earlier disbursement has already drawn the balance down.
+        var account = await _contributionClient.GetActiveByMemberAsync(claim.MemberId)
+            ?? throw new InvalidOperationException("No active fund account found for this member.");
+
+        if (netAmount > account.TotalBalance)
+            throw new InvalidOperationException(
+                $"Insufficient EPF balance for claim disbursement. Available: ₹{account.TotalBalance:N2}, required: ₹{netAmount:N2}.");
+
         var disbursement = new ClaimDisbursement
         {
             ClaimId = claimId,
             MemberId = claim.MemberId,
             DisbursedAmount = request.DisbursedAmount,
             TaxDeducted = request.TaxDeducted,
-            NetAmount = request.DisbursedAmount - request.TaxDeducted,
+            NetAmount = netAmount,
             BankAccountRef = request.BankAccountRef,
             DisbursedDate = DateTime.UtcNow,
             Status = DisbursementStatus.Processed
@@ -188,12 +220,10 @@ public class ClaimService : IClaimService
         await _claimRepo.AddDisbursementAsync(disbursement);
         claim.Status = ClaimStatus.Disbursed;
 
-        // Post ledger entry to Contributions Service
-        var account = await _contributionClient.GetActiveByMemberAsync(claim.MemberId);
-        if (account != null)
-        {
-            await _contributionClient.AddLedgerEntryAsync(account.AccountId, "ClaimDebit", disbursement.NetAmount, claimId.ToString());
-        }
+        // Post ledger entry to Contributions Service (its own guard is the ultimate backstop
+        // against a negative balance / race). Done before SaveChanges so a rejection here
+        // rolls back the disbursement + status change in this transaction.
+        await _contributionClient.AddLedgerEntryAsync(account.AccountId, "ClaimDebit", disbursement.NetAmount, claimId.ToString());
 
         await _unitOfWork.SaveChangesAsync();
 
@@ -243,10 +273,10 @@ public class ClaimService : IClaimService
         var member = await _memberClient.GetMemberByIdAsync(request.MemberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
-        var account = await _contributionClient.GetActiveByMemberAsync(request.MemberId);
+        var account = await _contributionClient.GetActiveByMemberAsync(request.MemberId)
+            ?? throw new InvalidOperationException("Submission rejected: no active fund account found for this member.");
 
-        if (account == null || request.RequestedAmount > account.TotalBalance)
-            throw new InvalidOperationException("Submission rejected: Requested partial withdrawal amount exceeds available ledger balance.");
+        await EnsureSufficientEpfAsync(request.MemberId, request.RequestedAmount, account);
 
         // Guard against accidental duplicate submissions (double-click): reject an
         // identical partial-withdrawal (same member and amount) created within the window.

@@ -334,7 +334,22 @@ public class AnnuityService : IAnnuityService
             throw new InvalidOperationException(
                 $"A disbursement for {request.Month}/{request.Year} has already been processed for this annuity plan.");
 
+        if (request.TaxDeducted < 0)
+            throw new ArgumentException("Tax deducted cannot be negative.");
+
         var netAmount = annuity.MonthlyPension - request.TaxDeducted;
+        if (netAmount <= 0)
+            throw new ArgumentException("Net pension amount (monthly pension minus tax) must be greater than zero.");
+
+        // The monthly pension is drawn from the isolated EPS/PensionBalance. Verify funds are
+        // available before disbursing so the balance can never be driven negative.
+        var account = await _contributionClient.GetActiveByMemberAsync(annuity.MemberId)
+            ?? throw new InvalidOperationException("No active fund account found for this member.");
+
+        if (annuity.MonthlyPension > account.PensionBalance)
+            throw new InvalidOperationException(
+                $"Insufficient EPS/pension balance for this disbursement. Available: ₹{account.PensionBalance:N2}, required: ₹{annuity.MonthlyPension:N2}.");
+
         var disbursement = new MonthlyPensionDisbursement
         {
             AnnuityId = request.AnnuityId,
@@ -349,12 +364,8 @@ public class AnnuityService : IAnnuityService
         };
         await _annuityRepo.AddDisbursementAsync(disbursement);
 
-        // Deduct from PensionBalance in Contributions Service via HTTP post
-        var account = await _contributionClient.GetActiveByMemberAsync(annuity.MemberId);
-        if (account != null)
-        {
-            await _contributionClient.AddLedgerEntryAsync(account.AccountId, "AnnuityDebit", annuity.MonthlyPension, disbursement.DisbursementId.ToString());
-        }
+        // Deduct the gross monthly pension from PensionBalance in the Contributions Service.
+        await _contributionClient.AddLedgerEntryAsync(account.AccountId, "AnnuityDebit", annuity.MonthlyPension, disbursement.DisbursementId.ToString());
 
         await _unitOfWork.SaveChangesAsync();
         var d = await _annuityRepo.FindDisbursementByIdAsync(disbursement.DisbursementId);

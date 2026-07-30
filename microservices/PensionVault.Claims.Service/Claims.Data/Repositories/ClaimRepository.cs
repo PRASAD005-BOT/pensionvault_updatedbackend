@@ -28,6 +28,14 @@ public class ClaimRepository : IClaimRepository
             c.EligibleAmount == eligibleAmount &&
             c.ClaimDate >= since);
 
+    public async Task<decimal> GetActiveClaimsTotalAsync(Guid memberId)
+        => await _context.BenefitClaims
+            .Where(c => c.MemberId == memberId &&
+                        (c.Status == ClaimStatus.Submitted ||
+                         c.Status == ClaimStatus.UnderReview ||
+                         c.Status == ClaimStatus.Approved))
+            .SumAsync(c => (decimal?)c.EligibleAmount) ?? 0m;
+
     public async Task AddAsync(BenefitClaim claim)
         => await _context.BenefitClaims.AddAsync(claim);
 
