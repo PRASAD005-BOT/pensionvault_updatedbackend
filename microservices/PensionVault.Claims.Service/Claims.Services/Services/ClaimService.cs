@@ -1,4 +1,4 @@
-﻿using Claims.Services.DTOs;
+using Claims.Services.DTOs;
 using Claims.Domain.Entities;
 using Claims.Domain.Repositories;
 using Claims.Services.HttpClients;
@@ -235,6 +235,36 @@ public class ClaimService : IClaimService
             {
                 new(member.UserId, $"Your claim payout of ₹{disbursement.NetAmount:N2} has been disbursed to bank account {disbursement.BankAccountRef}.", "Claim")
             });
+        }
+
+        // ── Auto-update member status after full disbursement ────────────────────────
+        // Resignation → Resigned | Retirement → Retired
+        // This keeps the Members DB in sync without requiring a manual admin step.
+        if (claim.ClaimType == ClaimType.Resignation || claim.ClaimType == ClaimType.Retirement)
+        {
+            var newStatus = claim.ClaimType == ClaimType.Resignation ? "Resigned" : "Retired";
+            try
+            {
+                await _memberClient.UpdateMemberStatusAsync(claim.MemberId, newStatus);
+
+                // Notify the member about their status change
+                if (member != null)
+                {
+                    var statusMsg = claim.ClaimType == ClaimType.Resignation
+                        ? "Your membership status has been updated to Resigned following your claim disbursement."
+                        : "Your membership status has been updated to Retired following your claim disbursement.";
+                    await _notificationClient.SendBulkNotificationsAsync(new List<CreateNotificationRequest>
+                    {
+                        new(member.UserId, statusMsg, "Claim")
+                    });
+                }
+            }
+            catch
+            {
+                // Do not fail the disbursement if the status update call fails.
+                // The disbursement has already been committed; an admin can update
+                // the member status manually from the Members page if needed.
+            }
         }
 
         return new DisbursementResponse(

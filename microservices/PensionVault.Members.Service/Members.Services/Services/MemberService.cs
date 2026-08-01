@@ -218,6 +218,14 @@ public class MemberService : IMemberService
 
         if (member.User != null)
         {
+            if (!string.Equals(member.User.Email, request.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var existingUser = await _userRepo.FindByEmailAsync(request.Email);
+                if (existingUser != null && existingUser.UserId != member.UserId)
+                {
+                    throw new ArgumentException("Email address is already in use by another user account.");
+                }
+            }
             member.User.Email = request.Email;
             if (!string.IsNullOrWhiteSpace(request.Phone))
                 member.User.Phone = request.Phone;
@@ -226,6 +234,19 @@ public class MemberService : IMemberService
             member.User.EmployerCode = member.MembershipNumber;
         }
 
+        await _unitOfWork.SaveChangesAsync();
+        return await GetByIdAsync(id);
+    }
+
+    /// <summary>
+    /// Lightweight status-only update — called internally by Claims service after
+    /// a Resignation or Retirement claim is disbursed to mark the member accordingly.
+    /// </summary>
+    public async Task<MemberResponse> UpdateStatusAsync(Guid id, MemberStatus status)
+    {
+        var member = await _memberRepo.FindByIdAsync(id)
+            ?? throw new KeyNotFoundException($"Member {id} not found.");
+        member.Status = status;
         await _unitOfWork.SaveChangesAsync();
         return await GetByIdAsync(id);
     }
@@ -255,15 +276,20 @@ public class MemberService : IMemberService
             Gender = request.Gender,
             NationalIdRef = request.NationalIdRef,
             EmployerId = request.EmployerId,
-            JoiningDate = DateTime.UtcNow,
+            JoiningDate = request.JoiningDate,
             DateOfRetirement = request.DateOfBirth.AddYears(60),
             NomineeName = request.NomineeName,
             NomineeRelation = request.NomineeRelation,
             NomineeBankAccount = request.NomineeBankAccount,
             NomineePercent = request.NomineePercent ?? 100,
-            Status = MemberStatus.Active
+            Status = MemberStatus.Pending
         };
         await _memberRepo.AddAsync(member);
+
+        if (!string.IsNullOrWhiteSpace(request.Phone))
+        {
+            user.Phone = request.Phone;
+        }
 
         user.OrganisationId = request.EmployerId;
         user.EmployerCode = member.MembershipNumber;
@@ -313,6 +339,7 @@ public class MemberService : IMemberService
             throw new InvalidOperationException("Membership number already exists.");
 
         member.MembershipNumber = request.MembershipNumber;
+        member.Status = MemberStatus.Active;
 
         var linkedUser = await _userRepo.FindByIdAsync(member.UserId);
         if (linkedUser != null)
@@ -334,6 +361,34 @@ public class MemberService : IMemberService
         {
             UserId = member.UserId,
             Message = $"Your profile has been approved! Your Membership Number is {member.MembershipNumber}.",
+            Category = NotificationCategory.Compliance,
+            Status = NotificationStatus.Unread,
+            CreatedDate = DateTime.UtcNow
+        });
+
+        await _unitOfWork.SaveChangesAsync();
+        return await GetByIdAsync(id);
+    }
+
+    public async Task<MemberResponse> RejectAsync(Guid id)
+    {
+        var member = await _memberRepo.FindByIdAsync(id)
+            ?? throw new KeyNotFoundException("Member not found.");
+
+        member.Status = MemberStatus.Rejected;
+        member.MembershipNumber = $"REJECTED-{Guid.NewGuid().ToString()[..8].ToUpper()}";
+
+        var linkedUser = await _userRepo.FindByIdAsync(member.UserId);
+        if (linkedUser != null)
+        {
+            linkedUser.OrganisationId = member.EmployerId;
+            linkedUser.EmployerCode = member.MembershipNumber;
+        }
+
+        await _notificationRepo.AddAsync(new Notification
+        {
+            UserId = member.UserId,
+            Message = "Your profile enrollment request has been rejected. Please contact the administrator.",
             Category = NotificationCategory.Compliance,
             Status = NotificationStatus.Unread,
             CreatedDate = DateTime.UtcNow

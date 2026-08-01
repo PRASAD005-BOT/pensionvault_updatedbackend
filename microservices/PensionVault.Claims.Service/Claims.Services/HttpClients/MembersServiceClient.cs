@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http;
 using PensionVault.Shared.Contracts;
@@ -53,6 +53,19 @@ public class MembersServiceClient
         if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return new List<UserSummaryResponse>();
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<List<UserSummaryResponse>>() ?? new List<UserSummaryResponse>();
+    }
+
+    /// <summary>
+    /// Updates a member's status to Resigned or Retired after their claim is disbursed.
+    /// Failures are swallowed with a log-friendly warning so the disbursement is not rolled back.
+    /// </summary>
+    public async Task UpdateMemberStatusAsync(Guid memberId, string status)
+    {
+        ApplyAuthHeader();
+        var payload = new { Status = status };
+        var response = await _httpClient.PatchAsJsonAsync($"api/members/{memberId}/status", payload);
+        // Non-critical: log but don't throw — the disbursement already succeeded
+        response.EnsureSuccessStatusCode();
     }
 }
 

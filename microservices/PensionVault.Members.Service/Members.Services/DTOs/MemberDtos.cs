@@ -45,7 +45,9 @@ public record SelfEnrollMemberRequest(
     string? NomineeName,
     string? NomineeRelation,
     string? NomineeBankAccount,
-    int? NomineePercent
+    int? NomineePercent,
+    string Phone,
+    DateTime JoiningDate
 );
 
 public record ApproveMemberRequest(
@@ -53,4 +55,5 @@ public record ApproveMemberRequest(
     Guid EmployerId
 );
 
-
+/// <summary>Lightweight DTO for status-only updates (e.g. Resigned/Retired after claim disbursement).</summary>
+public record UpdateMemberStatusRequest(MemberStatus Status);

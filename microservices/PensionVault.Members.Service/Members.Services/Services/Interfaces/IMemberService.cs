@@ -1,3 +1,4 @@
+using Members.Domain.Entities;
 using Members.Domain.Repositories;
 using Members.Services.DTOs;
 using PensionVault.Shared.Contracts;
@@ -11,10 +12,12 @@ public interface IMemberService
     Task<MemberResponse?> GetByUserIdAsync(Guid userId);
     Task<MemberResponse> CreateAsync(CreateMemberRequest request);
     Task<MemberResponse> UpdateAsync(Guid id, UpdateMemberRequest request);
+    Task<MemberResponse> UpdateStatusAsync(Guid id, MemberStatus status);  // lightweight status-only update
     Task<IEnumerable<object>> GetFundAccountsAsync(Guid memberId);
     Task<IEnumerable<object>> GetContributionsAsync(Guid memberId);
     Task<IEnumerable<object>> GetLedgerAsync(Guid memberId);
     Task<IEnumerable<object>> GetClaimsAsync(Guid memberId);
     Task<MemberResponse> SelfEnrollAsync(Guid userId, SelfEnrollMemberRequest request);
     Task<MemberResponse> ApproveAsync(Guid id, ApproveMemberRequest request);
-}
+    Task<MemberResponse> RejectAsync(Guid id);
+}

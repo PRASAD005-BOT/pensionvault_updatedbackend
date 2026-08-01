@@ -55,11 +55,50 @@ public class AuditLogFilter : IAsyncActionFilter
                 {
                     var val = objResult.Value;
                     var type = val.GetType();
-                    var prop = type.GetProperties()
-                        .FirstOrDefault(p => p.Name.EndsWith("Id", StringComparison.OrdinalIgnoreCase));
-                    if (prop != null)
+
+                    // Unwrap ServiceResult if wrapped
+                    var valueProp = type.GetProperty("Value");
+                    if (valueProp != null)
                     {
-                        recordId = prop.GetValue(val)?.ToString();
+                        var unwrapped = valueProp.GetValue(val);
+                        if (unwrapped != null)
+                        {
+                            val = unwrapped;
+                            type = val.GetType();
+                        }
+                    }
+
+                    // Extract IDs from IEnumerable collections
+                    if (val is System.Collections.IEnumerable enumerable && !(val is string))
+                    {
+                        var ids = new System.Collections.Generic.List<string>();
+                        foreach (var item in enumerable)
+                        {
+                            if (item != null)
+                            {
+                                var itemProp = item.GetType().GetProperties()
+                                    .FirstOrDefault(p => p.Name.EndsWith("Id", StringComparison.OrdinalIgnoreCase));
+                                if (itemProp != null)
+                                {
+                                    var idStr = itemProp.GetValue(item)?.ToString();
+                                    if (!string.IsNullOrEmpty(idStr))
+                                        ids.Add(idStr);
+                                }
+                            }
+                        }
+                        if (ids.Count > 0)
+                        {
+                            recordId = string.Join(",", ids);
+                        }
+                    }
+                    else
+                    {
+                        var prop = type.GetProperties()
+                            .FirstOrDefault(p => p.Name.EndsWith("Id", StringComparison.OrdinalIgnoreCase));
+                        if (prop != null)
+                        {
+                            recordId = prop.GetValue(val)?.ToString();
+                        }
                     }
                 }
 

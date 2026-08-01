@@ -142,6 +142,27 @@ public class MembersController : ControllerBase
         return Ok(await _memberService.ApproveAsync(id, request));
     }
 
+    /// <summary>Reject a pending member profile</summary>
+    [HttpPut("{id:guid}/reject")]
+    [Authorize(Roles = "Employer,FundAdmin,Admin")]
+    public async Task<IActionResult> Reject(Guid id)
+    {
+        if (User.IsInRole("Employer"))
+        {
+            var member = await _memberService.GetByIdAsync(id);
+            var orgClaim = User.FindFirst("OrganisationId");
+            if (orgClaim == null || !Guid.TryParse(orgClaim.Value, out var orgId) || member.EmployerId != orgId)
+                return Forbid();
+        }
+        return Ok(await _memberService.RejectAsync(id));
+    }
+
+    /// <summary>Update only the member's status (internal service call — FundAdmin/Admin only)</summary>
+    [HttpPatch("{id:guid}/status")]
+    [Authorize(Roles = "FundAdmin,Admin,InvestmentOfficer,Compliance")]
+    public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateMemberStatusRequest request)
+        => Ok(await _memberService.UpdateStatusAsync(id, request.Status));
+
     /// <summary>Get a member's fund accounts</summary>
     [HttpGet("{id:guid}/fund-accounts")]
     public async Task<IActionResult> GetFundAccounts(Guid id)

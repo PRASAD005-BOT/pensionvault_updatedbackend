@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Members.Domain.Entities;
 
@@ -13,7 +13,8 @@ public enum EmployerStatus { Active, Defaulter, Deregistered, Pending, Rejected 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum RemittanceFrequency { Monthly, Quarterly }
 
-public enum MemberStatus { Active, Resigned, Retired, Deceased, Transferred }
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum MemberStatus { Active, Resigned, Retired, Deceased, Transferred, Pending, Rejected }
 public enum NotificationCategory { Contribution, Interest, Claim, Annuity, Compliance, Investment }
 public enum NotificationStatus { Unread, Read, Dismissed }
 

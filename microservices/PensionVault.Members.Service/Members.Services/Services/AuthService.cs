@@ -151,7 +151,7 @@ public class AuthService : IAuthService
         {
             Name = request.Name,
             Email = request.Email,
-            Phone = request.Phone,
+            Phone = request.Phone ?? string.Empty,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             Role = role,
             OrganisationId = request.OrganisationId,
@@ -164,35 +164,6 @@ public class AuthService : IAuthService
 
         await _userRepo.AddAsync(user);
         await _unitOfWork.SaveChangesAsync();
-
-        if (role == UserRole.Member)
-        {
-            // Create a pending Member record for the registered user
-            var employerId = request.OrganisationId ?? Guid.Empty;
-            var member = new Member
-            {
-                UserId = user.UserId,
-                MembershipNumber = $"PENDING-{Guid.NewGuid().ToString()[..8].ToUpper()}",
-                Name = user.Name,
-                DateOfBirth = DateTime.UtcNow.AddYears(-25),
-                EmployerId = employerId,
-                JoiningDate = DateTime.UtcNow,
-                Status = MemberStatus.Active
-            };
-            await _memberRepo.AddAsync(member);
-
-            var adminUsers = await _userRepo.GetByRoleAsync(UserRole.Admin);
-            var notifications = adminUsers.Select(adminUser => new Notification
-            {
-                UserId = adminUser.UserId,
-                Message = $"New employee registered: {user.Name} ({user.Email}). User ID: {user.UserId}",
-                Category = NotificationCategory.Compliance,
-                Status = NotificationStatus.Unread
-            });
-            await _notificationRepo.AddRangeAsync(notifications);
-            if (adminUsers.Any())
-                await _unitOfWork.SaveChangesAsync();
-        }
 
         return ServiceResult<AuthResponse>.Ok(await GenerateTokensAsync(user));
     }
