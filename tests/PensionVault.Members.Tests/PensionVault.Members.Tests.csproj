@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>PensionVault.Members.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- NUnit Test Framework -->
+    <PackageReference Include="NUnit"                         Version="4.2.2" />
+    <PackageReference Include="NUnit3TestAdapter"             Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk"        Version="17.11.1" />
+    <PackageReference Include="NUnit.Analyzers"               Version="4.3.0" />
+
+    <!-- Mocking -->
+    <PackageReference Include="Moq"                           Version="4.20.72" />
+
+    <!-- BCrypt (used by AuthService) -->
+    <PackageReference Include="BCrypt.Net-Next"               Version="4.0.3" />
+
+    <!-- ASP.NET Core config/hosting stubs -->
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions"       Version="2.3.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens"                  Version="8.3.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt"                 Version="8.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference the real Members service layers under test -->
+    <ProjectReference Include="..\..\microservices\PensionVault.Members.Service\Members.Services\Members.Services.csproj" />
+    <ProjectReference Include="..\..\microservices\PensionVault.Members.Service\Members.Domain\Members.Domain.csproj" />
+    <ProjectReference Include="..\..\microservices\PensionVault.Shared\PensionVault.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

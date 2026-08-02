@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>PensionVault.Annuity.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- NUnit Test Framework -->
+    <PackageReference Include="NUnit"                         Version="4.2.2" />
+    <PackageReference Include="NUnit3TestAdapter"             Version="4.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk"        Version="17.11.1" />
+    <PackageReference Include="NUnit.Analyzers"               Version="4.3.0" />
+
+    <!-- Mocking -->
+    <PackageReference Include="Moq"                           Version="4.20.72" />
+
+    <!-- ASP.NET Core HTTP abstractions for typed clients -->
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Http"              Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference the real Annuity service layers under test -->
+    <ProjectReference Include="..\..\microservices\PensionVault.Annuity.Service\Annuity.Services\Annuity.Services.csproj" />
+    <ProjectReference Include="..\..\microservices\PensionVault.Annuity.Service\Annuity.Domain\Annuity.Domain.csproj" />
+    <ProjectReference Include="..\..\microservices\PensionVault.Shared\PensionVault.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

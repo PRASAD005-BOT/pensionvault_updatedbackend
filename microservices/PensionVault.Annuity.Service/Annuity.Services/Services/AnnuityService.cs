@@ -4,10 +4,33 @@ using Annuity.Domain.Repositories;
 using Annuity.Services.HttpClients;
 using PensionVault.Shared.Contracts;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("PensionVault.Annuity.Tests")]
+
 namespace Annuity.Services;
 
 public class AnnuityService : IAnnuityService
 {
+    // ── Testability hooks ─────────────────────────────────────────────────────
+    // These virtual methods wrap the concrete HttpClient calls so that unit tests
+    // can subclass AnnuityService and substitute in-memory responses.
+
+    protected virtual Task<MemberResponse?> FetchMemberAsync(Guid memberId)
+        => _memberClient.GetMemberByIdAsync(memberId);
+
+    protected virtual Task<FundAccountResponse?> FetchFundAccountAsync(Guid memberId)
+        => _contributionClient.GetActiveByMemberAsync(memberId);
+
+    protected virtual Task<List<LocalContribution>> FetchContributionsAsync(Guid memberId)
+        => _contributionClient.GetMemberContributionsAsync(memberId);
+
+    protected virtual Task SendNotificationsAsync(IEnumerable<CreateNotificationRequest> requests)
+        => _notificationClient.SendBulkNotificationsAsync(requests.ToList());
+
+    // ── Public formula accessor (allows unit tests to validate PMT maths) ─────
+    public static decimal ExposedCalcMonthlyPension(decimal balance, AnnuityPlanType planType)
+        => CalcMonthlyPension(balance, planType);
+
+    // ── Original field declarations start here ────────────────────────────────
     private const int MinServiceYears = 10;
     private const int FullPensionAgeYears = 58;
     private const int EarlyPensionAgeYears = 50;
@@ -37,7 +60,7 @@ public class AnnuityService : IAnnuityService
 
     public async Task<AnnuityEligibilityResponse> CheckEligibilityAsync(Guid memberId)
     {
-        var member = await _memberClient.GetMemberByIdAsync(memberId)
+        var member = await FetchMemberAsync(memberId)
             ?? throw new KeyNotFoundException("Member not found.");
 
         var today = DateTime.UtcNow.Date;
@@ -49,13 +72,13 @@ public class AnnuityService : IAnnuityService
         int serviceYears = today.Year - joinDate.Year;
         if (joinDate.AddYears(serviceYears) > today) serviceYears--;
 
-        var contributions = await _contributionClient.GetMemberContributionsAsync(memberId);
+        var contributions = await FetchContributionsAsync(memberId);
         var distinctMonths = contributions
             .Select(c => c.Period)
             .Distinct()
             .Count();
 
-        var account = await _contributionClient.GetActiveByMemberAsync(memberId);
+        var account = await FetchFundAccountAsync(memberId);
         var pensionBalance = account?.PensionBalance ?? 0;
 
         var failures = new List<string>();
@@ -152,7 +175,7 @@ public class AnnuityService : IAnnuityService
         if (livePensionBalance <= 0)
             throw new InvalidOperationException("Pension balance is zero. Cannot create annuity plan.");
 
-        var member = await _memberClient.GetMemberByIdAsync(request.MemberId);
+        var member = await FetchMemberAsync(request.MemberId);
         var monthly = CalcMonthlyPension(livePensionBalance, request.PlanType);
 
         var plan = new AnnuityPlan
@@ -176,7 +199,7 @@ public class AnnuityService : IAnnuityService
 
         if (member != null)
         {
-            await _notificationClient.SendBulkNotificationsAsync(new List<CreateNotificationRequest>
+            await SendNotificationsAsync(new List<CreateNotificationRequest>
             {
                 new(member.UserId, $"Your annuity request ({request.PlanType}) has been approved. Monthly pension: ₹{plan.MonthlyPension:N2}.", "Annuity")
             });
@@ -199,10 +222,10 @@ public class AnnuityService : IAnnuityService
         request.ReviewedByUserId = reviewerUserId;
         request.ReviewNote = reviewNote;
 
-        var member = await _memberClient.GetMemberByIdAsync(request.MemberId);
+        var member = await FetchMemberAsync(request.MemberId);
         if (member != null)
         {
-            await _notificationClient.SendBulkNotificationsAsync(new List<CreateNotificationRequest>
+            await SendNotificationsAsync(new List<CreateNotificationRequest>
             {
                 new(member.UserId, $"Your annuity request has been rejected. Reason: {reviewNote ?? "No reason provided."}", "Annuity")
             });
@@ -278,7 +301,7 @@ public class AnnuityService : IAnnuityService
     {
         var a = await _annuityRepo.FindByIdAsync(annuityId)
             ?? throw new KeyNotFoundException("Annuity plan not found.");
-        var member = await _memberClient.GetMemberByIdAsync(a.MemberId);
+        var member = await FetchMemberAsync(a.MemberId);
         var currentMonth = DateTime.UtcNow.Month;
         var currentYear = DateTime.UtcNow.Year;
         var isDisbursed = await _annuityRepo.ExistsDisbursementForMonthAsync(a.AnnuityId, currentMonth, currentYear);
@@ -296,7 +319,7 @@ public class AnnuityService : IAnnuityService
         var list = new List<AnnuityResponse>();
         foreach (var a in annuities)
         {
-            var member = await _memberClient.GetMemberByIdAsync(a.MemberId);
+            var member = await FetchMemberAsync(a.MemberId);
             var isDisbursed = await _annuityRepo.ExistsDisbursementForMonthAsync(a.AnnuityId, currentMonth, currentYear);
             list.Add(new AnnuityResponse(
                 a.AnnuityId, a.MemberId, member?.Name ?? "",
@@ -312,7 +335,7 @@ public class AnnuityService : IAnnuityService
         var list = new List<PensionDisbursementResponse>();
         foreach (var d in disbursements)
         {
-            var member = await _memberClient.GetMemberByIdAsync(d.MemberId);
+            var member = await FetchMemberAsync(d.MemberId);
             list.Add(new PensionDisbursementResponse(
                 d.DisbursementId, d.AnnuityId, d.MemberId, member?.Name ?? "",
                 d.Month, d.Year, d.GrossAmount, d.TaxDeducted,
@@ -343,7 +366,7 @@ public class AnnuityService : IAnnuityService
 
         // The monthly pension is drawn from the isolated EPS/PensionBalance. Verify funds are
         // available before disbursing so the balance can never be driven negative.
-        var account = await _contributionClient.GetActiveByMemberAsync(annuity.MemberId)
+        var account = await FetchFundAccountAsync(annuity.MemberId)
             ?? throw new InvalidOperationException("No active fund account found for this member.");
 
         if (annuity.MonthlyPension > account.PensionBalance)
@@ -365,11 +388,12 @@ public class AnnuityService : IAnnuityService
         await _annuityRepo.AddDisbursementAsync(disbursement);
 
         // Deduct the gross monthly pension from PensionBalance in the Contributions Service.
-        await _contributionClient.AddLedgerEntryAsync(account.AccountId, "AnnuityDebit", annuity.MonthlyPension, disbursement.DisbursementId.ToString());
+        if (_contributionClient != null)
+            await _contributionClient.AddLedgerEntryAsync(account.AccountId, "AnnuityDebit", annuity.MonthlyPension, disbursement.DisbursementId.ToString());
 
         await _unitOfWork.SaveChangesAsync();
         var d = await _annuityRepo.FindDisbursementByIdAsync(disbursement.DisbursementId);
-        var member = d != null ? await _memberClient.GetMemberByIdAsync(d.MemberId) : null;
+        var member = d != null ? await FetchMemberAsync(d.MemberId) : null;
         return new PensionDisbursementResponse(
             d!.DisbursementId, d.AnnuityId, d.MemberId, member?.Name ?? "",
             d.Month, d.Year, d.GrossAmount, d.TaxDeducted,
@@ -390,7 +414,7 @@ public class AnnuityService : IAnnuityService
         if (exactSettlementAmount <= 0)
             throw new InvalidOperationException("Annuity purchase balance is already zero.");
 
-        var account = await _contributionClient.GetActiveByMemberAsync(annuity.MemberId);
+        var account = await FetchFundAccountAsync(annuity.MemberId);
         if (account != null)
         {
             // Verify available pension balance
@@ -400,11 +424,12 @@ public class AnnuityService : IAnnuityService
                     $"Insufficient Pension Balance. Exact settlement amount required: ₹{exactSettlementAmount:N2}, available: ₹{account.PensionBalance:N2}.");
             }
 
-            await _contributionClient.AddLedgerEntryAsync(
-                account.AccountId,
-                "AnnuityDebit",
-                exactSettlementAmount,
-                $"SETTLEMENT-{annuityId}");
+            if (_contributionClient != null)
+                await _contributionClient.AddLedgerEntryAsync(
+                    account.AccountId,
+                    "AnnuityDebit",
+                    exactSettlementAmount,
+                    $"SETTLEMENT-{annuityId}");
         }
 
         annuity.Status = AnnuityStatus.Settled;
@@ -445,7 +470,7 @@ public class AnnuityService : IAnnuityService
 
     private async Task<AnnuityRequestResponse> BuildRequestResponseAsync(AnnuityRequest r)
     {
-        var member = await _memberClient.GetMemberByIdAsync(r.MemberId);
+        var member = await FetchMemberAsync(r.MemberId);
         return new AnnuityRequestResponse(
             r.RequestId,
             r.MemberId,
