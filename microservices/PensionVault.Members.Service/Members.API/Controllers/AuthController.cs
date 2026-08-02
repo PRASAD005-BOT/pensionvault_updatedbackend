@@ -18,9 +18,12 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _authService.LoginAsync(request);
-        return result.Success
-            ? Ok(result.Value)
-            : StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
+        if (result.Success && result.Value != null)
+        {
+            SetAuthCookies(result.Value);
+            return Ok(result.Value);
+        }
+        return StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
     }
 
     /// <summary>Register a new user account</summary>
@@ -28,19 +31,71 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         var result = await _authService.RegisterAsync(request);
-        return result.Success
-            ? CreatedAtAction(nameof(Login), result.Value)
-            : StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
+        if (result.Success && result.Value != null)
+        {
+            SetAuthCookies(result.Value);
+            return CreatedAtAction(nameof(Login), result.Value);
+        }
+        return StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
     }
 
     /// <summary>Refresh an expired JWT using a refresh token</summary>
     [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest? request)
     {
-        var result = await _authService.RefreshTokenAsync(request.RefreshToken);
-        return result.Success
-            ? Ok(result.Value)
-            : StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
+        var tokenToUse = request?.RefreshToken;
+        if (string.IsNullOrEmpty(tokenToUse))
+        {
+            Request.Cookies.TryGetValue("pv_refresh_token", out tokenToUse);
+        }
+        if (string.IsNullOrEmpty(tokenToUse))
+        {
+            return BadRequest(new { message = "Refresh token is required." });
+        }
+
+        var result = await _authService.RefreshTokenAsync(tokenToUse);
+        if (result.Success && result.Value != null)
+        {
+            SetAuthCookies(result.Value);
+            return Ok(result.Value);
+        }
+        return StatusCode(result.StatusCode, new { message = result.Error, error = result.Error });
+    }
+
+    /// <summary>Logout user and revoke HttpOnly cookies</summary>
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("pv_token", new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = true, SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
+        Response.Cookies.Delete("pv_refresh_token", new Microsoft.AspNetCore.Http.CookieOptions { HttpOnly = true, SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax });
+        return Ok(new { message = "Logged out successfully" });
+    }
+
+    private void SetAuthCookies(AuthResponse authResponse)
+    {
+        if (!string.IsNullOrEmpty(authResponse.Token))
+        {
+            Response.Cookies.Append("pv_token", authResponse.Token, new Microsoft.AspNetCore.Http.CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // Set to true in HTTPS production
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax,
+                Expires = authResponse.Expiry != default ? authResponse.Expiry : System.DateTime.UtcNow.AddMinutes(60),
+                Path = "/"
+            });
+        }
+
+        if (!string.IsNullOrEmpty(authResponse.RefreshToken))
+        {
+            Response.Cookies.Append("pv_refresh_token", authResponse.RefreshToken, new Microsoft.AspNetCore.Http.CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // Set to true in HTTPS production
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax,
+                Expires = System.DateTime.UtcNow.AddDays(7),
+                Path = "/"
+            });
+        }
     }
 
     /// <summary>Look up an employer organization by registration code/number</summary>
